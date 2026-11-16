@@ -1,0 +1,565 @@
+/* Lore Atlas
+   Layout concept: one shared skeleton, two skins.
+   wuwa    = dark terminal: hairlines, chamfered corners, pale gold, condensed caps.
+   genshin = night sky and parchment: rounded frames, four-point stars, cream cards on navy. */
+
+/* ---------- tokens ---------- */
+:root {
+  --f-quote: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-io: cubic-bezier(.7, 0, .2, 1);
+  --wrap: 1240px;
+  color-scheme: dark;
+}
+[data-world="wuwa"], .w-wuwa, .warp[data-to="wuwa"] {
+  --bg: #090b0e; --bg2: #0f1216; --panel: #13171c; --panel2: #1a1f26;
+  --ink: #ece8de; --mute: #959ba6; --dim: #5a606b;
+  --line: rgba(236, 232, 222, .13); --line2: rgba(236, 232, 222, .3);
+  --accent: #e6c98a; --accent2: #fff0c9; --on-accent: #14110a;
+  --card-bg: #13171c; --card-ink: #ece8de; --card-mute: #959ba6; --card-line: rgba(236, 232, 222, .16); --card-accent: #e6c98a; --card-soft: rgba(236, 232, 222, .05);
+  --r5a: #6b5a2c; --r5b: #d8b96a; --r4a: #3c3560; --r4b: #9f86e0;
+  --f-display: "Chakra Petch", "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-ui: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --radius: 0px; --radius-s: 0px;
+  --glow: rgba(230, 201, 138, .35);
+}
+[data-world="genshin"], .w-genshin, .warp[data-to="genshin"] {
+  --bg: #141a2b; --bg2: #1a2136; --panel: #212a43; --panel2: #2a3552;
+  --ink: #ece5d8; --mute: #aeb0c2; --dim: #6f7591;
+  --line: rgba(211, 188, 142, .2); --line2: rgba(211, 188, 142, .45);
+  --accent: #d9c08f; --accent2: #f6e6bd; --on-accent: #2f3447;
+  --card-bg: #ece5d8; --card-ink: #3b4255; --card-mute: #6f7388; --card-line: rgba(59, 66, 85, .22); --card-accent: #9a7334; --card-soft: rgba(59, 66, 85, .06);
+  --r5a: #8a5a33; --r5b: #dba95e; --r4a: #57558c; --r4b: #a884c9;
+  --f-display: "Marcellus", "Cinzel", Georgia, serif;
+  --f-ui: "Nunito", "Trebuchet MS", "Segoe UI", sans-serif;
+  --f-body: "Nunito", "Trebuchet MS", "Segoe UI", sans-serif;
+  --radius: 16px; --radius-s: 10px;
+  --glow: rgba(217, 192, 143, .35);
+}
+[data-world="atlas"], .warp[data-to="atlas"] {
+  --bg: #0c0e14; --bg2: #11141c; --panel: #161a24; --panel2: #1d2230;
+  --ink: #ebe7df; --mute: #9a9eac; --dim: #5f6474;
+  --line: rgba(235, 231, 223, .14); --line2: rgba(235, 231, 223, .32);
+  --accent: #dfc58d; --accent2: #f8e9c2; --on-accent: #15130e;
+  --f-display: "Marcellus", Georgia, serif; --f-ui: "Barlow Condensed", "Arial Narrow", sans-serif; --f-body: "Barlow", Arial, sans-serif;
+  --radius: 0px; --radius-s: 0px; --glow: rgba(223, 197, 141, .3);
+}
+.el-pyro { --el: #ff7d55 } .el-hydro { --el: #4cc2f1 } .el-anemo { --el: #74e0bb } .el-dendro { --el: #a5c83b } .el-cryo { --el: #9fe3ef } .el-geo { --el: #f2b83a }
+.el-electro { --el: #b98cf5 } .el-glacio { --el: #5fc8ff } .el-fusion { --el: #ff7a4d } .el-aero { --el: #5ff0b5 } .el-spectro { --el: #f7df6b } .el-havoc { --el: #e85aa8 }
+.el-none { --el: var(--accent) }
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--f-body); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased }
+img { max-width: 100%; display: block }
+[hidden] { display: none !important }
+button, input { font: inherit; color: inherit }
+button { cursor: pointer; background: none; border: 0; padding: 0; text-align: inherit }
+a { color: inherit; text-decoration: none }
+h1, h2, h3, h4, p, dl, dd, blockquote { margin: 0 }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; line-height: 1.1 }
+::selection { background: var(--accent); color: var(--on-accent) }
+:focus-visible { outline: 2px solid var(--accent2); outline-offset: 3px }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%) }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 300; background: var(--accent); color: var(--on-accent); padding: 8px 14px; transition: top .2s }
+.skip:focus { top: 12px }
+.wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px)) }
+.ambient { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none }
+.veil { position: fixed; inset: 0; z-index: -1; pointer-events: none }
+[data-world="wuwa"] .veil { background: radial-gradient(120% 70% at 80% -10%, rgba(230, 201, 138, .09), transparent 60%), linear-gradient(180deg, transparent 40%, var(--bg) 100%), repeating-linear-gradient(0deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 4px) }
+[data-world="genshin"] .veil { background: radial-gradient(90% 60% at 85% -5%, rgba(124, 146, 232, .28), transparent 62%), radial-gradient(70% 50% at 0% 30%, rgba(94, 79, 160, .22), transparent 70%), linear-gradient(180deg, transparent 50%, var(--bg) 100%) }
+
+.lbl { display: block; font: 600 12px/1.2 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--mute) }
+[data-world="genshin"] .lbl, .w-genshin .lbl { letter-spacing: .1em; font-weight: 700 }
+.empty { color: var(--mute); font-size: 14px }
+
+/* ---------- buttons, chips, faces ---------- */
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 20px; background: var(--accent); color: var(--on-accent); font: 600 15px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; transition: transform .25s var(--ease), background .2s, box-shadow .25s, color .2s, border-color .2s; border: 1px solid transparent; white-space: nowrap }
+.btn:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 24px -10px var(--glow) }
+.btn:active { transform: translateY(0) }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line2) }
+.btn.ghost:hover { border-color: var(--accent); color: var(--accent2); background: transparent }
+:is([data-world="wuwa"], .w-wuwa, [data-world="atlas"]) .btn { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px) }
+:is([data-world="wuwa"], .w-wuwa) .btn.ghost { clip-path: none }
+:is([data-world="genshin"], .w-genshin) .btn { border-radius: 999px; text-transform: none; letter-spacing: .01em; font-weight: 800; background: #ece5d8; color: #3b4255; padding-left: 14px }
+:is([data-world="genshin"], .w-genshin) .btn::before { content: ""; width: 16px; height: 16px; border-radius: 50%; background: #3b4255; box-shadow: inset 0 0 0 4px #3b4255, inset 0 0 0 6px #d9c08f; flex: none }
+:is([data-world="genshin"], .w-genshin) .btn:hover { background: #fff8e7 }
+:is([data-world="genshin"], .w-genshin) .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line2) }
+:is([data-world="genshin"], .w-genshin) .btn.ghost::before { background: transparent; box-shadow: inset 0 0 0 2px var(--accent) }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-block: 2px; mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent) }
+.chips.scroll::-webkit-scrollbar { display: none }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 4px 14px; border: 1px solid var(--line); color: var(--mute); font: 600 14px/1 var(--f-ui); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; transition: color .2s, border-color .2s, background .2s; border-radius: var(--radius-s) }
+.chip img { width: 18px; height: 18px; object-fit: contain }
+.chip:hover { color: var(--ink); border-color: var(--line2) }
+.chip.on { color: var(--on-accent); background: var(--accent); border-color: var(--accent) }
+.chip[class*="el-"].on { background: var(--el); border-color: var(--el); color: #10131a }
+[data-world="genshin"] .chip { border-radius: 999px; text-transform: none; letter-spacing: 0; font-weight: 700 }
+[data-world="genshin"] .chip.on:not([class*="el-"]) { background: #ece5d8; border-color: #ece5d8; color: #3b4255 }
+[data-world="wuwa"] .chip.on img { filter: brightness(0) }
+
+.face { --fs: 44px; position: relative; display: inline-block; width: var(--fs); height: var(--fs); flex: none; overflow: hidden; background: linear-gradient(180deg, var(--panel2), var(--panel)); isolation: isolate }
+.face img { width: 100%; height: 100%; object-fit: cover; object-position: center top }
+.face.big { --fs: 72px }
+:is([data-world="wuwa"], .w-wuwa) .face { clip-path: polygon(22% 0, 100% 0, 100% 78%, 78% 100%, 0 100%, 0 22%); background: linear-gradient(180deg, #232830 30%, color-mix(in srgb, var(--rc, #555) 55%, #1a1d22)) }
+:is([data-world="wuwa"], .w-wuwa) .face::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: var(--rc2, #777) }
+:is([data-world="genshin"], .w-genshin) .face { border-radius: 22%; background: linear-gradient(180deg, var(--rc, #555), var(--rc2, #999)) }
+.r5 { --rc: var(--r5a); --rc2: var(--r5b) } .r4 { --rc: var(--r4a); --rc2: var(--r4b) }
+.stars { color: var(--r5b); letter-spacing: .08em; font-size: 13px }
+.r4 .stars { color: var(--r4b) }
+.tags { display: flex; flex-wrap: wrap; gap: 8px }
+.tag { font: 600 12px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border: 1px solid var(--line); color: var(--mute); border-radius: var(--radius-s) }
+[data-world="genshin"] .tag { letter-spacing: .04em; text-transform: none; font-weight: 700; border-radius: 999px; font-size: 12.5px }
+
+/* card context: on Genshin these are parchment, so the generic tokens are re-pointed */
+.cardish { --ink: var(--card-ink); --mute: var(--card-mute); --line: var(--card-line); --line2: var(--card-line); background: var(--card-bg); color: var(--card-ink); position: relative }
+[data-world="genshin"] .cardish { --accent: var(--card-accent); --accent2: #7b5a22; --panel: #e2d9c8; --panel2: #d8cdb8; border-radius: var(--radius); box-shadow: 0 0 0 1px #c9bca2 inset, 0 0 0 5px var(--card-bg) inset, 0 0 0 6px rgba(154, 115, 52, .45) inset, 0 24px 60px -30px rgba(0, 0, 0, .8) }
+[data-world="genshin"] .cardish .btn { background: #3b4255; color: #ece5d8 }
+[data-world="genshin"] .cardish .btn::before { background: #ece5d8; box-shadow: inset 0 0 0 4px #ece5d8, inset 0 0 0 6px #3b4255 }
+[data-world="genshin"] .cardish .btn:hover { background: #4b5470 }
+[data-world="genshin"] .cardish .btn.ghost { background: transparent; color: var(--card-ink); border-color: var(--card-line) }
+[data-world="genshin"] .cardish .btn.ghost::before { background: transparent; box-shadow: inset 0 0 0 2px var(--card-accent) }
+[data-world="wuwa"] .cardish { border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255, 255, 255, .025), transparent 40%), var(--card-bg) }
+[data-world="wuwa"] .cardish::before, [data-world="wuwa"] .cardish::after { content: ""; position: absolute; width: 18px; height: 18px; pointer-events: none; border: 0 solid var(--accent) }
+[data-world="wuwa"] .cardish::before { left: -1px; top: -1px; border-width: 2px 0 0 2px }
+[data-world="wuwa"] .cardish::after { right: -1px; bottom: -1px; border-width: 0 2px 2px 0 }
+
+/* ---------- top bar ---------- */
+.top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 24px; height: 60px; padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px)); transition: background .3s, box-shadow .3s }
+.top.scrolled { background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 1px 0 var(--line) }
+.brand { display: flex; align-items: center; gap: 12px; flex: none }
+.brand b { display: block; font: 600 15px/1.1 var(--f-ui); letter-spacing: .2em; text-transform: uppercase }
+.brand small { display: block; font: 500 12px/1.2 var(--f-ui); letter-spacing: .12em; color: var(--mute); text-transform: uppercase }
+.sigil { width: 22px; height: 22px; flex: none; position: relative; display: block }
+:is([data-world="wuwa"], [data-world="atlas"]) .sigil { border: 1.5px solid var(--accent); transform: rotate(45deg) scale(.82) }
+:is([data-world="wuwa"], [data-world="atlas"]) .sigil::after { content: ""; position: absolute; inset: 5px; background: var(--accent) }
+[data-world="genshin"] .sigil { background: var(--accent); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%) }
+.nav { display: flex; gap: 6px; margin-inline: auto }
+.nav a { position: relative; padding: 10px 14px; font: 600 14px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); transition: color .2s }
+.nav a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease) }
+.nav a:hover, .nav a.on { color: var(--ink) }
+.nav a.on::after { transform: scaleX(1) }
+[data-world="genshin"] .nav a { letter-spacing: .04em; text-transform: none; font-weight: 700; font-size: 15px }
+.switch { display: flex; align-items: center; gap: 12px; flex: none; padding: 6px 8px 6px 16px; background: var(--bg2); border: 1px solid var(--line2); color: var(--ink); transition: transform .3s var(--ease), box-shadow .3s, border-color .3s; border-radius: var(--radius) }
+.switch small { display: block; font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--mute) }
+.switch b { display: block; font: 400 15px/1.15 var(--f-display); letter-spacing: .02em; white-space: nowrap }
+.switch:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 10px 30px -12px var(--glow) }
+.switch-orb { width: 30px; height: 30px; border-radius: 50%; position: relative; background: radial-gradient(circle at 35% 30%, var(--accent2), var(--accent) 45%, transparent 70%); flex: none }
+.switch-orb::before, .switch-orb::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid var(--accent); opacity: .6; animation: orb 2.6s ease-out infinite }
+.switch-orb::after { animation-delay: 1.3s }
+.switch.w-wuwa { clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); border-radius: 0 }
+.switch.w-wuwa b { font-weight: 600; text-transform: uppercase; letter-spacing: .06em }
+.switch.w-wuwa .switch-orb { border-radius: 0; transform: rotate(45deg) scale(.7); background: var(--accent) }
+.switch.w-wuwa .switch-orb::before, .switch.w-wuwa .switch-orb::after { border-radius: 0 }
+.switch.w-genshin { border-radius: 999px }
+@keyframes orb { from { transform: scale(.7); opacity: .7 } to { transform: scale(1.7); opacity: 0 } }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr); gap: 48px; align-items: end; padding-block: 56px 64px }
+.kicker { font: 600 14px/1.2 var(--f-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 12px }
+[data-world="wuwa"] .kicker::before { content: ""; width: 34px; height: 1px; background: var(--accent) }
+[data-world="genshin"] .kicker { letter-spacing: .08em; text-transform: none; font-weight: 700; font-size: 15px }
+[data-world="genshin"] .kicker::before { content: "✦"; font-size: 13px }
+.hero h1 { font-size: clamp(46px, 8.2vw, 108px); line-height: .92; margin-block: 18px 22px; letter-spacing: -.01em }
+[data-world="wuwa"] .hero h1 { font-weight: 700; text-transform: uppercase; letter-spacing: -.02em }
+[data-world="genshin"] .hero h1 { background: linear-gradient(180deg, #fff8e6 20%, #d9c08f 80%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; padding-bottom: .06em }
+.intro { max-width: 56ch; color: var(--mute); font-size: 18px; line-height: 1.55 }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px }
+.stats { display: flex; flex-wrap: wrap; margin-top: 40px; border-top: 1px solid var(--line) }
+.stat { padding: 16px 28px 0 0; margin-right: 28px; border-right: 1px solid var(--line); min-width: 96px }
+.stat:last-child { border-right: 0; margin-right: 0 }
+.stat b { display: block; font: 600 38px/1 var(--f-display); font-variant-numeric: tabular-nums; color: var(--ink) }
+[data-world="genshin"] .stat b { font-weight: 400; color: var(--accent2) }
+.stat span { font: 600 12px/1.3 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--mute) }
+[data-world="genshin"] .stat span { letter-spacing: .04em; text-transform: none; font-weight: 700; font-size: 13px }
+.latest { display: block; width: 100%; padding: 24px; text-align: left; transition: transform .35s var(--ease), box-shadow .35s }
+.latest:hover { transform: translateY(-4px) }
+.latest-row { display: flex; align-items: center; gap: 16px; margin-block: 14px 18px }
+.latest-v { font: 700 58px/1 var(--f-display); color: var(--accent); font-variant-numeric: tabular-nums }
+[data-world="genshin"] .latest-v { font-weight: 400 }
+.latest-row strong { display: block; font: 400 21px/1.2 var(--f-display) }
+[data-world="wuwa"] .latest-row strong { font-weight: 600 }
+.latest-row span { font-size: 14px; color: var(--mute) }
+.latest-faces { display: flex; gap: 8px }
+.latest-faces .face { --fs: 52px }
+.hero-text > * { animation: rise .8s var(--ease) both }
+.hero-text > :nth-child(2) { animation-delay: .06s } .hero-text > :nth-child(3) { animation-delay: .12s } .hero-text > :nth-child(4) { animation-delay: .18s } .hero-text > :nth-child(5) { animation-delay: .24s }
+.latest { animation: rise .9s .2s var(--ease) both }
+@keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
+
+/* ---------- sections ---------- */
+.sec { padding-block: 56px; scroll-margin-top: 64px }
+.sec-head { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 8px 28px; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--line); position: relative }
+.sec-head::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 72px; height: 2px; background: var(--accent) }
+.sec-head h2 { font-size: clamp(30px, 4vw, 46px) }
+[data-world="wuwa"] .sec-head h2 { font-weight: 700; text-transform: uppercase; letter-spacing: .01em }
+.sec-head p { color: var(--mute); max-width: 68ch; font-size: 15.5px }
+
+/* ---------- timeline ---------- */
+#timeline { --hue: var(--accent) }
+.arc-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 28px }
+.arc-tabs::-webkit-scrollbar { display: none }
+.arc-tab { flex: 1 0 auto; min-width: 132px; padding: 12px 16px 13px; border: 1px solid var(--line); position: relative; transition: border-color .25s, background .25s, color .25s; color: var(--mute); border-radius: var(--radius-s) }
+.arc-range { display: block; font: 600 12px/1 var(--f-ui); letter-spacing: .12em; font-variant-numeric: tabular-nums; color: var(--hue) }
+.arc-name { display: block; margin-top: 7px; font: 400 18px/1.15 var(--f-display); color: inherit; white-space: nowrap }
+[data-world="wuwa"] .arc-name { font-weight: 600; text-transform: uppercase; letter-spacing: .03em }
+.arc-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--hue); transform: scaleX(0); transition: transform .4s var(--ease) }
+.arc-tab:hover { color: var(--ink); border-color: var(--line2) }
+.arc-tab.on { color: var(--ink); border-color: color-mix(in srgb, var(--hue) 55%, transparent); background: color-mix(in srgb, var(--hue) 9%, transparent) }
+.arc-tab.on::after { transform: scaleX(1) }
+[data-world="genshin"] .arc-tab { border-radius: 14px } [data-world="genshin"] .arc-tab::after { left: 16px; right: 16px; bottom: 5px; border-radius: 2px }
+.arc { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: 40px; align-items: start }
+.arc-head h3 { font-size: clamp(34px, 4.4vw, 56px); color: var(--hue); margin-block: 10px 12px; line-height: 1 }
+[data-world="wuwa"] .arc-head h3 { font-weight: 700; text-transform: uppercase }
+.arc-head p { color: var(--mute); font-size: 15.5px; max-width: 44ch }
+.rail-wrap { min-width: 0 }
+.rail { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; padding: 14px 0 12px; outline: none }
+.rail-track { position: relative; display: inline-flex; gap: 0; min-width: 100%; padding-inline: 8px }
+.rail-line, .rail-fill { position: absolute; left: 0; top: 13px; height: 1px; background: var(--line2) }
+.rail-line { right: 0 }
+.rail-fill { background: var(--hue); height: 2px; top: 12.5px; width: 0; transition: width .6s var(--ease); box-shadow: 0 0 12px var(--hue) }
+.node { position: relative; flex: 1 0 88px; display: grid; justify-items: center; gap: 4px; padding: 0 6px 6px; color: var(--mute); transition: color .25s; text-align: center }
+.node b { margin-top: 14px; font: 600 24px/1 var(--f-display); font-variant-numeric: tabular-nums; transition: transform .35s var(--ease), color .25s }
+[data-world="genshin"] .node b { font-weight: 400 }
+.node span { font: 500 12px/1.2 var(--f-ui); letter-spacing: .04em; white-space: nowrap }
+.pip { width: 11px; height: 11px; margin-top: 8px; background: var(--bg); border: 1.5px solid var(--line2); transition: transform .35s var(--ease), background .25s, border-color .25s, box-shadow .25s; display: block }
+[data-world="wuwa"] .pip { transform: rotate(45deg) }
+[data-world="genshin"] .pip { width: 17px; height: 17px; margin-top: 5px; border: 0; background: var(--dim); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%) }
+.node.past .pip { border-color: var(--hue); background: var(--hue) }
+.node:hover { color: var(--ink) } .node:hover b { transform: translateY(-2px) }
+.node.on { color: var(--ink) } .node.on b { color: var(--hue); transform: scale(1.22) }
+[data-world="wuwa"] .node.on .pip { background: var(--hue); border-color: var(--hue); transform: rotate(45deg) scale(1.5); box-shadow: 0 0 0 4px color-mix(in srgb, var(--hue) 22%, transparent), 0 0 18px var(--hue) }
+[data-world="genshin"] .node.past .pip { background: var(--hue) }
+[data-world="genshin"] .node.on .pip { background: #fff; transform: scale(1.7) rotate(45deg); filter: drop-shadow(0 0 6px var(--hue)) }
+.rail-in .node { animation: rise .5s var(--ease) both; animation-delay: calc(var(--i) * 35ms) }
+.rail-ctl { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 6px; font: 600 13px/1 var(--f-ui); letter-spacing: .1em; color: var(--mute); font-variant-numeric: tabular-nums }
+.step { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line2); font-size: 20px; line-height: 1; transition: border-color .2s, color .2s, background .2s; border-radius: var(--radius-s) }
+[data-world="genshin"] .step { border-radius: 50% }
+.step:hover:not(:disabled) { border-color: var(--accent); color: var(--accent2) }
+.step:disabled { opacity: .3; cursor: default }
+
+.ver-detail { margin-top: 28px }
+.swap-in > * { animation: swap .55s var(--ease) both }
+@keyframes swap { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+.ver-card { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0 }
+.ver-main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; padding: 32px }
+.ver-num { text-align: center; min-width: 108px }
+.ver-num b { display: block; font: 700 76px/.9 var(--f-display); color: var(--hue); font-variant-numeric: tabular-nums; letter-spacing: -.03em }
+[data-world="genshin"] .ver-num b { font-weight: 400; color: #7b5a22; letter-spacing: 0 }
+.ver-num em { display: inline-block; margin-top: 10px; font: 700 12px/1 var(--f-ui); font-style: normal; letter-spacing: .12em; text-transform: uppercase; padding: 5px 10px; border: 1px solid var(--line2); color: var(--mute); border-radius: 999px }
+.ver-body h4 { font-size: clamp(22px, 2.4vw, 30px) }
+[data-world="wuwa"] .ver-body h4 { font-weight: 600 }
+.ver-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-block: 10px 16px; font: 600 13px/1.3 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--mute) }
+[data-world="genshin"] .ver-meta { letter-spacing: .02em; text-transform: none; font-weight: 700; font-size: 13.5px }
+.ver-meta span + span::before { content: "/"; margin-right: 18px; color: var(--accent) }
+[data-world="genshin"] .ver-meta span + span::before { content: "✦"; font-size: 10px }
+.ver-text { font-size: 16.5px; line-height: 1.65; max-width: 62ch }
+.ver-body .tags { margin-top: 18px }
+.ver-cast { padding: 32px; border-left: 1px solid var(--line); background: var(--card-soft) }
+[data-world="genshin"] .ver-cast { border-radius: 0 var(--radius) var(--radius) 0 }
+.cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; margin-top: 14px }
+.cast-none { color: var(--mute); font-size: 14.5px; margin-top: 12px }
+.chip-char { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); transition: transform .25s var(--ease), border-color .2s, background .2s; min-width: 0; border-radius: var(--radius-s); animation: rise .5s var(--ease) both; animation-delay: calc(120ms + var(--i) * 30ms) }
+.chip-char:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--card-soft) }
+.chip-char b { display: block; font: 600 15px/1.15 var(--f-ui); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+[data-world="genshin"] .chip-char b { font-weight: 800; font-size: 14.5px }
+.chip-char small { display: block; font-size: 12px; color: var(--mute); white-space: nowrap }
+.chip-char > span:last-child { min-width: 0 }
+
+/* ---------- roster ---------- */
+.filters { display: grid; gap: 12px; margin-bottom: 24px }
+.f-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
+.search { flex: 1 1 240px; max-width: 360px; position: relative }
+.search input, .g-search input { width: 100%; height: 40px; padding: 0 14px 0 38px; background: var(--bg2); border: 1px solid var(--line2); border-radius: var(--radius-s); outline: none; transition: border-color .2s, box-shadow .2s }
+[data-world="genshin"] .search input, [data-world="genshin"] .g-search input { border-radius: 999px }
+.search input:focus, .g-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent) }
+.search::before, .g-search label::before { content: ""; position: absolute; left: 14px; top: 13px; width: 11px; height: 11px; border: 1.5px solid var(--mute); border-radius: 50%; box-shadow: 5px 5px 0 -4px var(--mute); pointer-events: none }
+.count { margin-left: auto; font: 600 13px/1 var(--f-ui); letter-spacing: .12em; color: var(--mute); text-transform: uppercase; font-variant-numeric: tabular-nums }
+.grid-in { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 14px 12px }
+.card { display: block; text-align: center; min-width: 0; animation: pop .45s var(--ease) both; animation-delay: calc(var(--i) * 14ms); transition: transform .3s var(--ease) }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.96) } to { opacity: 1; transform: none } }
+.card-art { position: relative; display: block; aspect-ratio: 1; overflow: hidden; transition: box-shadow .3s, filter .3s }
+.card-art > img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s var(--ease) }
+.card:hover { transform: translateY(-4px) } .card:hover .card-art > img { transform: scale(1.07) }
+.card-name { display: block; padding: 7px 4px 0; font: 600 14.5px/1.15 var(--f-ui); letter-spacing: .03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.elb { position: absolute; left: 6px; top: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(8, 10, 14, .72); display: grid; place-items: center; box-shadow: 0 0 0 1px color-mix(in srgb, var(--el) 70%, transparent) }
+.elb img { width: 15px; height: 15px; object-fit: contain }
+.card-ver { position: absolute; right: 6px; top: 6px; font: 600 11px/1 var(--f-ui); font-style: normal; letter-spacing: .06em; padding: 3px 5px; background: rgba(8, 10, 14, .72); color: #ece8de; font-variant-numeric: tabular-nums; border-radius: 4px }
+[data-world="wuwa"] .card-art { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); background: linear-gradient(180deg, #1c2128 35%, color-mix(in srgb, var(--rc) 70%, #14171c)) }
+[data-world="wuwa"] .card-art::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: var(--rc2); box-shadow: 0 0 14px var(--rc2) }
+[data-world="wuwa"] .card-name { text-transform: uppercase; color: var(--mute); transition: color .2s }
+[data-world="wuwa"] .card:hover .card-name { color: var(--accent2) }
+[data-world="wuwa"] .card:hover .card-art { filter: brightness(1.15) }
+[data-world="wuwa"] .elb { left: 16px; border-radius: 0; background: none; box-shadow: none; filter: drop-shadow(0 1px 2px #000) }
+[data-world="wuwa"] .elb img { width: 20px; height: 20px }
+[data-world="genshin"] .card { background: #ece5d8; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 18px -10px rgba(0, 0, 0, .7) }
+[data-world="genshin"] .card-art { background: linear-gradient(180deg, var(--rc), var(--rc2)); border-radius: 12px 12px 22px 0 }
+[data-world="genshin"] .card-name { color: #3b4255; font-weight: 800; padding: 6px 6px 7px; font-size: 13.5px }
+[data-world="genshin"] .card:hover { box-shadow: 0 0 0 2px #fff, 0 14px 30px -12px rgba(0, 0, 0, .8) }
+
+/* ---------- sheet ---------- */
+.scrim { position: fixed; inset: 0; z-index: 90; background: rgba(4, 6, 10, .62); opacity: 0; transition: opacity .35s; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px) }
+.sheet { position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; width: min(560px, 100vw); background: var(--bg2); border-left: 1px solid var(--line2); transform: translateX(104%); transition: transform .45s var(--ease-io); display: flex; flex-direction: column; box-shadow: -30px 0 80px -30px #000 }
+.sheet-open .scrim { opacity: 1 } .sheet-open .sheet { transform: none }
+.sheet-open body { overflow: hidden }
+.sheet-close { position: absolute; right: 14px; top: 14px; z-index: 3; width: 40px; height: 40px; display: grid; place-items: center; font-size: 24px; line-height: 1; background: rgba(8, 10, 14, .6); border: 1px solid var(--line2); border-radius: var(--radius-s); transition: border-color .2s, transform .3s var(--ease) }
+[data-world="genshin"] .sheet-close { border-radius: 50% }
+.sheet-close:hover { border-color: var(--accent); transform: rotate(90deg) }
+.sheet-body { overflow-y: auto; overscroll-behavior: contain; flex: 1; scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
+.sheet-in { padding-bottom: 40px }
+.sheet-in > :not(.sheet-hero) { margin-inline: 28px }
+.sheet-in > * { animation: rise .55s var(--ease) both } .sheet-in > :nth-child(2) { animation-delay: .05s } .sheet-in > :nth-child(3) { animation-delay: .1s } .sheet-in > :nth-child(n+4) { animation-delay: .15s }
+.sheet-hero { position: relative; min-height: 340px; display: flex; align-items: flex-end; overflow: hidden; background: radial-gradient(90% 80% at 70% 20%, color-mix(in srgb, var(--el) 30%, transparent), transparent 70%), var(--panel) }
+.sheet-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; -webkit-mask-image: linear-gradient(180deg, #000 52%, transparent 96%); mask-image: linear-gradient(180deg, #000 52%, transparent 96%) }
+[data-world="wuwa"] .sheet-hero { min-height: 420px }
+[data-world="wuwa"] .sheet-art { object-fit: contain; object-position: 85% 0; height: 135%; -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent 72%); mask-image: linear-gradient(180deg, #000 45%, transparent 72%) }
+.sheet-art-icon { object-fit: contain !important; object-position: 80% 30% !important; height: 70% !important; top: 8%; opacity: .9 }
+.sheet-id { position: relative; padding: 0 28px 20px; width: 100%; background: linear-gradient(180deg, transparent, var(--bg2) 70%); padding-top: 90px }
+.sheet-id h3 { font-size: clamp(34px, 6vw, 46px); margin-block: 8px 6px }
+[data-world="wuwa"] .sheet-id h3 { font-weight: 700; text-transform: uppercase }
+.sheet-title { color: var(--el); font: 400 19px/1.3 var(--f-quote); font-style: italic; font-weight: 600 }
+.sheet-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid var(--line2); font: 600 13px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; border-radius: 999px; background: rgba(8, 10, 14, .35) }
+.pill img { width: 16px; height: 16px; object-fit: contain }
+.pill.el { border-color: var(--el); color: var(--el) }
+.sheet-lore { font-size: 17px; line-height: 1.65; margin-top: 6px }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin-top: 22px; border-top: 1px solid var(--line) }
+.fact { padding: 11px 0; border-bottom: 1px solid var(--line); min-width: 0 }
+.fact dt { font: 600 11.5px/1.2 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--mute) }
+.fact dd { margin-top: 3px; font-size: 15px; overflow-wrap: anywhere }
+.linkish { color: var(--accent); border-bottom: 1px solid currentColor; line-height: 1.2 }
+.linkish:hover { color: var(--accent2) }
+.sheet-actions { display: flex; align-items: center; gap: 16px; margin-top: 22px }
+.sheet-count { font: 600 13px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--mute) }
+.sheet-h { font-size: 24px; margin-top: 34px; margin-bottom: 12px }
+[data-world="wuwa"] .sheet-h { font-weight: 600; text-transform: uppercase }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line) }
+.tab { padding: 10px 14px 12px; font: 600 14px/1.1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); position: relative; transition: color .2s }
+[data-world="genshin"] .tab { letter-spacing: .01em; text-transform: none; font-weight: 800 }
+.tab i { font-style: normal; margin-left: 8px; font-size: 12px; padding: 2px 6px; border: 1px solid var(--line2); border-radius: 999px }
+.tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--ease) }
+.tab.on { color: var(--ink) } .tab.on::after { transform: scaleX(1) }
+.pane { display: grid; gap: 14px; padding-top: 18px }
+.quote { display: grid; gap: 8px; animation: rise .45s var(--ease) both }
+.quote-who { display: flex; align-items: center; gap: 10px; width: fit-content; transition: transform .25s var(--ease) }
+.quote-who:hover { transform: translateX(3px) } .quote-who:hover b { color: var(--accent2) }
+.quote-who .face { --fs: 38px }
+.quote-who small { display: block; font: 600 11px/1.1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--mute) }
+.quote-who b { display: block; font: 600 15.5px/1.2 var(--f-ui); letter-spacing: .03em; transition: color .2s }
+blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2px 0 2px 16px; border-left: 2px solid var(--accent); position: relative }
+.quote blockquote { margin-left: 18px; border-left-color: var(--line2) }
+.quote:hover blockquote { border-left-color: var(--accent) }
+
+/* ---------- connections ---------- */
+.g-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 20px }
+.g-search { position: relative; flex: 0 1 260px }
+.g-search label { display: block; position: relative }
+.g-results { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--line2); padding: 6px; display: grid; gap: 2px; box-shadow: 0 20px 50px -20px #000; border-radius: var(--radius-s) }
+.res { display: flex; align-items: center; gap: 10px; padding: 6px 8px; font: 600 15px/1.1 var(--f-ui); border-radius: var(--radius-s) }
+.res .face { --fs: 32px } .res:hover, .res:focus-visible { background: var(--panel2) }
+.hub-row { display: flex; gap: 6px; flex: 1 1 320px; overflow-x: auto; scrollbar-width: none; padding: 4px 2px }
+.hub-row::-webkit-scrollbar { display: none }
+.hub { flex: none; display: block; line-height: 0; transition: transform .25s var(--ease), filter .25s; filter: saturate(.75) brightness(.8) }
+.hub .face { --fs: 40px }
+.hub:hover, .hub.on { transform: translateY(-3px); filter: none }
+.hub.on { outline: 2px solid var(--accent); outline-offset: 2px }
+.g-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); gap: 28px; align-items: start }
+.g-stage { min-width: 0 }
+.graph { position: relative; width: 100%; max-width: 640px; margin-inline: auto; aspect-ratio: 1 }
+.graph svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible }
+.g-deco i { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 1px solid var(--line); transform: translate(-50%, -50%) }
+.g-deco i:nth-child(1) { width: 48%; height: 48%; border-style: dashed; animation: spin 90s linear infinite }
+.g-deco i:nth-child(2) { width: 76%; height: 76% }
+.g-deco i:nth-child(3) { width: 96%; height: 96%; border-color: transparent; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%) }
+[data-world="wuwa"] .g-deco i:nth-child(2) { border-style: dotted; border-width: 2px; border-color: var(--line2); animation: spin 140s linear infinite reverse }
+[data-world="genshin"] .g-deco i:nth-child(1) { border-style: solid; border-color: var(--line2); box-shadow: 0 0 0 5px var(--bg), 0 0 0 6px var(--line) }
+@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg) } }
+.edge line { stroke: var(--line2); stroke-width: .16; stroke-linecap: round; transition: stroke .25s, stroke-width .25s }
+.edge path { fill: var(--mute); transition: fill .25s }
+.edge.mutual line { stroke: color-mix(in srgb, var(--accent) 75%, transparent); stroke-width: .26 }
+.edge.mutual path { fill: var(--accent) }
+.edge.sel line { stroke: var(--accent2); stroke-width: .5 } .edge.sel path { fill: var(--accent2) }
+.draw .edge line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: dash .6s var(--ease) forwards; animation-delay: var(--d) }
+.draw .edge path { opacity: 0; animation: fadein .3s forwards; animation-delay: calc(var(--d) + .4s) }
+@keyframes dash { to { stroke-dashoffset: 0 } } @keyframes fadein { to { opacity: 1 } }
+.gnode { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 4px; transition: left .7s var(--ease-io), top .7s var(--ease-io), opacity .35s; z-index: 2; width: max-content }
+.gnode .face { --fs: 58px; transition: width .5s var(--ease), height .5s var(--ease), box-shadow .25s, transform .25s var(--ease); box-shadow: 0 0 0 0 transparent }
+.dense .gnode .face { --fs: 48px }
+.gnode.center { z-index: 3 } .gnode.center .face { --fs: 104px }
+.dense .gnode.center .face { --fs: 88px }
+.gname { font: 600 12.5px/1.1 var(--f-ui); letter-spacing: .04em; color: var(--mute); white-space: nowrap; max-width: 96px; overflow: hidden; text-overflow: ellipsis; transition: color .2s; text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg) }
+[data-world="wuwa"] .gname { text-transform: uppercase }
+.gnode.center .gname { font-size: 15px; color: var(--ink); max-width: 160px }
+.gnode:hover .face { transform: scale(1.1) } .gnode:hover .gname, .gnode.sel .gname { color: var(--accent2) }
+.gnode.sel .face, .gnode.center .face { filter: drop-shadow(0 0 10px var(--glow)) }
+.gnode.sel { z-index: 4 } .gnode.sel .face { transform: scale(1.16) }
+.gnode.in { opacity: 0 } .gnode.out { opacity: 0; pointer-events: none }
+.g-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-top: 10px; font: 600 13px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--mute) }
+.legend { display: inline-flex; align-items: center; gap: 8px }
+.dir { display: inline-block; width: 26px; height: 2px; background: var(--mute); position: relative; flex: none; margin-left: 10px }
+.dir::after, .dir.mutual::before { content: ""; position: absolute; top: -3px; border: 4px solid transparent }
+.dir::after { right: -4px; border-left-color: var(--mute) }
+.dir.mutual { background: var(--accent) } .dir.mutual::after { border-left-color: var(--accent) } .dir.mutual::before { left: -4px; border-right-color: var(--accent) }
+.dir.in::after { right: auto; left: -4px; border-left-color: transparent; border-right-color: var(--mute) }
+.bond { min-width: 0; padding: 26px; position: sticky; top: 76px; max-height: calc(100vh - 92px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
+.bond-in { display: grid; gap: 16px }
+.bond-top { display: flex; gap: 16px; align-items: center }
+.bond-top h3, .bond-title { font-size: 28px }
+[data-world="wuwa"] .bond-top h3, [data-world="wuwa"] .bond-title { font-weight: 600; text-transform: uppercase; font-size: 25px }
+.bond-title em { font: 500 20px/1 var(--f-quote); font-style: italic; color: var(--mute); text-transform: none }
+.bond-sub { color: var(--mute); font-size: 14px }
+.bond-lore { font-size: 15.5px }
+.bond-note { font-size: 16px; line-height: 1.6; padding: 12px 14px; background: var(--card-soft); border-left: 2px solid var(--accent) }
+.bond-pair { display: flex; align-items: center; gap: 0 }
+.pair-link { flex: 1; height: 2px; background: var(--line2); position: relative; margin-inline: 14px; max-width: 120px }
+.pair-link.mutual { background: var(--accent) }
+.pair-link::after, .pair-link.mutual::before, .pair-link.in::before { content: ""; position: absolute; top: -4px; border: 5px solid transparent }
+.pair-link::after { right: -6px; border-left-color: var(--line2) } .pair-link.in::after { display: none }
+.pair-link.in::before { left: -6px; border-right-color: var(--line2) }
+.pair-link.mutual::after { border-left-color: var(--accent) } .pair-link.mutual::before { left: -6px; border-right-color: var(--accent) }
+.bond-quote { display: grid; gap: 8px }
+.bq-head { display: flex; align-items: center; gap: 10px; font: 500 14px/1.2 var(--f-ui); letter-spacing: .03em; color: var(--mute) }
+.bq-head .face { --fs: 34px } .bq-head b { color: var(--ink); font-weight: 700 }
+.bond-quote.none { opacity: .7 }
+.bond-actions { display: flex; flex-wrap: wrap; gap: 8px }
+.bond-actions .btn { min-height: 36px; padding-block: 6px; font-size: 14px }
+.bond-list { display: grid; gap: 4px }
+.bond-row { display: flex; align-items: center; gap: 12px; padding: 6px 8px; transition: background .2s, transform .25s var(--ease); border-radius: var(--radius-s) }
+.bond-row:hover { background: var(--card-soft); transform: translateX(4px) }
+.bond-row .face { --fs: 36px } .bond-row b { display: block; font: 700 15px/1.2 var(--f-ui) } .bond-row small { display: block; font-size: 12.5px; color: var(--mute) }
+.bond-row > span:not(.face) { flex: 1; min-width: 0 }
+
+/* ---------- footer ---------- */
+.foot { padding-block: 40px 56px; margin-top: 32px; border-top: 1px solid var(--line); color: var(--mute); font-size: 14px; display: grid; gap: 10px; max-width: var(--wrap) }
+.foot p { max-width: 86ch } .foot b { color: var(--ink); font-weight: 600 }
+.foot a { color: var(--accent); border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent) }
+
+/* ---------- warp ---------- */
+.warp { position: fixed; inset: 0; z-index: 400; pointer-events: none; visibility: hidden; color: var(--ink); --x: 50%; --y: 50% }
+.warp-bg { position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), var(--bg); clip-path: circle(0 at var(--x) var(--y)) }
+.warp-rings i { position: absolute; left: var(--x); top: var(--y); width: 150vmax; height: 150vmax; translate: -50% -50%; scale: 0; border: 2px solid var(--accent); border-radius: 50%; opacity: 0; will-change: scale, opacity }
+.warp[data-to="wuwa"] .warp-rings i, .warp[data-to="atlas"] .warp-rings i { border-radius: 0; rotate: 45deg }
+.warp-card { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center; opacity: 0; padding: 24px }
+.warp-sigil { width: 46px; height: 46px; display: block; margin-bottom: 10px; animation: sig 2.4s linear infinite }
+.warp[data-to="genshin"] .warp-sigil { background: var(--accent2); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%) }
+.warp[data-to="wuwa"] .warp-sigil, .warp[data-to="atlas"] .warp-sigil { border: 2px solid var(--accent); box-shadow: inset 0 0 0 10px var(--bg), inset 0 0 0 30px var(--accent) }
+@keyframes sig { from { transform: rotate(45deg) } to { transform: rotate(405deg) } }
+.warp-k { font: 600 13px/1 var(--f-ui); letter-spacing: .3em; text-transform: uppercase; color: var(--accent) }
+.warp-t { font: 400 clamp(44px, 9vw, 96px)/1 var(--f-display); letter-spacing: .02em }
+.warp[data-to="wuwa"] .warp-t { font-weight: 700; text-transform: uppercase }
+.warp-s { font: 500 20px/1.2 var(--f-quote); font-style: italic; color: var(--mute) }
+.warp-out .warp { visibility: visible; pointer-events: auto }
+.warp-out .warp-bg { animation: w-grow .8s var(--ease-io) forwards }
+.warp-out .warp-rings i { animation: w-ring 1.1s ease-out forwards }
+.warp-out .warp-rings i:nth-child(2) { animation-delay: .12s } .warp-out .warp-rings i:nth-child(3) { animation-delay: .24s }
+.warp-out .warp-card { animation: w-card .5s .42s var(--ease) both }
+.warp-out main, .warp-out .gate { transition: transform .8s var(--ease-io), filter .8s; transform: scale(.985); filter: blur(3px) }
+@keyframes w-grow { to { clip-path: circle(150vmax at var(--x) var(--y)) } }
+@keyframes w-ring { 0% { scale: 0; opacity: .9 } 100% { scale: 1; opacity: 0 } }
+@keyframes w-card { from { opacity: 0; transform: translateY(16px) scale(.97) } to { opacity: 1; transform: none } }
+.warp-in .warp { visibility: visible; pointer-events: auto }
+.warp-in .warp-bg { clip-path: inset(0) }
+.warp-in .warp-card { opacity: 1 }
+.warp-reveal .warp { pointer-events: none }
+.warp-reveal .warp-card { animation: w-card-out .45s var(--ease) forwards }
+.warp-reveal .warp-bg { animation: w-open-line .75s .22s var(--ease-io) forwards }
+[data-world="genshin"].warp-reveal .warp-bg { animation-name: w-open-iris }
+@keyframes w-card-out { to { opacity: 0; transform: scale(1.06) } }
+@keyframes w-open-line { from { clip-path: inset(0) } 70% { clip-path: inset(49.6% 0) } to { clip-path: inset(50% 50%) } }
+@keyframes w-open-iris { from { clip-path: circle(150vmax at 50% 50%) } to { clip-path: circle(0 at 50% 50%) } }
+.warp-reveal main > *, .warp-reveal .gate > * { animation: rise .9s .35s var(--ease) both }
+
+/* ---------- gateway (index) ---------- */
+.gate-top { position: fixed; z-index: 5; left: 0; right: 0; top: 0; display: flex; justify-content: center; padding: 22px 20px; pointer-events: none }
+.gate-top .brand { background: color-mix(in srgb, var(--bg) 80%, transparent); padding: 10px 18px; border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px) }
+.gate { display: flex; min-height: 100vh; min-height: 100dvh }
+.door { position: relative; flex: 1 1 0; min-width: 0; display: flex; align-items: flex-end; overflow: hidden; background: var(--bg); color: var(--ink); transition: flex-grow .7s var(--ease-io), filter .5s; isolation: isolate }
+.door canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2 }
+.door::before { content: ""; position: absolute; inset: 0; z-index: -1 }
+.door.w-wuwa::before { background: radial-gradient(90% 60% at 20% 0%, rgba(230, 201, 138, .13), transparent 60%), linear-gradient(180deg, transparent 30%, #090b0e 92%), repeating-linear-gradient(0deg, rgba(255, 255, 255, .02) 0 1px, transparent 1px 4px) }
+.door.w-genshin::before { background: radial-gradient(90% 60% at 80% 0%, rgba(124, 146, 232, .32), transparent 62%), radial-gradient(60% 50% at 10% 40%, rgba(94, 79, 160, .25), transparent 70%), linear-gradient(180deg, transparent 35%, #141a2b 94%) }
+.door-in { padding: 120px clamp(24px, 5vw, 72px) clamp(36px, 6vh, 72px); width: 100%; max-width: 720px; transition: transform .7s var(--ease-io) }
+.door.w-genshin .door-in { margin-left: auto }
+.door h2 { font-size: clamp(40px, 5.6vw, 84px); line-height: .95; margin-block: 16px 16px }
+.door.w-wuwa h2 { font-weight: 700; text-transform: uppercase; letter-spacing: -.02em }
+.door.w-genshin h2 { background: linear-gradient(180deg, #fff8e6 20%, #d9c08f 80%); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1.02; padding-bottom: .05em }
+.door .kicker { font: 600 14px/1.2 var(--f-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--accent) }
+.door.w-wuwa .kicker::before { content: ""; width: 34px; height: 1px; background: var(--accent) }
+.door.w-genshin .kicker { letter-spacing: .08em; text-transform: none; font-weight: 700; font-size: 15px }
+.door.w-genshin .kicker::before { content: "✦"; font-size: 13px }
+.door p.d { color: var(--mute); max-width: 46ch; font-size: 17px }
+.door-stats { display: flex; gap: 0; margin-block: 26px 22px; border-top: 1px solid var(--line) }
+.door-stats div { padding: 14px 22px 0 0; margin-right: 22px; border-right: 1px solid var(--line) }
+.door-stats div:last-child { border: 0 }
+.door-stats b { display: block; font: 600 30px/1 var(--f-display); font-variant-numeric: tabular-nums }
+.door.w-genshin .door-stats b { font-weight: 400; color: var(--accent2) }
+.door-stats span { font: 600 12px/1.3 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--mute) }
+.door.w-genshin .door-stats span { letter-spacing: .03em; text-transform: none; font-weight: 700 }
+.door-faces { display: flex; gap: 6px; margin-bottom: 26px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, #000 70%, transparent); mask-image: linear-gradient(90deg, #000 70%, transparent) }
+.door-faces .face { --fs: 50px; transition: transform .5s var(--ease); transition-delay: calc(var(--i) * 25ms) }
+.door:hover .door-faces .face, .door:focus-visible .door-faces .face { transform: translateY(-5px) }
+.gate:hover .door:not(:hover) { filter: brightness(.72) saturate(.8) }
+@media (hover: hover) and (min-width: 861px) { .door:hover, .door:focus-visible { flex-grow: 1.45 } }
+.seam { position: absolute; z-index: 4; left: 50%; top: 0; bottom: 0; width: 1px; pointer-events: none; transition: opacity .3s }
+.gate:hover .seam { opacity: 0 }
+.door.w-genshin { box-shadow: inset 1px 0 0 var(--line2) }
+.seam i { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px; background: var(--bg); border: 1.5px solid var(--accent); transform: rotate(45deg); animation: sig 14s linear infinite }
+.gate-foot { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; text-align: center; padding: 10px 20px; font-size: 12px; color: #8b8fa0; pointer-events: none; text-shadow: 0 1px 4px #000 }
+.door-in > * { animation: rise .9s var(--ease) both }
+.door-in > :nth-child(2) { animation-delay: .08s } .door-in > :nth-child(3) { animation-delay: .16s } .door-in > :nth-child(4) { animation-delay: .24s } .door-in > :nth-child(5) { animation-delay: .32s } .door-in > :nth-child(6) { animation-delay: .4s }
+
+/* ---------- responsive ---------- */
+@media (max-width: 980px) {
+  .hero { grid-template-columns: 1fr; gap: 32px; padding-block: 36px 40px }
+  .latest { max-width: 520px }
+  .arc { grid-template-columns: 1fr; gap: 20px }
+  .ver-card { grid-template-columns: 1fr }
+  .ver-cast { border-left: 0; border-top: 1px solid var(--line) }
+  [data-world="genshin"] .ver-cast { border-radius: 0 0 var(--radius) var(--radius) }
+  .g-layout { grid-template-columns: 1fr }
+  .bond { position: static; max-height: none }
+  .sec-head { grid-template-columns: 1fr }
+}
+@media (max-width: 860px) {
+  .gate { flex-direction: column }
+  .door { flex: 0 0 auto; min-height: 50vh; min-height: 50dvh }
+  .gate-top { position: absolute }
+  .gate-foot { position: static; background: #0c0e14; padding: 14px 20px 20px }
+  .door-in { padding-top: 84px; margin: 0 !important }
+  .door.w-genshin .door-in { padding-top: 40px; padding-bottom: 60px }
+  .seam { display: none }
+  .door.w-genshin { box-shadow: inset 0 1px 0 var(--line2) }
+  .gate:hover .door:not(:hover) { filter: none }
+}
+@media (max-width: 720px) {
+  .top { gap: 10px; height: 56px }
+  .top.scrolled { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--bg) 95%, transparent) }
+  .brand small { display: none } .brand b { font-size: 13px; letter-spacing: .14em }
+  .nav { position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; margin: 0; justify-content: space-around; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line2); padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)) }
+  .nav a { padding: 12px 8px; font-size: 13px; letter-spacing: .1em }
+  .switch { margin-left: auto; padding: 5px 6px 5px 12px } .switch small { display: none } .switch b { font-size: 13px } .switch-orb { width: 24px; height: 24px }
+  body { padding-bottom: 56px }
+  .hero h1 { font-size: clamp(42px, 13vw, 64px) }
+  .intro { font-size: 16.5px }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px }
+  .stat { padding: 14px 0 4px; margin: 0; min-width: 0; border-right: 0 } .stat b { font-size: 30px }
+  .sec { padding-block: 40px }
+  .ver-main { grid-template-columns: 1fr; gap: 14px; padding: 22px } .ver-num { text-align: left; display: flex; align-items: baseline; gap: 12px } .ver-num b { font-size: 56px }
+  .ver-cast { padding: 22px }
+  .grid-in { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 10px 8px }
+  .card-name { font-size: 12.5px } .card-ver { display: none }
+  .gnode .face, .dense .gnode .face { --fs: 40px } .gnode.center .face, .dense .gnode.center .face { --fs: 72px }
+  .gname { display: none } .gnode.center .gname, .gnode.sel .gname { display: block; background: var(--bg); padding: 2px 6px }
+  .bond { padding: 20px }
+  .sheet-in > :not(.sheet-hero) { margin-inline: 20px } .sheet-id { padding-inline: 20px }
+  .facts { grid-template-columns: 1fr }
+  .count { margin-left: 0 }
+  .node { flex-basis: 84px }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important }
+  html { scroll-behavior: auto }
+}

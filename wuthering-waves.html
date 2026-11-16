@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-world="wuwa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resonance Archive · Wuthering Waves lore timeline</title>
+<meta name="description" content="An unofficial Wuthering Waves lore timeline: every version from 1.0 to 3.8, every Resonator, and the voice lines that connect them.">
+<meta name="theme-color" content="#090b0e">
+<meta property="og:title" content="Resonance Archive · Wuthering Waves lore timeline">
+<meta property="og:description" content="An unofficial Wuthering Waves lore timeline: every version from 1.0 to 3.8, every Resonator, and the voice lines that connect them.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0e14'/%3E%3Cpath d='M16 4l3 9 9 3-9 3-3 9-3-9-9-3 9-3z' fill='%23dfc58d'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>try{if(sessionStorage.getItem('warp'))document.documentElement.classList.add('warp-in')}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#timeline">Skip to timeline</a>
+<canvas class="ambient" data-ambient="wuwa" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="index.html" data-warp="atlas" aria-label="Lore Atlas home"><i class="sigil"></i><span><b>Lore Atlas</b><small>Wuthering Waves · Solaris-3</small></span></a>
+  <nav class="nav" aria-label="Sections">
+    <a href="#timeline" data-goto="timeline">Timeline</a>
+    <a href="#characters" data-goto="characters" data-charword>Characters</a>
+    <a href="#connections" data-goto="connections">Connections</a>
+  </nav>
+  <a class="switch w-genshin" href="genshin-impact.html" data-warp="genshin"><span><small>Switch world</small><b>Genshin Impact</b></span><i class="switch-orb"></i></a>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-text">
+      <p class="kicker" id="hero-kicker"></p>
+      <h1 id="hero-title"></h1>
+      <p class="intro" id="hero-intro"></p>
+      <div class="hero-cta">
+        <a class="btn" href="#timeline" data-goto="timeline">Start at 1.0</a>
+        <a class="btn ghost" href="#connections" data-goto="connections">See who knows whom</a>
+      </div>
+      <div class="stats" id="hero-stats"></div>
+    </div>
+    <button class="latest cardish" id="hero-latest" type="button" aria-label="Open the latest version on the timeline"></button>
+  </section>
+
+  <section class="sec wrap" id="timeline">
+    <header class="sec-head"><h2>Timeline</h2><p>Pick a chapter, then a version. The arrow keys move along the line.</p></header>
+    <div class="arc-tabs" id="arc-tabs" role="tablist" aria-label="Chapters"></div>
+    <div class="arc">
+      <div class="arc-head" id="arc-head"></div>
+      <div class="rail-wrap">
+        <div class="rail" id="rail" aria-label="Versions in this chapter"></div>
+        <div class="rail-ctl">
+          <button id="ver-prev" class="step" type="button" aria-label="Previous version">&#8249;</button>
+          <span id="ver-count"></span>
+          <button id="ver-next" class="step" type="button" aria-label="Next version">&#8250;</button>
+        </div>
+      </div>
+    </div>
+    <div class="ver-detail cardish" id="ver-detail" aria-live="polite"></div>
+  </section>
+
+  <section class="sec wrap" id="characters">
+    <header class="sec-head"><h2 data-charword>Characters</h2><p>Everyone playable so far. Select a portrait for their story and what is said about them.</p></header>
+    <div class="filters">
+      <div class="f-row">
+        <label class="search"><span class="sr">Search by name</span><input id="f-q" type="search" autocomplete="off"></label>
+        <div class="chips" id="f-rarity"></div>
+        <div class="chips" id="f-sort"></div>
+        <span class="count" id="roster-count"></span>
+      </div>
+      <div class="chips scroll" id="f-el"></div>
+      <div class="chips scroll" id="f-region"></div>
+    </div>
+    <div class="grid" id="roster-grid"></div>
+  </section>
+
+  <section class="sec wrap" id="connections">
+    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. A line between two portraits means one of them talks about the other. Select a portrait to read what was said. Select it a second time to move it to the centre.</p></header>
+    <div class="g-bar">
+      <div class="g-search"><label><span class="sr">Find someone</span><input id="g-q" type="search" placeholder="Find someone" autocomplete="off"></label><div class="g-results" id="g-results" hidden></div></div>
+      <div class="hub-row" id="hub-row" aria-label="Most connected"></div>
+      <button class="btn ghost" id="g-random" type="button">Surprise me</button>
+    </div>
+    <div class="g-layout">
+      <div class="g-stage">
+        <div class="graph" id="graph">
+          <div class="g-deco" aria-hidden="true"><i></i><i></i><i></i></div>
+          <svg id="graph-edges" viewBox="0 0 100 100" aria-hidden="true"></svg>
+        </div>
+        <div class="g-foot"><span id="graph-cap"></span><span class="legend"><i class="dir mutual"></i>both speak<i class="dir out"></i>one speaks</span></div>
+      </div>
+      <aside class="bond cardish" id="bond" aria-live="polite"></aside>
+    </div>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <p><b>Unofficial fan project.</b> Lore Atlas is not affiliated with or endorsed by Kuro Games or HoYoverse. Wuthering Waves and Genshin Impact, their characters, artwork and voice lines belong to their respective owners.</p>
+  <p>Story summaries are written for this site from the games' own quest and character text. Voice lines are short excerpts of in-game dialogue, quoted as written. Data is current to version 3.8.</p>
+  <p><a href="index.html" data-warp="atlas">Back to the gateway</a></p>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" hidden>
+  <button class="sheet-close" id="sheet-close" type="button" aria-label="Close profile">&times;</button>
+  <div class="sheet-body" id="sheet-body"></div>
+</aside>
+<div class="warp" id="warp" aria-hidden="true">
+  <div class="warp-bg"></div>
+  <div class="warp-rings"><i></i><i></i><i></i></div>
+  <div class="warp-card"><i class="warp-sigil"></i><small class="warp-k"></small><b class="warp-t"></b><span class="warp-s"></span></div>
+</div>
+
+<script src="assets/data/wuwa.js"></script>
+<script src="assets/js/ambient.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/warp.js"></script>
+</body>
+</html>
