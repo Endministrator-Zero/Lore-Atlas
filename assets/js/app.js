@@ -257,7 +257,7 @@
   function weaponChips(names) {
     return h('div', { class: 'tags' }, names.map(function (n) {
       var k = W_BY_NAME[n];
-      return h('span', { class: 'tag wtag' }, k ? weaponIcon(k, 'tiny') : null, n);
+      return h('span', { class: 'tag wtag', 'data-weapon': k || null, tabindex: k ? '0' : null }, k ? weaponIcon(k, 'tiny') : null, n);
     }));
   }
   function renderVerMore(v) {
@@ -282,6 +282,126 @@
     if (d.weapons) add(side, [h('span', { class: 'lbl', text: 'New weapons' }), weaponChips(d.weapons)]);
     if (d.events) add(side, [h('span', { class: 'lbl', text: 'Events' }), h('ul', { class: 'plain' }, d.events.map(function (e) { return h('li', { text: e }); }))]);
     swap(box, h('div', { class: 'vm-in' }, story, side.childNodes.length ? h('aside', { class: 'vm-aside cardish' }, side) : null));
+  }
+
+  // ---------- hover pop-ups for weapons and sets ----------
+  var POP = { el: null, anchor: null, pinned: false, timer: 0 };
+  function miniMat(id, n) {
+    var it = (D.items || {})[id]; if (!it) return null;
+    return h('span', { class: 'mini-mat r' + it.r, title: it.n }, it.i ? h('img', { src: IMG + 'items/' + id + '.webp', alt: '' }) : h('i', { text: it.n.charAt(0) }), h('b', { text: '×' + big(n) }), h('span', { class: 'mm-name', text: it.n }));
+  }
+  function usersOf(k) {
+    var sig = [], rec = [];
+    D.chars.forEach(function (c) {
+      if (c.same) return;
+      if (c.sig === k) sig.push(c.id);
+      else if (c.build && (c.build.wk || []).indexOf(k) >= 0) rec.push(c.id);
+    });
+    return { sig: sig, rec: rec };
+  }
+  function weaponPopNode(k) {
+    var w = D.weapons[k], u = usersOf(k);
+    return h('div', { class: 'pop-in' },
+      h('div', { class: 'pop-top' }, weaponIcon(k, 'big'), h('div', null, h('b', { text: w.n }), h('span', { class: 'weapon-meta' }, stars(w.r), ' ' + w.type))),
+      h('dl', { class: 'weapon-stats' },
+        h('div', null, h('dt', { text: 'Base ATK' }), h('dd', { text: String(w.atk) })),
+        w.sub ? h('div', null, h('dt', { text: w.sub }), h('dd', { text: w.subv })) : null),
+      w.p ? h('div', { class: 'pop-sec' }, h('span', { class: 'lbl', text: (w.pn || 'Passive') + ' · rank 1' }), h('p', { text: w.p })) : null,
+      h('div', { class: 'pop-sec' }, h('span', { class: 'lbl', text: 'Ascension materials · level 90' }),
+        w.mats && w.mats.length ? h('div', { class: 'pop-mats' }, w.mats.map(function (m) { return miniMat(m[0], m[1]); })) : h('p', { class: 'fine', text: 'This weapon has no ascension materials listed.' })),
+      u.sig.length || u.rec.length ? h('div', { class: 'pop-sec' }, h('span', { class: 'lbl', text: u.sig.length ? 'Signature of' : 'Recommended for' }),
+        h('div', { class: 'team-faces small' }, u.sig.concat(u.rec).slice(0, 12).map(function (id) { return faceBtn(id); }))) : null);
+  }
+  function setIcon(k, cls) {
+    var st = (D.sets || {})[k]; if (!st) return null;
+    return h('span', { class: 'set-ico' + (cls ? ' ' + cls : '') }, st.i ? h('img', { src: IMG + 'sets/' + k + '.webp', alt: '', loading: 'lazy' }) : h('i', { text: st.n.charAt(0) }));
+  }
+  function setFx(k) {
+    var st = D.sets[k];
+    return h('ul', { class: 'set-fx' }, st.fx.map(function (f) { return h('li', null, h('b', { text: f[0] + '-piece' }), h('span', { text: f[1] })); }));
+  }
+  function setPopNode(keys) {
+    return h('div', { class: 'pop-in' }, keys.map(function (k) {
+      var st = D.sets[k]; if (!st) return null;
+      return h('div', { class: 'pop-set' }, h('div', { class: 'pop-top' }, setIcon(k, 'big'), h('div', null, h('b', { text: st.n }), h('span', { class: 'weapon-meta', text: D.setWord.replace(/s$/, '') }))), setFx(k));
+    }));
+  }
+  function placePop(anchor) {
+    var p = POP.el, r = anchor.getBoundingClientRect(), pw = p.offsetWidth, ph = p.offsetHeight, vw = innerWidth, vh = innerHeight, m = 10;
+    var x = r.right + m, y = r.top;
+    if (x + pw > vw - m) x = r.left - pw - m;
+    if (x < m) { x = Math.min(Math.max(m, r.left + r.width / 2 - pw / 2), vw - pw - m); y = r.bottom + m; if (y + ph > vh - m) y = r.top - ph - m; }
+    y = Math.max(m, Math.min(y, vh - ph - m));
+    p.style.left = x + 'px'; p.style.top = y + 'px';
+  }
+  function showPop(anchor, pin) {
+    var node = anchor.dataset.weapon && D.weapons[anchor.dataset.weapon] ? weaponPopNode(anchor.dataset.weapon)
+      : anchor.dataset.set ? setPopNode(anchor.dataset.set.split(',')) : null;
+    if (!node) return;
+    if (!POP.el) { POP.el = h('div', { class: 'pop', role: 'tooltip', hidden: true }); document.body.appendChild(POP.el); }
+    POP.anchor = anchor; POP.pinned = !!pin;
+    POP.el.classList.toggle('pinned', POP.pinned);
+    POP.el.replaceChildren(node);
+    if (POP.pinned) POP.el.appendChild(h('button', { class: 'pop-close', type: 'button', 'aria-label': 'Close', onclick: hidePop }, '×'));
+    POP.el.hidden = false; placePop(anchor);
+    POP.el.classList.remove('show'); void POP.el.offsetWidth; POP.el.classList.add('show');
+  }
+  function hidePop() { if (POP.el) { POP.el.hidden = true; POP.el.classList.remove('show'); } POP.anchor = null; POP.pinned = false; }
+  var POP_SEL = '[data-weapon], [data-set]';
+  document.addEventListener('mouseover', function (e) {
+    var a = e.target.closest && e.target.closest(POP_SEL);
+    if (!a || POP.pinned || a === POP.anchor) return;
+    clearTimeout(POP.timer); POP.timer = setTimeout(function () { showPop(a, false); }, 110);
+  });
+  document.addEventListener('mouseout', function (e) {
+    var a = e.target.closest && e.target.closest(POP_SEL);
+    if (!a || POP.pinned || (e.relatedTarget && a.contains(e.relatedTarget))) return;
+    clearTimeout(POP.timer); POP.timer = setTimeout(function () { if (!POP.pinned) hidePop(); }, 90);
+  });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest(POP_SEL);
+    if (a && !e.target.closest('.face-btn')) { e.preventDefault(); clearTimeout(POP.timer); if (POP.pinned && POP.anchor === a) hidePop(); else showPop(a, true); return; }
+    if (POP.el && !POP.el.hidden && !POP.el.contains(e.target)) hidePop();
+  });
+  document.addEventListener('focusin', function (e) { var a = e.target.closest && e.target.closest(POP_SEL); if (a && !POP.pinned) showPop(a, false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && POP.el && !POP.el.hidden) hidePop(); });
+  window.addEventListener('scroll', function () { if (POP.el && !POP.el.hidden) { if (POP.pinned && POP.anchor && POP.anchor.isConnected) placePop(POP.anchor); else hidePop(); } }, { passive: true });
+  document.addEventListener('scroll', function (e) { if (POP.el && !POP.el.hidden && !POP.el.contains(e.target) && !POP.pinned) hidePop(); }, true);
+
+  // ---------- weapons section ----------
+  var WF = { q: '', type: '', r: 0 };
+  function initWeapons() {
+    var keys = Object.keys(D.weapons || {});
+    if (!keys.length) { $('#weapons').hidden = true; return; }
+    var types = []; keys.forEach(function (k) { var t = D.weapons[k].type; if (t && types.indexOf(t) < 0) types.push(t); });
+    types.sort();
+    function chips(box, list, key) {
+      list.forEach(function (x) {
+        box.appendChild(h('button', { class: 'chip' + (WF[key] === x[1] ? ' on' : ''), type: 'button', onclick: function (e) { WF[key] = x[1]; $$('.chip', box).forEach(function (b) { b.classList.toggle('on', b === e.currentTarget); }); renderWeapons(); } }, h('span', { text: x[0] })));
+      });
+    }
+    chips($('#w-type'), [['All types', '']].concat(types.map(function (t) { return [t, t]; })), 'type');
+    chips($('#w-rar'), [['All', 0], ['5★', 5], ['4★', 4], ['3★', 3], ['1–2★', 2]], 'r');
+    $('#w-q').addEventListener('input', function (e) { WF.q = e.target.value.trim().toLowerCase(); renderWeapons(); });
+    renderWeapons();
+  }
+  function renderWeapons() {
+    var sigOf = {};
+    D.chars.forEach(function (c) { if (c.sig && !c.same) sigOf[c.sig] = c.id; });
+    var keys = Object.keys(D.weapons).filter(function (k) {
+      var w = D.weapons[k];
+      return (!WF.q || w.n.toLowerCase().indexOf(WF.q) >= 0 || (w.p || '').toLowerCase().indexOf(WF.q) >= 0) && (!WF.type || w.type === WF.type) && (!WF.r || (WF.r === 2 ? w.r <= 2 : w.r === WF.r));
+    }).sort(function (a, b) { var x = D.weapons[a], y = D.weapons[b]; return y.r - x.r || (sigOf[b] ? 1 : 0) - (sigOf[a] ? 1 : 0) || x.n.localeCompare(y.n); });
+    $('#w-count').textContent = keys.length + ' of ' + Object.keys(D.weapons).length;
+    var grid = h('div', { class: 'w-grid' }, keys.map(function (k, i) {
+      var w = D.weapons[k], owner = sigOf[k] && byId[sigOf[k]];
+      return h('button', { class: 'wcard r' + w.r, type: 'button', 'data-weapon': k, style: '--i:' + Math.min(i, 40) },
+        weaponIcon(k, 'big'),
+        h('span', { class: 'wcard-body' }, h('b', { text: w.n }), h('small', { text: w.type + ' · ' + w.atk + ' ATK' + (w.sub ? ' · ' + w.sub + ' ' + w.subv : '') }), stars(w.r)),
+        owner ? h('span', { class: 'wcard-owner', title: 'Signature of ' + owner.name }, face(owner)) : null);
+    }));
+    if (!keys.length) grid.appendChild(h('p', { class: 'empty', text: 'No weapon matches those filters.' }));
+    $('#w-grid').replaceChildren(grid);
   }
 
   // ---------- tier list ----------
@@ -379,7 +499,8 @@
     var it = (D.items || {})[id]; if (!it) return null;
     var today = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
     var src = it.d ? it.d.join(' · ') : (it.src || '');
-    return h('div', { class: 'mat r' + it.r + (it.d && it.d.indexOf(today) >= 0 ? ' today' : ''), title: it.n + (src ? ' · ' + src : '') },
+    var isToday = it.d && it.d.indexOf(today) >= 0;
+    return h('div', { class: 'mat r' + it.r, title: it.n + (src ? ' · ' + src : '') }, isToday ? h('em', { class: 'mat-today', text: 'Today' }) : null,
       h('span', { class: 'mat-ico' }, it.i ? h('img', { src: IMG + 'items/' + id + '.webp', alt: '', loading: 'lazy' }) : h('i', { text: it.n.charAt(0) })),
       h('b', { text: n != null ? '×' + big(n) : '' }), h('span', { class: 'mat-name', text: it.n }), src ? h('small', { text: src }) : null);
   }
@@ -403,7 +524,8 @@
       h('dl', { class: 'weapon-stats' },
         h('div', null, h('dt', { text: 'Base ATK' }), h('dd', { text: String(w.atk) })),
         w.sub ? h('div', null, h('dt', { text: w.sub }), h('dd', { text: w.subv })) : null),
-      w.p ? h('details', { class: 'weapon-passive' }, h('summary', null, w.pn || 'Passive', h('small', { text: ' · rank 1' })), h('p', { text: w.p })) : null);
+      w.p ? h('details', { class: 'weapon-passive' }, h('summary', null, w.pn || 'Passive', h('small', { text: ' · rank 1' })), h('p', { text: w.p })) : null,
+      w.mats && w.mats.length ? h('div', { class: 'w-mats' }, h('span', { class: 'lbl', text: 'Ascension materials' }), h('div', { class: 'pop-mats' }, w.mats.map(function (m) { return miniMat(m[0], m[1]); }))) : null);
   }
   function weaponsPane(c) {
     var b = c.build || {}, list = (b.wk || []).filter(Boolean), seen = {};
@@ -415,6 +537,16 @@
     add(out, h('p', { class: 'fine', text: 'Stats are at level 90. Passives are shown at rank 1. The signature weapon is the one released alongside the character.' }));
     return out;
   }
+  function setsBlock(c) {
+    var b = c.build; if (!b.sets || !b.sets.length) return null;
+    return h('div', { class: 'sets-block' }, h('span', { class: 'lbl', text: D.setWord || 'Sets' }), b.sets.map(function (label, i) {
+      var keys = (b.sk && b.sk[i]) || [], best = i === 0;
+      return h('div', { class: 'setrow' + (best ? ' best' : ''), 'data-set': keys.length ? keys.join(',') : null, tabindex: keys.length ? '0' : null },
+        h('div', { class: 'set-icons' }, keys.length ? keys.map(function (k) { return setIcon(k, best ? 'big' : ''); }) : h('span', { class: 'set-ico' }, h('i', { text: label.charAt(0) }))),
+        h('div', { class: 'set-id' }, h('em', { class: 'wbadge' + (best ? '' : ' soft'), text: best ? 'Best' : 'Recommended' }), h('b', { text: label }),
+          best && keys.length ? h('div', { class: 'set-fx-wrap' }, keys.map(setFx)) : null));
+    }));
+  }
   function buildPane(c) {
     var b = c.build;
     if (!b) return h('p', { class: 'empty', text: 'No build guide has been written for ' + c.name + ' yet. Farming materials are listed under Materials.' });
@@ -422,13 +554,14 @@
     function list(k, arr, best, keys) {
       return arr && arr.length ? h('div', { class: 'brow' }, h('dt', { text: k }), h('dd', null, h('ol', { class: 'rank' }, arr.map(function (x, i) {
         var key = keys && keys[i];
-        return h('li', null, key ? weaponIcon(key, 'tiny') : null, x, key && key === c.sig ? h('em', { class: 'sigtag', text: 'Signature' }) : i === 0 && best ? h('em', { text: best }) : null);
+        return h('li', { 'data-weapon': key || null, tabindex: key ? '0' : null, class: key ? 'hoverable' : null }, key ? weaponIcon(key, 'tiny') : null, x, key && key === c.sig ? h('em', { class: 'sigtag', text: 'Signature' }) : i === 0 && best ? h('em', { text: best }) : null);
       })))) : null;
     }
     var provisional = /provisional/i.test(b.note || '');
     return h('div', { class: 'build' },
       h('p', { class: 'build-role' }, h('span', { class: 'lbl', text: 'Role' }), b.role, provisional ? h('em', { class: 'warn', text: 'Early guide' }) : null),
-      h('dl', { class: 'btable' }, list('Weapons', b.weapons, 'Best', b.wk), list(WORLD === 'wuwa' ? 'Echo sets' : 'Artifact sets', b.sets, 'Best'),
+      setsBlock(c),
+      h('dl', { class: 'btable' }, list('Weapons', b.weapons, 'Best', b.wk),
         row('Main stats', b.main), row('Substats', b.subs), row(WORLD === 'wuwa' ? 'Forte priority' : 'Talent priority', b.skills)),
       b.teams && b.teams.length ? h('div', { class: 'build-teams' }, h('span', { class: 'lbl', text: 'Suggested teams' }), b.teams.map(teamRow)) : null,
       b.note ? h('p', { class: 'bond-note', text: b.note.replace(/^Provisional build\.?\s*/i, '') || 'An early build that may change as players test the character.' }) : null,
@@ -439,7 +572,7 @@
     if (!m.a.length && !m.s.length) return h('p', { class: 'empty', text: 'No material data for ' + c.name + '.' });
     function group(label, list) { return list.length ? [h('span', { class: 'lbl', text: label }), h('div', { class: 'mats' }, list.map(function (x) { return itemTile(x[0], x[1]); }))] : null; }
     return h('div', { class: 'mat-pane' }, group(D.labels.asc || 'Ascension', m.a), group(D.labels.skill || 'Skills', m.s),
-      WORLD === 'genshin' ? h('p', { class: 'fine', text: 'Talent books show the days their domain is open. Books you can farm today are outlined. Sunday opens every domain.' }) : null,
+      WORLD === 'genshin' ? h('p', { class: 'fine', text: 'Talent books show the days their domain is open. Books you can farm today are marked Today. Sunday opens every domain.' }) : null,
       h('button', { class: 'btn ghost', type: 'button', onclick: function () { closeSheet(true); scrollToId('bosses'); } }, 'See the boss list'));
   }
   function tierOf(cid) {
@@ -453,6 +586,7 @@
     if (id !== sheetId) sheetTab = 'profile';
     sheetId = id;
     if (!sheetOpen) lastFocus = document.activeElement;
+    hidePop();
     G.form[cid] = id;
     var says = outLines[cid] || [], said = inLines[cid] || [], L = D.labels;
     function fact(k, v, click) { return v ? h('div', { class: 'fact' }, h('dt', { text: k }), click ? h('dd', null, h('button', { class: 'linkish', type: 'button', onclick: click, text: v })) : h('dd', { text: v })) : null; }
@@ -810,7 +944,7 @@
     window.addEventListener('scroll', function () { top.classList.toggle('scrolled', window.scrollY > 24); }, { passive: true });
   }
 
-  initHero(); renderNow(); initTimeline(); initRoster(); initTiers(); initBosses(); initTeams(); initGraph(); initNav();
+  initHero(); renderNow(); initTimeline(); initRoster(); initWeapons(); initTiers(); initBosses(); initTeams(); initGraph(); initNav();
   setInterval(function () { if (!document.hidden) renderNow(); }, 60000);
   whenScene(function () { try { window.LoreScene.hero($('#hero-3d'), WORLD); } catch (e) {} });
   document.documentElement.classList.add('ready');

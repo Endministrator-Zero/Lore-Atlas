@@ -103,6 +103,53 @@ export async function buildWuwa(content, autoVer) {
     c.mats = { a: asc, s: sk };
     for (const [k] of [...asc, ...sk]) used.add(k);
   }
+  // ----- weapons -----
+  const conf = bin('weapon/weaponconf.json', { optional: true }) || [];
+  const growth = bin('property/weaponpropertygrowth.json', { optional: true }) || [];
+  const at90 = curve => (growth.find(g => g.CurveId === curve && g.Level === 90 && g.BreachLevel === 6) || {}).CurveValue || 0;
+  const PROP = { 7: ['ATK', 0], 8: ['Crit. Rate', 1], 9: ['Crit. DMG', 1], 10: ['DEF', 0], 11: ['Energy Regen', 1], 10002: ['HP%', 1], 10007: ['ATK%', 1], 10010: ['DEF%', 1] };
+  const wbreach = bin('weapon/weaponbreach.json', { optional: true }) || [];
+  const weaponIndex = {};
+  for (const w of conf) {
+    const n = clean(t(w.WeaponName)); if (!n || !w.IsShow) continue;
+    const sp = w.SecondPropId || {}, info = PROP[sp.Id] || [String(sp.Id), 1];
+    const sv = (sp.Value || 0) * at90(w.SecondCurve) / 10000 * (sp.IsRatio ? 10000 : 1);
+    let passive = t(w.Desc);
+    (w.DescParams || []).forEach((p, i) => { passive = passive.split('{' + i + '}').join((p.ArrayString || [])[0] || ''); });
+    weaponIndex[wslug(n)] = {
+      n, r: w.QualityId, type: WP[w.WeaponType] || '', atk: Math.floor((w.FirstPropId?.Value || 0) * at90(w.FirstCurve) / 10000),
+      sub: info[0], subv: info[1] ? (sv / 100).toFixed(1) + '%' : String(Math.floor(sv)),
+      p: clean(passive), _icon: w.Icon, id: w.ItemId,
+      mats: sum(wbreach.filter(b => b.BreachId === w.BreachId).flatMap(b => [...(b.Consume || []), { Key: 2, Value: b.GoldConsume || 0 }])).filter(([, v]) => v > 0),
+    };
+    for (const [k] of weaponIndex[wslug(n)].mats) used.add(k);
+  }
+  const weaponImages = async list => {
+    const need = list.filter(w => w._icon && !fs.existsSync(path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp')))
+      .map(w => ({ game: w._icon, dest: path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp'), w: 128, q: 86 }));
+    await fetchImages(need);
+  };
+
+  // ----- echo sets -----
+  const fgroups = bin('phantom/phantomfettergroup.json', { optional: true }) || [];
+  const fetters = Object.fromEntries((bin('phantom/phantomfetter.json', { optional: true }) || []).map(f => [f.Id, f]));
+  const setIndex = {};
+  for (const gset of fgroups) {
+    const n = clean(t(gset.FetterGroupName)); if (!n) continue;
+    const fx = (gset.FetterMap || []).map(m => {
+      const f = fetters[m.Value]; if (!f) return null;
+      let d = t(f.EffectDescription) || t(f.SimplyEffectDesc);
+      (f.EffectDescriptionParam || []).forEach((v, i) => { d = d.split('{' + i + '}').join(v); });
+      return [m.Key, clean(d)];
+    }).filter(Boolean).sort((a, b) => a[0] - b[0]);
+    setIndex[wslug(n)] = { n, fx, _icon: gset.AimModelElementPath || gset.FetterElementPath };
+  }
+  const setImages = async list => {
+    const need = list.filter(a => a._icon && !fs.existsSync(path.join(OUT, 'img/wuwa/sets', wslug(a.n) + '.webp')))
+      .map(a => ({ game: a._icon, dest: path.join(OUT, 'img/wuwa/sets', wslug(a.n) + '.webp'), w: 112, q: 86 }));
+    await fetchImages(need);
+  };
+
   const items = {};
   const bossOf = {};
   for (const id of used) {
@@ -137,30 +184,6 @@ export async function buildWuwa(content, autoVer) {
     if (n && !outfits.some(o => o.name === n && o.char === canon(id))) outfits.push({ name: n, char: id });
   }
 
-  // ----- weapons -----
-  const conf = bin('weapon/weaponconf.json', { optional: true }) || [];
-  const growth = bin('property/weaponpropertygrowth.json', { optional: true }) || [];
-  const at90 = curve => (growth.find(g => g.CurveId === curve && g.Level === 90 && g.BreachLevel === 6) || {}).CurveValue || 0;
-  const PROP = { 7: ['ATK', 0], 8: ['Crit. Rate', 1], 9: ['Crit. DMG', 1], 10: ['DEF', 0], 11: ['Energy Regen', 1], 10002: ['HP%', 1], 10007: ['ATK%', 1], 10010: ['DEF%', 1] };
-  const weaponIndex = {};
-  for (const w of conf) {
-    const n = clean(t(w.WeaponName)); if (!n || !w.IsShow) continue;
-    const sp = w.SecondPropId || {}, info = PROP[sp.Id] || [String(sp.Id), 1];
-    const sv = (sp.Value || 0) * at90(w.SecondCurve) / 10000 * (sp.IsRatio ? 10000 : 1);
-    let passive = t(w.Desc);
-    (w.DescParams || []).forEach((p, i) => { passive = passive.split('{' + i + '}').join((p.ArrayString || [])[0] || ''); });
-    weaponIndex[wslug(n)] = {
-      n, r: w.QualityId, type: WP[w.WeaponType] || '', atk: Math.floor((w.FirstPropId?.Value || 0) * at90(w.FirstCurve) / 10000),
-      sub: info[0], subv: info[1] ? (sv / 100).toFixed(1) + '%' : String(Math.floor(sv)),
-      p: clean(passive), _icon: w.Icon, id: w.ItemId,
-    };
-  }
-  const weaponImages = async list => {
-    const need = list.filter(w => w._icon && !fs.existsSync(path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp')))
-      .map(w => ({ game: w._icon, dest: path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp'), w: 128, q: 86 }));
-    await fetchImages(need);
-  };
-
   // ----- images -----
   await images(chars, roleOf, items);
   for (const c of chars) c.art = fs.existsSync(path.join(OUT, 'img/wuwa/art', c.id + '.webp'));
@@ -168,7 +191,7 @@ export async function buildWuwa(content, autoVer) {
 
   log(`wuwa: ${chars.length} characters, ${lines.length} lines, ${Object.keys(items).length} items, ${bosses.length} bosses (data ${dataVersion})`);
   return {
-    chars, lines, items, bosses, outfits, nameToId, dataVersion, weaponIndex, weaponImages, slug: wslug,
+    chars, lines, items, bosses, outfits, nameToId, dataVersion, weaponIndex, weaponImages, setIndex, setImages, slug: wslug, setWord: 'Echo sets',
     elements: ['Glacio', 'Fusion', 'Electro', 'Aero', 'Spectro', 'Havoc'],
     regions: ['Huanglong', 'Black Shores', 'Rinascita', 'Lahai-Roi', 'New Federation', 'Fractsidus', 'Crossover', 'Unknown'],
     labels: { extra: 'Attributes', title: 'Resonance power', faction: 'Affiliation', region: 'Sphere', weapon: 'Weapon', el: 'Attribute', asc: 'Ascension to level 90', skill: 'All Forte skills to max', boss: 'Weekly Challenge' },

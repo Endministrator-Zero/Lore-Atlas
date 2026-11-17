@@ -43,6 +43,7 @@ const world = v => head(v) + `<body>
     <a href="#now" data-goto="now">Now</a>
     <a href="#timeline" data-goto="timeline">Timeline</a>
     <a href="#characters" data-goto="characters" data-charword>Characters</a>
+    <a href="#weapons" data-goto="weapons">Weapons</a>
     <a href="#tiers" data-goto="tiers">Tiers</a>
     <a href="#bosses" data-goto="bosses">Bosses</a>
     <a href="#teams" data-goto="teams">Teams</a>
@@ -106,6 +107,19 @@ const world = v => head(v) + `<body>
       <div class="chips scroll" id="f-region"></div>
     </div>
     <div class="grid" id="roster-grid"></div>
+  </section>
+
+  <section class="sec wrap" id="weapons">
+    <header class="sec-head"><h2>Weapons</h2><p>Every weapon in the game. Hover over one, or tap it on a phone, to see its stats, passive and ascension materials.</p></header>
+    <div class="wfilters">
+      <div class="f-row">
+        <label class="search"><span class="sr">Search weapons</span><input id="w-q" type="search" placeholder="Search weapons or effects" autocomplete="off"></label>
+        <div class="chips" id="w-rar"></div>
+        <span class="count" id="w-count"></span>
+      </div>
+      <div class="chips scroll" id="w-type"></div>
+    </div>
+    <div id="w-grid"></div>
   </section>
 
   <section class="sec wrap" id="tiers">

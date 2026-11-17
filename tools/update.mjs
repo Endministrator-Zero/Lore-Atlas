@@ -86,6 +86,11 @@ async function run(game) {
   let live = null;
   if (!process.env.LORE_NO_LIVE) live = buildLive(game, content.meta.current);
   const d = game === 'wuwa' ? await buildWuwa(content, live?.v) : await buildGenshin(content, live?.v);
+  // short names people actually use ("Kazuha", "Childe", "Traveler") work everywhere in content/
+  const words = {};
+  for (const c of d.chars) for (const w of c.name.split(/[ :]+/)) if (w.length > 2) (words[w] = words[w] || new Set()).add(c.same || c.id);
+  for (const [w, set] of Object.entries(words)) if (set.size === 1 && !d.nameToId[w]) d.nameToId[w] = [...set][0];
+  Object.assign(d.nameToId, Object.fromEntries(Object.entries({ Childe: 'tartaglia', Traveler: 'aether', Raiden: 'raiden_shogun' }).filter(([k, v]) => d.chars.some(c => c.id === v) && !d.nameToId[k])));
   const id = n => d.nameToId[n] || d.nameToId[n?.replace(/^The /, '')];
   const canon = i => (d.chars.find(c => c.id === i)?.same) || i;
 
@@ -113,10 +118,29 @@ async function run(game) {
     if (c.build) c.build.wk = c.build.weapons.map(n => { const k = weaponFor(n); if (k) usedW.add(k); else missingW.add(n); return k || ''; });
   }
   if (missingW.size) warn(game, 'weapons not found in game data:', [...missingW].join(', '));
+  // every weapon in the game goes into the data, so the Weapons section can list them all
   const weapons = {};
-  for (const k of [...usedW].sort()) { const { _icon, id: _id, ...w } = d.weaponIndex[k]; weapons[k] = w; }
-  await d.weaponImages([...usedW].map(k => d.weaponIndex[k]));
+  for (const k of Object.keys(d.weaponIndex).sort()) { const { _icon, id: _id, ...w } = d.weaponIndex[k]; weapons[k] = w; }
+  await d.weaponImages(Object.values(d.weaponIndex));
   for (const k of Object.keys(weapons)) weapons[k].i = fs.existsSync(path.join(OUT, 'img', game, 'weapons', k + '.webp')) ? 1 : 0;
+
+  // artifact or echo sets named in builds: match each entry to the game's set names
+  const setNames = Object.entries(d.setIndex || {}).sort((a, b) => b[1].n.length - a[1].n.length);
+  const usedS = new Set(), missingS = new Set();
+  for (const c of d.chars) {
+    if (!c.build) continue;
+    c.build.sk = c.build.sets.map(label => {
+      let rest = label.toLowerCase().replace(/[’']/g, "'"); const keys = [];
+      for (const [k, st] of setNames) { const n = st.n.toLowerCase().replace(/[’']/g, "'"); const at = rest.indexOf(n); if (at >= 0) { keys.push([at, k]); rest = rest.slice(0, at) + ' '.repeat(n.length) + rest.slice(at + n.length); } }
+      if (!keys.length) missingS.add(label);
+      return keys.sort((a, b) => a[0] - b[0]).map(x => { usedS.add(x[1]); return x[1]; });
+    });
+  }
+  if (missingS.size) warn(game, 'sets not found in game data:', [...missingS].join(', '));
+  const sets = {};
+  for (const k of [...usedS].sort()) { const { _icon, ...st } = d.setIndex[k]; sets[k] = st; }
+  if (d.setImages) await d.setImages([...usedS].map(k => d.setIndex[k]));
+  for (const k of Object.keys(sets)) sets[k].i = fs.existsSync(path.join(OUT, 'img', game, 'sets', k + '.webp')) ? 1 : 0;
 
   // tier list: hand ranking plus every playable character it does not mention yet
   const tierSrc = readJSON(path.join(dir, 'tiers.json'), null);
@@ -168,7 +192,7 @@ async function run(game) {
   if (noSig.length) list.push(['Signature weapon for', noSig]);
   CHECK[game] = list;
   for (const c of d.chars) { for (const k of Object.keys(c)) if (c[k] === undefined || c[k] === '') delete c[k]; }
-  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, weapons, tiers, now, teams, elements: d.elements, regions: d.regions, labels: d.labels };
+  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, weapons, sets, setWord: d.setWord, tiers, now, teams, elements: d.elements, regions: d.regions, labels: d.labels };
 
   // only touch the file when something other than timestamps changed
   const strip = o => JSON.stringify(o, (k, v) => (k === 'updated' || k === 'fetched' ? undefined : v));

@@ -65,7 +65,7 @@ export function repoFiles(repo, branch, key) {
     const args = ['clone', '-q', '--filter=blob:none', '--no-checkout', '--depth', '1'];
     if (branch) args.push('-b', branch);
     execFileSync('git', [...args, `https://github.com/${repo}`, dir], { stdio: 'ignore', timeout: 600000 });
-    const out = execFileSync('git', ['-C', dir, 'ls-tree', '-r', 'HEAD', '--name-only'], { maxBuffer: 1 << 28 }).toString();
+    const out = execFileSync('git', ['-C', dir, '-c', 'core.quotepath=off', 'ls-tree', '-r', 'HEAD', '--name-only'], { maxBuffer: 1 << 28 }).toString();
     fs.writeFileSync(list, out);
     return out.split('\n');
   } catch (e) {

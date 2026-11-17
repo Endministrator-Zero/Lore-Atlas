@@ -9,7 +9,13 @@ const DATA = 'https://raw.githubusercontent.com/DimbreathBot/AnimeGameData/maste
 const PAIMON = 'https://raw.githubusercontent.com/MadeBaruna/paimon-moe/main/static/images/';
 // file names in that repository are not always predictable ("freedom-sworn", "key_of_khaj-nisut"),
 // so look each name up in its file list, ignoring punctuation
-let pmIndex = null;
+let pmIndex = null, miaoIndex = null;
+// second source for images the first one lacks: miao-plugin files them under each item's Chinese name
+function miaoFile(rel) {
+  if (!miaoIndex) miaoIndex = new Set(repoFiles('yoimiya-kokomi/miao-plugin', 'master', 'miao'));
+  return miaoIndex.has(rel) ? 'https://raw.githubusercontent.com/yoimiya-kokomi/miao-plugin/master/' + rel.split('/').map(encodeURIComponent).join('/') : null;
+}
+function hasPaimon(folder, name) { paimonFile(folder, 'x'); return pmIndex.has(folder + '/' + name.toLowerCase().replace(/[^a-z0-9]+/g, '')); }
 function paimonFile(folder, name) {
   const key = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
   if (!pmIndex) {
@@ -83,6 +89,60 @@ export async function buildGenshin(content, autoVer) {
       if (n >= 40 && n <= 50 && /Dropped by|Challenge Reward|Lv\. \d+\+/.test(src) && !/Found in the wild|Sold by/.test(src)) { if (!bossUse.has(id)) bossUse.set(id, []); bossUse.get(id).push(c.id); }
     }
   }
+  // ----- weapons -----
+  const weaponIndex = {};
+  for (const n of g.weapons('names', { matchCategories: true })) {
+    const w = g.weapons(n, opt); if (!w) continue;
+    let st = {}; try { st = w.stats(90, '+') || {}; } catch {}
+    const pct = w.mainStatType && w.mainStatType !== 'FIGHT_PROP_ELEMENT_MASTERY';
+    let passive = w.effectTemplateRaw || '';
+    ((w.r1 && w.r1.values) || []).forEach((v, i) => { passive = passive.split('{' + i + '}').join(v); });
+    weaponIndex[gslug(w.name)] = {
+      n: w.name, r: w.rarity, type: w.weaponText, atk: Math.round(st.attack || 0),
+      sub: w.mainStatText || '', subv: w.mainStatText ? (pct ? (st.specialized * 100).toFixed(1) + '%' : String(Math.round(st.specialized || 0))) : '',
+      pn: w.effectName || '', p: clean(passive),
+    };
+    const wm = new Map(); for (let i = 1; i <= 6; i++) add(wm, w.costs?.['ascend' + i]);
+    weaponIndex[gslug(w.name)].mats = order(wm).filter(([id, n]) => n > 0);
+  }
+  const weaponImages = async list => {
+    const jobs = [], conv = [];
+    for (const w of list) {
+      const dest = path.join(OUT, 'img/genshin/weapons', gslug(w.n) + '.webp'); if (fs.existsSync(dest)) continue;
+      const tmp = path.join(CACHE, 'img/gi', 'w_' + gslug(w.n) + '.png');
+      let url = hasPaimon('weapons', w.n) ? paimonFile('weapons', w.n) : null;
+      if (!url) { const cn = (g.weapons(w.n, { ...opt, resultLanguage: 'ChineseSimplified' }) || {}).name; url = cn && miaoFile(`resources/meta-gs/weapon/${String(w.type).toLowerCase()}/${cn}/icon.webp`); }
+      if (!url) { warn('genshin: no image for weapon', w.n); continue; }
+      jobs.push({ url, file: tmp }); conv.push([tmp, dest]);
+    }
+    if (!jobs.length) return;
+    log('genshin: fetching', jobs.length, 'weapon images');
+    getMany(jobs);
+    for (const [tmp, dest] of conv) await toWebp(tmp, dest, { w: 128, q: 86 });
+  };
+
+  // ----- artifact sets -----
+  const setIndex = {};
+  for (const n of g.artifacts('names', { matchCategories: true })) {
+    const a = g.artifacts(n, opt); if (!a) continue;
+    setIndex[gslug(a.name)] = { n: a.name, r: Math.max(...(a.rarityList || [5])), fx: [a.effect1Pc ? [1, clean(a.effect1Pc)] : null, a.effect2Pc ? [2, clean(a.effect2Pc)] : null, a.effect4Pc ? [4, clean(a.effect4Pc)] : null].filter(Boolean) };
+  }
+  const setImages = async list => {
+    const jobs = [], conv = [];
+    for (const a of list) {
+      const dest = path.join(OUT, 'img/genshin/sets', gslug(a.n) + '.webp'); if (fs.existsSync(dest)) continue;
+      const tmp = path.join(CACHE, 'img/gi', 's_' + gslug(a.n) + '.png');
+      let url = hasPaimon('artifacts', a.n + ' flower') ? paimonFile('artifacts', a.n + ' flower') : hasPaimon('artifacts', a.n + ' circlet') ? paimonFile('artifacts', a.n + ' circlet') : null;
+      if (!url) { const cn = (g.artifacts(a.n, { ...opt, resultLanguage: 'ChineseSimplified' }) || {}).name; url = cn && (miaoFile(`resources/meta-gs/artifact/imgs/${cn}/1.webp`) || miaoFile(`resources/meta-gs/artifact/imgs/${cn}/5.webp`)); }
+      if (!url) { warn('genshin: no image for set', a.n); continue; }
+      jobs.push({ url, file: tmp }); conv.push([tmp, dest]);
+    }
+    if (!jobs.length) return;
+    log('genshin: fetching', jobs.length, 'artifact set images');
+    getMany(jobs);
+    for (const [tmp, dest] of conv) await toWebp(tmp, dest, { w: 112, q: 86 });
+  };
+
   for (const id of Object.keys(itemName)) {
     const m = mat(id);
     items[id] = { n: itemName[id], r: +id === 202 ? 3 : (m.rarity || 1) };
@@ -118,40 +178,13 @@ export async function buildGenshin(content, autoVer) {
     }
   } catch {}
 
-  // ----- weapons -----
-  const weaponIndex = {};
-  for (const n of g.weapons('names', { matchCategories: true })) {
-    const w = g.weapons(n, opt); if (!w || w.rarity < 3) continue;
-    let st = {}; try { st = w.stats(90, '+') || {}; } catch {}
-    const pct = w.mainStatType && w.mainStatType !== 'FIGHT_PROP_ELEMENT_MASTERY';
-    let passive = w.effectTemplateRaw || '';
-    ((w.r1 && w.r1.values) || []).forEach((v, i) => { passive = passive.split('{' + i + '}').join(v); });
-    weaponIndex[gslug(w.name)] = {
-      n: w.name, r: w.rarity, type: w.weaponText, atk: Math.round(st.attack || 0),
-      sub: w.mainStatText || '', subv: w.mainStatText ? (pct ? (st.specialized * 100).toFixed(1) + '%' : String(Math.round(st.specialized || 0))) : '',
-      pn: w.effectName || '', p: clean(passive),
-    };
-  }
-  const weaponImages = async list => {
-    const jobs = [], conv = [];
-    for (const w of list) {
-      const dest = path.join(OUT, 'img/genshin/weapons', gslug(w.n) + '.webp'); if (fs.existsSync(dest)) continue;
-      const tmp = path.join(CACHE, 'img/gi', 'w_' + gslug(w.n) + '.png');
-      jobs.push({ url: paimonFile('weapons', w.n), file: tmp }); conv.push([tmp, dest]);
-    }
-    if (!jobs.length) return;
-    log('genshin: fetching', jobs.length, 'weapon images');
-    getMany(jobs);
-    for (const [tmp, dest] of conv) await toWebp(tmp, dest, { w: 128, q: 86 });
-  };
-
   await images(chars, items);
   for (const c of chars) c.art = fs.existsSync(path.join(OUT, 'img/genshin/art', c.id + '.webp'));
   for (const id of Object.keys(items)) items[id].i = fs.existsSync(path.join(OUT, 'img/genshin/items', id + '.webp')) ? 1 : 0;
 
   log(`genshin: ${chars.length} characters, ${lines.length} lines, ${Object.keys(items).length} items, ${bosses.length} bosses`);
   return {
-    chars, lines, items, bosses, outfits, nameToId, weaponIndex, weaponImages, slug: gslug,
+    chars, lines, items, bosses, outfits, nameToId, weaponIndex, weaponImages, setIndex, setImages, slug: gslug, setWord: 'Artifact sets',
     elements: ['Pyro', 'Hydro', 'Anemo', 'Electro', 'Dendro', 'Cryo', 'Geo'],
     regions: ['Mondstadt', 'Liyue', 'Inazuma', 'Sumeru', 'Fontaine', 'Natlan', 'Nod-Krai', 'Snezhnaya', 'Beyond'],
     labels: { extra: 'Constellation', title: 'Title', faction: 'Affiliation', region: 'Nation', weapon: 'Weapon', el: 'Vision', asc: 'Ascension to level 90', skill: 'All three talents to level 10', boss: 'Weekly boss' },
@@ -209,7 +242,12 @@ async function images(chars, items) {
     want(PAIMON + 'characters/full/' + c.id + '.png', 'f_' + c.id + '.png', path.join(dir('art'), c.id + '.webp'), { w: 800, q: 78 });
   }
   for (const [id, it] of Object.entries(items)) {
-    want(paimonFile('items', it.n), 'i_' + gslug(it.n) + '.png', path.join(dir('items'), id + '.webp'), { w: 96, q: 86 });
+    let url = hasPaimon('items', it.n) ? paimonFile('items', it.n) : null;
+    if (!url && !fs.existsSync(path.join(dir('items'), id + '.webp'))) {
+      const cn = (require('genshin-db').materials(it.n, { matchAliases: false, matchCategories: false, resultLanguage: 'ChineseSimplified' }) || {}).name;
+      if (cn) { miaoFile('x'); const rel = [...miaoIndex].find(f => f.startsWith('resources/meta-gs/material/') && f.endsWith('/' + cn + '.webp')); if (rel) url = miaoFile(rel); }
+    }
+    if (url) want(url, 'i_' + gslug(it.n) + (url.endsWith('.webp') ? '.webp' : '.png'), path.join(dir('items'), id + '.webp'), { w: 96, q: 86 });
   }
   if (!jobs.length) return;
   log('genshin: fetching', jobs.length, 'new images');

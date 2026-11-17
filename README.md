@@ -37,7 +37,8 @@ What the updater refreshes without any help:
 | The pull estimate | A formula based on the version's length and events |
 | A basic timeline entry for a brand-new version | The Fandom wikis |
 | Main story acts, their quests and official quest descriptions for every version | Game data files and the Fandom wikis |
-| Weapon stats at level 90, passives and icons | Game data files |
+| Every weapon: stats at level 90, passive, ascension materials and icon | Game data files |
+| Artifact sets and echo sets: effects and icons | Game data files |
 | Signature weapon of a new character | Read from the new version's paired banners |
 | New characters in the tier list, shown in a "Not rated yet" row | Automatic |
 
@@ -115,5 +116,7 @@ Separate several weapons, sets or teams with `;`. Inside a team, separate names 
 This is a non-commercial fan project. It is not affiliated with or endorsed by Kuro Games or HoYoverse. Wuthering Waves and Genshin Impact, their characters, artwork and voice lines belong to their respective owners.
 
 Story summaries, lore notes and builds were written for this site. Voice lines are short excerpts of in-game dialogue. Popular teams are hand-picked and are not usage statistics. The pull estimate is an approximation.
+
+Image sources: paimon.moe, miao-plugin and the Wuthering-Waves-GameAssets repository on GitHub.
 
 Data sources: genshin-db, the AnimeGameData and WutheringWaves_Data dumps, the Fandom wikis for both games, and each game's official announcement feed.
