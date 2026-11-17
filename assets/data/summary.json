@@ -1,0 +1,56 @@
+{
+ "wuwa": {
+  "title": "Resonance Archive",
+  "world": "Solaris-3",
+  "current": "3.8",
+  "name": "Lilies in a Dying Dream",
+  "chars": 59,
+  "lines": 299,
+  "versions": 23,
+  "faces": [
+   "jinhsi",
+   "shorekeeper",
+   "cartethyia",
+   "camellya",
+   "changli",
+   "phrolova",
+   "aemeath",
+   "rover",
+   "jiyan",
+   "carlotta",
+   "lynae",
+   "qingxiao",
+   "zani",
+   "yinlin",
+   "iuno",
+   "lily"
+  ]
+ },
+ "genshin": {
+  "title": "Irminsul Records",
+  "world": "Teyvat",
+  "current": "7.2",
+  "name": "Hour of Ruin",
+  "chars": 124,
+  "lines": 1225,
+  "versions": 54,
+  "faces": [
+   "furina",
+   "zhongli",
+   "raiden_shogun",
+   "nahida",
+   "venti",
+   "mavuika",
+   "hu_tao",
+   "columbina",
+   "arlecchino",
+   "kaedehara_kazuha",
+   "neuvillette",
+   "xiao",
+   "ganyu",
+   "klee",
+   "varka",
+   "lumine"
+  ]
+ }
+}

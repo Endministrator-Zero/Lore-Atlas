@@ -1,0 +1,620 @@
+{
+ "meta": {
+  "game": "wuwa",
+  "world": "Solaris-3",
+  "title": "Resonance Archive",
+  "kicker": "Wuthering Waves companion",
+  "intro": "Every version since Rover first woke in Huanglong, what is live right now, and every Resonator with their build, materials and what the others say about them.",
+  "current": "3.8",
+  "charWord": "Resonators"
+ },
+ "arcs": [
+  {
+   "id": "huanglong",
+   "name": "Huanglong",
+   "chapter": "Chapter I: Jinzhou Rising",
+   "hue": "#7fe3c4",
+   "blurb": "A border city on the edge of a ruined world. Rover wakes with no memory, is drawn to Jinzhou by its young Magistrate, and learns the Lament never truly ended.",
+   "versions": [
+    {
+     "v": "1.0",
+     "name": "Utterance of Marvels",
+     "date": "May 22, 2024",
+     "acts": "Chapter I Acts I to VI",
+     "tags": [
+      "Jinzhou",
+      "Fractsidus"
+     ],
+     "text": "Rover wakes with no past and is found by Yangyang and Chixia. In Jinzhou they follow a trail of tokens left by Magistrate Jinhsi, cross paths with Scar of the Fractsidus, and join General Jiyan at the front, where a Threnodian's herald is beaten back from the city."
+    },
+    {
+     "v": "1.1",
+     "name": "Thaw of Eons",
+     "date": "Jun 28, 2024",
+     "acts": "Chapter I Act VII",
+     "tags": [
+      "Mt. Firmament",
+      "Sentinel Jué"
+     ],
+     "text": "On Mt. Firmament, where time itself has frozen, Rover finally meets Jinhsi. The Fractsidus try to wake a Threnodian sealed in the mountain, and Jinhsi stops it by resonating with Jué, the Sentinel of Jinzhou. Changli watches Rover from the first move."
+    },
+    {
+     "v": "1.2",
+     "name": "In the Turquoise Moonglow",
+     "date": "Aug 15, 2024",
+     "acts": "Companion stories",
+     "tags": [
+      "Moon-Chasing Festival"
+     ],
+     "text": "Jinzhou holds the Moon-Chasing Festival. The painter Zhezhi and the Huaxu Academy researcher Xiangli Yao each get a story of their own."
+    },
+    {
+     "v": "1.3",
+     "name": "To the Shore's End",
+     "date": "Sep 29, 2024",
+     "acts": "Chapter I Act VIII",
+     "tags": [
+      "Black Shores",
+      "Tethys System"
+     ],
+     "text": "Rover reaches the Black Shores, a hidden organisation that has fought the Lament for ages, and learns they founded it. Its keeper is ready to burn herself out to finish their plan. Rover refuses to let the Shorekeeper pay that price."
+    },
+    {
+     "v": "1.4",
+     "name": "When the Night Knocks",
+     "date": "Nov 14, 2024",
+     "acts": "Companion story",
+     "tags": [
+      "Somnoire"
+     ],
+     "text": "Camellya's story shows how far back her fixation on Rover goes. The Somnoire, a realm made from dreams, opens as a new challenge."
+    }
+   ]
+  },
+  {
+   "id": "rinascita",
+   "name": "Rinascita",
+   "chapter": "Chapter II: Even When Divinity Remains Silent",
+   "hue": "#ffc46b",
+   "blurb": "A land of city-states, masks and carnival, ruled in faith by the Order of the Deep. Rover arrives a pilgrim and is soon named a heretic.",
+   "versions": [
+    {
+     "v": "2.0",
+     "name": "All Silent Souls Can Sing",
+     "date": "Jan 2, 2025",
+     "acts": "Chapter II Prologue to Act II",
+     "tags": [
+      "Ragunna",
+      "Carnevale"
+     ],
+     "text": "Rover sails to Ragunna as its Carnevale begins. The Order of the Deep rules in the name of the Sentinel Imperator, the great families plot behind masks, and Rover is branded a heretic after learning what the Order worships in secret."
+    },
+    {
+     "v": "2.1",
+     "name": "Waves Sing, and the Cerulean Bird Calls",
+     "date": "Feb 13, 2025",
+     "acts": "Chapter II Act III",
+     "tags": [
+      "Riccioli Islands"
+     ],
+     "text": "The Riccioli Islands open. Rover sails with Brant and the Troupe of Fools while the acolyte Phoebe begins to question the church that raised her."
+    },
+    {
+     "v": "2.2",
+     "name": "Tangled Truth in Inverted Tower",
+     "date": "Mar 27, 2025",
+     "acts": "Chapter II Act IV",
+     "tags": [
+      "Avinoleum",
+      "Aero Rover"
+     ],
+     "text": "At the academy of Avinoleum, Cantarella of the Fisalia family draws Rover into a tower turned upside down. There Rover meets Cartethyia, the Blessed Maiden the Order once raised and buried, and gains the Aero attribute."
+    },
+    {
+     "v": "2.3",
+     "name": "Fiery Arpeggio of Summer Reunion",
+     "date": "Apr 29, 2025",
+     "acts": "Companion stories",
+     "tags": [
+      "First anniversary"
+     ],
+     "text": "The first anniversary. Ragunna celebrates summer with the bard Ciaccona, and Zani of the Montelli family takes on a job that will not let her clock out on time."
+    },
+    {
+     "v": "2.4",
+     "name": "Lightly We Toss the Crown",
+     "date": "Jun 12, 2025",
+     "acts": "Chapter II Acts V to VI",
+     "tags": [
+      "Fleurdelys",
+      "Septimont"
+     ],
+     "text": "Cartethyia faces Fleurdelys, the knight she was made to become, and the Threnodian that has fed on Rinascita's faith. With Rover beside her she sets the crown down and chooses her own name."
+    },
+    {
+     "v": "2.5",
+     "name": "Unfading Melody of Life",
+     "date": "Jul 24, 2025",
+     "acts": "Chapter II Act VII",
+     "tags": [
+      "Lost Beyond"
+     ],
+     "text": "Rover enters the Lost Beyond of Phrolova, an Overseer of the Fractsidus, and sees the hometown she lost and the dead she has kept playing for ever since."
+    },
+    {
+     "v": "2.6",
+     "name": "By Sun's Scourge, By Moon's Revelation",
+     "date": "Aug 28, 2025",
+     "acts": "Chapter II Acts VIII to IX",
+     "tags": [
+      "Septimont"
+     ],
+     "text": "In Septimont, a city of gladiators, Rover stands between Augusta, the Ephor who rules by the sun, and Iuno, the priestess who reads the moon, as an old prophecy comes due."
+    },
+    {
+     "v": "2.7",
+     "name": "Dawn Breaks on Dark Tides",
+     "date": "Oct 9, 2025",
+     "acts": "Chapter II Acts X to XI",
+     "tags": [
+      "Dark Tide"
+     ],
+     "text": "The Dark Tide rises over Rinascita and its story reaches a finale. The Discord hunter Galbrena and the blind swordsman Qiuyuan join the fight."
+    },
+    {
+     "v": "2.8",
+     "name": "To the City Set in Amber",
+     "date": "Nov 20, 2025",
+     "acts": "Chapter II Act XII",
+     "tags": [
+      "Honami City",
+      "Chronorift"
+     ],
+     "text": "Rover is pulled into Honami, a modern city sealed in a rift in time. Chisa, a student who can see the threads that hold things together, and the Taoist Buling help find a way out."
+    }
+   ]
+  },
+  {
+   "id": "lahai-roi",
+   "name": "Lahai-Roi",
+   "chapter": "Chapter III: To the Stars Yet to Shine",
+   "hue": "#8fc7ff",
+   "blurb": "A frozen frontier lit by an artificial sun, home to Startorch Academy and its dream of reaching the stars. Something called Voidmatter is eating it from below.",
+   "versions": [
+    {
+     "v": "3.0",
+     "name": "We Who See the Stars",
+     "date": "Dec 25, 2025",
+     "acts": "Chapter III Prologue to Act II",
+     "tags": [
+      "Startorch Academy",
+      "Void Storms"
+     ],
+     "text": "Rover arrives in Lahai-Roi and enrols at Startorch Academy. The detector Hyvatia runs out of control, Void Storms worsen and a conspiracy surfaces. With Lynae and Mornye, Rover keeps the New Solar Ceremony alive so the artificial sun can rise again."
+    },
+    {
+     "v": "3.1",
+     "name": "For You Who Walk in Snow",
+     "date": "Feb 5, 2026",
+     "acts": "Chapter III Act III",
+     "tags": [
+      "Frostlands",
+      "Exostrider"
+     ],
+     "text": "To learn why their frequency is fading, Rover walks into the frostlands in search of the Exostrider, and finds Aemeath, once its pilot and now a digital ghost. The academy physician Luuk Herssen debuts."
+    },
+    {
+     "v": "3.2",
+     "name": "Resolution to Illuminate the Shadows",
+     "date": "Mar 19, 2026",
+     "acts": "Chapter III Act IV",
+     "tags": [
+      "Dark Side",
+      "Grand Architect"
+     ],
+     "text": "As the New Solar Celebration nears, President Lucilla picks up a frequency that does not belong in the Academy's Dark Side. Rover goes in with the student Sigrika, on the trail of a gift promised by the Grand Architect of the Fractsidus."
+    },
+    {
+     "v": "3.3",
+     "name": "Reverbs From the End of Galaxies",
+     "date": "Apr 30, 2026",
+     "acts": "Chapter III Act V",
+     "tags": [
+      "Second anniversary",
+      "Aleph-1"
+     ],
+     "text": "Voidmatter begins to consume Lahai-Roi. Rover descends into the Dimmr Plains again, guided by the miko Hiyuki, and faces the Threnodian Aleph-1. Afterwards Denia, a student tied to the Fractsidus, offers a deal from her infirmary bed."
+    },
+    {
+     "v": "3.4",
+     "name": "The Dream Not Dreamed",
+     "date": "Jun 8, 2026",
+     "acts": "Chapter III Segue",
+     "tags": [
+      "Cyberpunk: Edgerunners"
+     ],
+     "text": "With the Exostrider gone, funders question whether the Synchronist programme should exist, and Lucilla must choose between reality and her ideals. A Somnoire door opens in the Academy, and Lucy and Rebecca arrive from Night City in a crossover."
+    }
+   ]
+  },
+  {
+   "id": "mengzhou",
+   "name": "Mengzhou",
+   "chapter": "Chapter IV: Rebirth From the Depths",
+   "hue": "#c9a2ff",
+   "blurb": "Back to Huanglong, and deeper. The Land of Xuanfang runs on ancient machinery, its Sentinel has gone silent, and old melodies are waking up.",
+   "versions": [
+    {
+     "v": "3.5",
+     "name": "Blade of Past Resounds, Lingering Dream Hymns",
+     "date": "Jul 10, 2026",
+     "acts": "Chapter IV Acts I to II",
+     "tags": [
+      "Land of Xuanfang",
+      "Electro Rover"
+     ],
+     "text": "A package from Huanglong calls Rover to Mengzhou. The Autopuppets of Xuanfang Hold turn on its people, and Rover and the merchant Suisui trace the cause. Yangyang answers the voice that has followed her and becomes Xuanling to quell the storm."
+    },
+    {
+     "v": "3.6",
+     "name": "Lamplight in Mirage, Sword's Resolve in Heart",
+     "date": "Aug 20, 2026",
+     "acts": "Chapter IV Act III",
+     "tags": [
+      "Manifold Sanctum"
+     ],
+     "text": "Rover and the sword master Qingxiao enter the Manifold Sanctum and find the Hold's control mainframe eroded by Reverberations. The whole Hold tears loose into the sky. The Nethermancer Jingran lends a hand, by his own rules."
+    },
+    {
+     "v": "3.7",
+     "name": "Prism's Illusion, Heart's Illumination",
+     "date": "Sep 30, 2026",
+     "acts": "Chapter IV Act IV",
+     "tags": [
+      "Waking Moon Festival",
+      "Simulacrum Nexus"
+     ],
+     "text": "The Waking Moon Festival approaches under rumours that the Hold is doomed to fall. Rover searches for Hsin, the long-absent Sentinel of Mengzhou, and meets Suoming, who has governed in her name."
+    },
+    {
+     "v": "3.8",
+     "name": "Lilies in a Dying Dream",
+     "date": "Nov 12, 2026",
+     "acts": "Chapter IV Act V",
+     "tags": [
+      "Somnoire",
+      "New Federation"
+     ],
+     "text": "Something has changed inside the Somnoire, and the trail leads to the New Federation. Lily, a perfumer who treated soldiers through a Resonator war, wakes and has to choose again."
+    }
+   ]
+  }
+ ],
+ "chars": {
+  "Rover": {
+   "ver": "1.0",
+   "region": "Unknown",
+   "lore": "An Arbiter who wakes in Huanglong with no memory. Able to absorb any frequency, Rover turns out to have walked this world many times before, and to have founded the Black Shores."
+  },
+  "Yangyang": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "An Outrider of the Midnight Rangers who hears voices on the wind. She finds Rover on the first day and never stops looking out for them."
+  },
+  "Chixia": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A Jinzhou Patroller with twin pistols and endless energy, set on becoming the kind of hero she read about as a child."
+  },
+  "Baizhi": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A quiet Huaxu Academy researcher who studies Remnant Energy with You'tan, the Remnant Creature that never leaves her side."
+  },
+  "Sanhua": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "Bodyguard to Magistrate Jinhsi. Her left eye sees the frequencies of things, including the ones she would rather not."
+  },
+  "Taoqi": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "Director of Border Defense at Jinzhou's Ministry of Development. She would love a nap, and builds walls nothing gets through."
+  },
+  "Danjin": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A young Midnight Ranger scout who hunts evil alone, with a blade that feeds on her own strength."
+  },
+  "Mortefi": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A short-tempered Huaxu Academy researcher from the New Federation whose inventions keep Jinzhou's soldiers alive."
+  },
+  "Yuanwu": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "The calm owner of a boxing gym in Jinzhou, who teaches discipline before strength."
+  },
+  "Aalto": {
+   "ver": "1.0",
+   "region": "Black Shores",
+   "lore": "An information broker of the Black Shores who can turn to mist, and sells the truth for whatever it is worth that day."
+  },
+  "Encore": {
+   "ver": "1.0",
+   "region": "Black Shores",
+   "lore": "A Black Shores consultant, and a child who fights beside her woolly friends Cosmos and Cloudy."
+  },
+  "Verina": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A young botanist from the New Federation who can coax anything to grow, even in Jinzhou's scarred soil."
+  },
+  "Calcharo": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "Leader of the Ghost Hounds, mercenaries from the New Federation. He takes the hard contracts and keeps his word."
+  },
+  "Lingyang": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A lion dancer of Jinzhou's Liondance Troupe, an outsider with a beast's ears and tail whom the troupe took in as family."
+  },
+  "Jianxin": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A Taoist martial artist walking the world to perfect her art and take the title of the greatest fighter of her time."
+  },
+  "Jiyan": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "General of the Midnight Rangers, once a field medic. He leads from the front and remembers every soldier he could not save."
+  },
+  "Yinlin": {
+   "ver": "1.0",
+   "region": "Huanglong",
+   "lore": "A dismissed Patroller turned puppeteer who still hunts corruption in Jinzhou, now without anyone's permission."
+  },
+  "Jinhsi": {
+   "ver": "1.1",
+   "region": "Huanglong",
+   "lore": "Magistrate of Jinzhou, found as a child on Mt. Firmament and chosen by the Sentinel Jué. She invited Rover to the city before they ever met."
+  },
+  "Changli": {
+   "ver": "1.1",
+   "region": "Huanglong",
+   "lore": "Counselor to Jinhsi and once her teacher. A strategist from Mingting who plays several moves ahead and keeps her own losses to herself."
+  },
+  "Zhezhi": {
+   "ver": "1.2",
+   "region": "Huanglong",
+   "lore": "A shy painter who takes commissions to get by. What she paints with enough feeling does not always stay on the paper."
+  },
+  "Xiangli Yao": {
+   "ver": "1.2",
+   "region": "Huanglong",
+   "lore": "Chief researcher of Huaxu Academy, a gentle genius with a mechanical arm who thinks science should make people happier."
+  },
+  "Shorekeeper": {
+   "ver": "1.3",
+   "region": "Black Shores",
+   "lore": "Steward of the Black Shores, a being Rover once gave shape and purpose. She kept their plan running through ages of waiting."
+  },
+  "Youhu": {
+   "ver": "1.3",
+   "region": "Huanglong",
+   "lore": "An antique appraiser from Chongzhou with a sharp eye, a lucky streak and a talent for showing up where treasure is."
+  },
+  "Camellya": {
+   "ver": "1.4",
+   "region": "Black Shores",
+   "lore": "A dangerous Black Shores member who calls Rover her seed. Her obsession has outlasted lifetimes."
+  },
+  "Lumi": {
+   "ver": "1.4",
+   "region": "Huanglong",
+   "lore": "Navigator for Lollo Logistics, small and unstoppable, who gets every parcel where it is going."
+  },
+  "Carlotta": {
+   "ver": "2.0",
+   "region": "Rinascita",
+   "lore": "Second daughter of the Montelli family and its fixer, as comfortable at an art auction as she is ending a problem with a crystal gun."
+  },
+  "Roccia": {
+   "ver": "2.0",
+   "region": "Rinascita",
+   "lore": "A comedian of the Troupe of Fools who came up from the sea floor and carries her whole stage in a suitcase named Pero."
+  },
+  "Phoebe": {
+   "ver": "2.1",
+   "region": "Rinascita",
+   "lore": "An acolyte of the Order of the Deep whose faith is real. When the Order is not what she believed, she keeps the faith and leaves the lie."
+  },
+  "Brant": {
+   "ver": "2.1",
+   "region": "Rinascita",
+   "lore": "Captain of the Troupe of Fools, a showman and sailor who treats every rescue as an opening night."
+  },
+  "Cantarella": {
+   "ver": "2.2",
+   "region": "Rinascita",
+   "lore": "Head of the Fisalia family, mistress of poisons and dreams. Nothing she offers is free, and little of it is false."
+  },
+  "Zani": {
+   "ver": "2.3",
+   "region": "Rinascita",
+   "lore": "A Montelli family employee who wants nothing more than to finish work on time, and holds the line when it counts."
+  },
+  "Ciaccona": {
+   "ver": "2.3",
+   "region": "Rinascita",
+   "lore": "A wandering bard of Ragunna who turns whatever she sees into song, and hears more than she lets on."
+  },
+  "Cartethyia": {
+   "ver": "2.4",
+   "region": "Rinascita",
+   "lore": "The Blessed Maiden raised to become the knight Fleurdelys and then sealed away by the Order. She chose Rover, and herself, over the crown."
+  },
+  "Lupa": {
+   "ver": "2.4",
+   "region": "Rinascita",
+   "lore": "Septimont's champion gladiator, a wolf in the arena who fights for the glory of her city and the pack she calls family."
+  },
+  "Phrolova": {
+   "ver": "2.5",
+   "region": "Fractsidus",
+   "lore": "An Overseer of the Fractsidus and a musician. She lost her home to the Lament and has kept its dead beside her since."
+  },
+  "Augusta": {
+   "ver": "2.6",
+   "region": "Rinascita",
+   "lore": "Ephor of Septimont, a ruler who earned the seat in the arena and carries the city's sun on her blade."
+  },
+  "Iuno": {
+   "ver": "2.6",
+   "region": "Rinascita",
+   "lore": "A priestess of Septimont who reads fate in the moon and decides what to do about it herself."
+  },
+  "Galbrena": {
+   "ver": "2.7",
+   "region": "Black Shores",
+   "lore": "The Discord Slayer, feared as the Fiend of Ever-burning Flame. She now hunts across Solaris as a Black Shores consultant."
+  },
+  "Qiuyuan": {
+   "ver": "2.7",
+   "region": "Huanglong",
+   "lore": "A former senior agent of Mingting's Internal Security Agency, framed for murder. He wanders as a blind swordsman, loyal to the end."
+  },
+  "Chisa": {
+   "ver": "2.8",
+   "region": "Lahai-Roi",
+   "lore": "A student from Ashinohara who calls herself ordinary. Her eyes show her the threads that hold the world together, and which one to cut."
+  },
+  "Buling": {
+   "ver": "2.8",
+   "region": "Black Shores",
+   "lore": "A Taoist of Mengzhou, feng shui master, forum regular and Black Shores consultant who can find anything you are looking for."
+  },
+  "Lynae": {
+   "ver": "3.0",
+   "region": "Lahai-Roi",
+   "lore": "A Startorch Academy prep student with a loud sense of style and a focus wound as tight as a spring."
+  },
+  "Mornye": {
+   "ver": "3.0",
+   "region": "Lahai-Roi",
+   "lore": "An engineer of the Spacetrek Collective and a professor at Startorch. Her prosthetic legs carry her toward the stars she dreams about."
+  },
+  "Aemeath": {
+   "ver": "3.1",
+   "region": "Lahai-Roi",
+   "lore": "Once the Exostrider's Synchronist at Rabelle College, now a digital ghost singing quietly among the stars."
+  },
+  "Luuk Herssen": {
+   "ver": "3.1",
+   "region": "Lahai-Roi",
+   "lore": "Attending physician of Startorch's Resonator Nursing Unit. He never loses his composure, and golden blood seeps from a wound that will not heal."
+  },
+  "Sigrika": {
+   "ver": "3.2",
+   "region": "Lahai-Roi",
+   "lore": "A Startorch student of the Roya Tribe who works in Royan Runes and is determined to live up to everyone's hopes."
+  },
+  "Hiyuki": {
+   "ver": "3.3",
+   "region": "Lahai-Roi",
+   "lore": "The Miko of Flaming Sakura from Ashinohara, last member of Lahai-Roi's Special Response Force."
+  },
+  "Denia": {
+   "ver": "3.3",
+   "region": "Lahai-Roi",
+   "lore": "A Department of Voidmatters student who sleeps through class and smiles at everyone. Her file lists the Fractsidus, crossed out."
+  },
+  "Lucilla": {
+   "ver": "3.4",
+   "region": "Lahai-Roi",
+   "lore": "President of Startorch Academy, an idealist with both feet on the ground, keeping watch over students who challenge the sky."
+  },
+  "Lucy": {
+   "ver": "3.4",
+   "region": "Crossover",
+   "lore": "A netrunner from Night City, part of an Edgerunner crew, who keeps even her friends at a distance."
+  },
+  "Rebecca": {
+   "ver": "3.4",
+   "region": "Crossover",
+   "lore": "An Edgerunner from Night City, small, loud and never far from her shotgun."
+  },
+  "Yangyang: Xuanling": {
+   "ver": "3.5",
+   "region": "Huanglong",
+   "lore": "Yangyang as a Votary of the Voice, able to commune with the Streams. Now acting Xuan Watcher of Xuanfang Hold, she draws her sword to protect."
+  },
+  "Suisui": {
+   "ver": "3.5",
+   "region": "Huanglong",
+   "lore": "The young director of the Zhaoming Commerce Guild, a noble of Mingting who weaves peace out of trade deals instead of swordplay."
+  },
+  "Qingxiao": {
+   "ver": "3.6",
+   "region": "Huanglong",
+   "lore": "The Sword Transcendent, Xuan Paragon of Xuanfang Hold in name. A recluse who has guarded these lands longer than anyone can count."
+  },
+  "Jingran": {
+   "ver": "3.6",
+   "region": "Huanglong",
+   "lore": "A Nethermancer of Mengzhou who walks Mirage Realms and ruins alone, and judges right and wrong by his own heart."
+  },
+  "Hsin": {
+   "ver": "3.7",
+   "region": "Huanglong",
+   "lore": "The Sentinel of Mengzhou and guide of its civilisation, fond of mortal joys and long absent from her people."
+  },
+  "Suoming": {
+   "ver": "3.7",
+   "region": "Huanglong",
+   "lore": "Founder of the Ten Seals Covenant, formed to free her homeland from the Evil Miasma. She governs Mengzhou in the Sentinel's name."
+  },
+  "Lily": {
+   "ver": "3.8",
+   "region": "New Federation",
+   "lore": "A young perfumer caught in the Federated Cities' Resonator War. She could not stop it, so she healed whoever stood in front of her."
+  }
+ },
+ "bonds": {
+  "Rover|Yangyang": "She found Rover on the day they woke, and has been their guide to Jinzhou ever since.",
+  "Rover|Jinhsi": "The Magistrate invited Rover to Jinzhou with a trail of tokens. Their trust was tested on Mt. Firmament and held.",
+  "Rover|Shorekeeper": "She took her form because of Rover and waited ages to see them again. Rover would not let her burn out for the plan.",
+  "Rover|Camellya": "She calls Rover her seed. Whatever the two of them were to each other in a past life, she remembers all of it.",
+  "Rover|Cartethyia": "Rover freed her from the role she was made for. She gave Rover the Aero attribute and her trust.",
+  "Rover|Phrolova": "Enemies by allegiance. Inside her Lost Beyond, Rover saw why she plays for the dead.",
+  "Rover|Aemeath": "Rover searched the frostlands for the Exostrider and found the person who used to fly it.",
+  "Rover|Changli": "She tested Rover from behind the scenes before deciding they could be trusted with Jinhsi's plan.",
+  "Yangyang|Chixia": "Friends who found Rover together. One is all calm, the other all noise.",
+  "Jinhsi|Changli": "Teacher and student, now Magistrate and Counselor. Changli has shaped Jinhsi's path since she was a child.",
+  "Jinhsi|Sanhua": "Sanhua guards the Magistrate, and the Magistrate is the reason Sanhua has a place to belong.",
+  "Jiyan|Mortefi": "The General fights with what the researcher builds. They respect each other more than either says.",
+  "Zhezhi|Xiangli Yao": "An artist and a scientist who arrived together at the Moon-Chasing Festival, each making things to help people.",
+  "Aalto|Encore": "Black Shores partners. He handles the information, and she keeps him honest.",
+  "Shorekeeper|Camellya": "Both of the Black Shores, both bound to Rover, and in complete disagreement about what that means.",
+  "Carlotta|Zani": "Both serve the Montelli family. Carlotta gives the orders that ruin Zani's evenings.",
+  "Brant|Roccia": "Captain and comedian of the Troupe of Fools. He gave her a stage and a crew.",
+  "Phoebe|Cartethyia": "The acolyte who believed in the Order and the Maiden the Order betrayed.",
+  "Augusta|Iuno": "Sun and moon of Septimont. They rule the same city by very different lights.",
+  "Augusta|Lupa": "The Ephor and her finest gladiator.",
+  "Chisa|Hiyuki": "Both come from Ashinohara and ended up far from it in Lahai-Roi.",
+  "Lynae|Mornye": "Student and professor, and the first two people Rover relies on at Startorch.",
+  "Mornye|Aemeath": "Mornye builds toward the stars that Aemeath once flew for.",
+  "Lucilla|Luuk Herssen": "President and physician of Startorch Academy, who have kept its secrets and its students together.",
+  "Sigrika|Denia": "Classmates. One tries harder than anyone, the other pretends not to try at all.",
+  "Lucy|Rebecca": "Crewmates from Night City who arrived in Solaris together.",
+  "Yangyang: Xuanling|Suisui": "Both daughters of noted Mingting families, working the Xuanfang crisis from different ends.",
+  "Qingxiao|Hsin": "The sword that guards Xuanfang and the Sentinel who has been missing from it.",
+  "Hsin|Suoming": "The Sentinel and the mortal who ruled on her behalf while she was gone.",
+  "Suisui|Jingran": "A merchant who plans everything and a Nethermancer who follows no plan.",
+  "Qiuyuan|Changli": "Both came out of Mingting's politics, and know what it costs to serve there.",
+  "Buling|Shorekeeper": "The Black Shores' most relaxed consultant and its most serious keeper."
+ },
+ "aliases": {}
+}

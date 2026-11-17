@@ -1,0 +1,160 @@
+[
+ {
+  "mode": "Spiral Abyss",
+  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics.",
+  "teams": [
+   {
+    "name": "Stellar-Conduct",
+    "chars": [
+     "Sandrone",
+     "Yae Miko",
+     "Odette",
+     "Alyosha"
+    ],
+    "note": "The Cryo and Electro reaction core from Snezhnaya."
+   },
+   {
+    "name": "Stellar Swirl",
+    "chars": [
+     "Vesna",
+     "Odette",
+     "Aether",
+     "Vodyanitsa"
+    ],
+    "note": "Vodyanitsa lowers Anemo resistance while Odette feeds the reaction."
+   },
+   {
+    "name": "Hexerei",
+    "chars": [
+     "Varka",
+     "Prune",
+     "Nicole",
+     "Durin"
+    ],
+    "note": "Witch's Homework buffs stack on Varka."
+   },
+   {
+    "name": "Lunar-Charged",
+    "chars": [
+     "Flins",
+     "Ineffa",
+     "Columbina",
+     "Aino"
+    ],
+    "note": "Nod-Krai's Electro and Hydro reaction team."
+   },
+   {
+    "name": "Lunar-Bloom",
+    "chars": [
+     "Nefer",
+     "Lauma",
+     "Columbina",
+     "Aino"
+    ],
+    "note": "Lauma converts Bloom into Lunar-Bloom for Nefer."
+   },
+   {
+    "name": "Lunar-Crystallize",
+    "chars": [
+     "Zibai",
+     "Linnea",
+     "Columbina",
+     "Zhongli"
+    ],
+    "note": "Geo and Hydro, with Linnea healing off-field."
+   },
+   {
+    "name": "Melt",
+    "chars": [
+     "Mavuika",
+     "Citlali",
+     "Bennett",
+     "Xilonen"
+    ],
+    "note": "Still one of the highest single-target teams."
+   },
+   {
+    "name": "Hydro beam",
+    "chars": [
+     "Neuvillette",
+     "Furina",
+     "Kaedehara Kazuha",
+     "Xilonen"
+    ],
+    "note": "Comfortable and strong against groups."
+   },
+   {
+    "name": "Cryo and Hydro",
+    "chars": [
+     "Skirk",
+     "Furina",
+     "Escoffier",
+     "Yelan"
+    ],
+    "note": "Escoffier shreds resistance in a two-element party."
+   },
+   {
+    "name": "Vaporize",
+    "chars": [
+     "Arlecchino",
+     "Yelan",
+     "Bennett",
+     "Kaedehara Kazuha"
+    ],
+    "note": "A flexible Pyro team that needs no limited supports beyond Yelan."
+   }
+  ]
+ },
+ {
+  "mode": "Stygian Onslaught",
+  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics. Each boss rewards a specific element or reaction, so bring three different cores.",
+  "teams": [
+   {
+    "name": "Stellar-Conduct",
+    "chars": [
+     "Sandrone",
+     "Yae Miko",
+     "Odette",
+     "Alyosha"
+    ],
+    "note": "For bosses weak to Cryo and Electro."
+   },
+   {
+    "name": "Lunar-Charged",
+    "chars": [
+     "Flins",
+     "Ineffa",
+     "Columbina",
+     "Aino"
+    ],
+    "note": "For bosses that punish slow single hits."
+   },
+   {
+    "name": "Melt",
+    "chars": [
+     "Mavuika",
+     "Citlali",
+     "Bennett",
+     "Xilonen"
+    ],
+    "note": "For single-target damage checks."
+   }
+  ]
+ },
+ {
+  "mode": "Imaginarium Theater",
+  "note": "Theater limits which elements you can bring each month, so there is no fixed best team. Build a wide roster and raise supports that work everywhere.",
+  "teams": [
+   {
+    "name": "Flexible supports",
+    "chars": [
+     "Bennett",
+     "Furina",
+     "Xilonen",
+     "Kaedehara Kazuha"
+    ],
+    "note": "These four fit most monthly element line-ups."
+   }
+  ]
+ }
+]

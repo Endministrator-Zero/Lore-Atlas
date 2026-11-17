@@ -1,0 +1,10 @@
+{
+  "name": "lore-atlas-tools",
+  "private": true,
+  "type": "module",
+  "description": "Rebuilds assets/data from public game data. Run: npm install && node update.mjs",
+  "dependencies": {
+    "genshin-db": "latest",
+    "sharp": "^0.33.5"
+  }
+}

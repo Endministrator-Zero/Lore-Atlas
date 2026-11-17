@@ -1,0 +1,1115 @@
+{
+ "meta": {
+  "game": "genshin",
+  "world": "Teyvat",
+  "title": "Irminsul Records",
+  "kicker": "Genshin Impact companion",
+  "intro": "Every version from the first step in Mondstadt to the snows of Snezhnaya, what is live right now, and every character with their build, materials and what the others say about them.",
+  "current": "7.2",
+  "charWord": "Characters"
+ },
+ "arcs": [
+  {
+   "id": "mondstadt-liyue",
+   "name": "Mondstadt & Liyue",
+   "chapter": "Prologue and Chapter I",
+   "hue": "#6fd3b4",
+   "blurb": "The City of Freedom and the Harbor of Contracts. A dragon is freed, a god stages his own funeral, and the Traveler learns that the Fatui are collecting the Gnoses of the Seven.",
+   "versions": [
+    {
+     "v": "1.0",
+     "name": "Welcome to Teyvat",
+     "date": "Sep 28, 2020",
+     "acts": "Prologue Acts I to III, Chapter I Acts I to II",
+     "tags": [
+      "Mondstadt",
+      "Liyue"
+     ],
+     "text": "Separated from their twin by an unknown god, the Traveler wakes in Teyvat and meets Paimon. In Mondstadt they help the Knights of Favonius free the dragon Dvalin from the Abyss Order, only for the Fatui Harbinger Signora to steal Venti's Gnosis. In Liyue, Rex Lapis falls dead at the Rite of Descension and the Traveler is pulled into the hunt for his killer."
+    },
+    {
+     "v": "1.1",
+     "name": "A New Star Approaches",
+     "date": "Nov 11, 2020",
+     "acts": "Chapter I Act III",
+     "tags": [
+      "Osial",
+      "Jade Chamber"
+     ],
+     "text": "Childe unleashes the sea god Osial on Liyue Harbor. Adepti and the Qixing fight side by side, and Ningguang sacrifices the Jade Chamber to seal it. Zhongli is revealed as Rex Lapis himself, who staged his death and handed his Gnosis to the Tsaritsa under a contract."
+    },
+    {
+     "v": "1.2",
+     "name": "The Chalk Prince and the Dragon",
+     "date": "Dec 23, 2020",
+     "acts": "Event story",
+     "tags": [
+      "Dragonspine"
+     ],
+     "text": "Dragonspine opens. Albedo studies the Traveler on the frozen mountain where the dragon Durin fell, and hints at his own origin as a creation of the alchemist Rhinedottir."
+    },
+    {
+     "v": "1.3",
+     "name": "All That Glitters",
+     "date": "Feb 3, 2021",
+     "acts": "Lantern Rite",
+     "tags": [
+      "Lantern Rite"
+     ],
+     "text": "Liyue holds its first Lantern Rite without its god. Xiao, the last of the yakshas, keeps his lonely watch over the harbor while its people release lanterns for fallen heroes."
+    },
+    {
+     "v": "1.4",
+     "name": "Invitation of Windblume",
+     "date": "Mar 17, 2021",
+     "acts": "Chapter I Act IV",
+     "tags": [
+      "Windblume",
+      "Abyss Order"
+     ],
+     "text": "Mondstadt celebrates the Windblume Festival. In the Archon Quest the Traveler meets Dainsleif, the Bough Keeper, and finally finds their twin, who now leads the Abyss Order."
+    },
+    {
+     "v": "1.5",
+     "name": "Beneath the Light of Jadeite",
+     "date": "Apr 28, 2021",
+     "acts": "Story quests",
+     "tags": [
+      "Azhdaha",
+      "Serenitea Pot"
+     ],
+     "text": "Zhongli faces Azhdaha, the dragon he once befriended and later sealed when erosion took its mind. Eula of the disgraced Lawrence clan and the legal adviser Yanfei arrive."
+    },
+    {
+     "v": "1.6",
+     "name": "Midsummer Island Adventure",
+     "date": "Jun 9, 2021",
+     "acts": "Chapter II Prologue",
+     "tags": [
+      "Golden Apple Archipelago"
+     ],
+     "text": "Klee leads a summer trip to the Golden Apple Archipelago. Back in Liyue, the wandering samurai Kazuha tells of Inazuma's Vision Hunt Decree, and Beidou agrees to carry the Traveler across the storm."
+    }
+   ]
+  },
+  {
+   "id": "inazuma",
+   "name": "Inazuma",
+   "chapter": "Chapter II",
+   "hue": "#b48cf2",
+   "blurb": "The Nation of Eternity, sealed behind thunderstorms. The Raiden Shogun seizes Visions to freeze her country in place, and a resistance rises against her.",
+   "versions": [
+    {
+     "v": "2.0",
+     "name": "The Immovable God and the Eternal Euthymia",
+     "date": "Jul 21, 2021",
+     "acts": "Chapter II Acts I to II",
+     "tags": [
+      "Vision Hunt Decree"
+     ],
+     "text": "Inazuma is locked down by the Sakoku Decree, and the Raiden Shogun confiscates Visions in the name of eternity. The Traveler slips ashore with Thoma's help, allies with Kamisato Ayaka and Yoimiya, and escapes the Shogun's blade to join the resistance."
+    },
+    {
+     "v": "2.1",
+     "name": "Floating World Under the Moonlight",
+     "date": "Sep 1, 2021",
+     "acts": "Chapter II Act III",
+     "tags": [
+      "Watatsumi",
+      "Signora"
+     ],
+     "text": "With Kokomi's resistance the Traveler uncovers the Fatui plot behind the Decree. Signora is executed after a duel before the throne, and the Traveler confronts Ei inside the Plane of Euthymia. The Vision Hunt ends."
+    },
+    {
+     "v": "2.2",
+     "name": "Into the Perilous Labyrinth of Fog",
+     "date": "Oct 13, 2021",
+     "acts": "World quests",
+     "tags": [
+      "Tsurumi Island"
+     ],
+     "text": "Tsurumi Island opens, a place lost in fog and trapped in a single repeating day. Thoma, the Kamisato housekeeper, becomes playable."
+    },
+    {
+     "v": "2.3",
+     "name": "Shadows Amidst Snowstorms",
+     "date": "Nov 24, 2021",
+     "acts": "Event story",
+     "tags": [
+      "Dragonspine"
+     ],
+     "text": "An impostor wearing Albedo's face stalks Dragonspine, and the real Albedo asks the Traveler to end him if he ever loses control. Arataki Itto and Gorou debut."
+    },
+    {
+     "v": "2.4",
+     "name": "Fleeting Colors in Flight",
+     "date": "Jan 5, 2022",
+     "acts": "Interlude Act I",
+     "tags": [
+      "Enkanomiya",
+      "Lantern Rite"
+     ],
+     "text": "Enkanomiya, the sunless realm beneath Watatsumi, opens. In Liyue, Ningguang rebuilds the Jade Chamber, and Shenhe helps defend it from Beisht, Osial's vengeful consort."
+    },
+    {
+     "v": "2.5",
+     "name": "When the Sakura Bloom",
+     "date": "Feb 16, 2022",
+     "acts": "Story quests",
+     "tags": [
+      "Yae Miko"
+     ],
+     "text": "Yae Miko pushes Ei into a final reckoning with the Shogun puppet over what eternity should mean. Ei wins, and chooses an eternity that can change."
+    },
+    {
+     "v": "2.6",
+     "name": "Zephyr of the Violet Garden",
+     "date": "Mar 30, 2022",
+     "acts": "Chapter II Act IV",
+     "tags": [
+      "The Chasm",
+      "Irodori Festival"
+     ],
+     "text": "The Chasm opens. With Dainsleif, the Traveler learns of the curse on Khaenri'ah's people and the Abyss Order's plan for a Loom of Fate. Kamisato Ayato steps out of the shadows."
+    },
+    {
+     "v": "2.7",
+     "name": "Hidden Dreams in the Depths",
+     "date": "May 31, 2022",
+     "acts": "Interlude Act II",
+     "tags": [
+      "The Chasm"
+     ],
+     "text": "Trapped beneath the Chasm with Yelan, Xiao, Itto, Shinobu and Yanfei, the Traveler learns the fate of the yaksha Bosacius, and Xiao is saved by the god he serves."
+    },
+    {
+     "v": "2.8",
+     "name": "Summer Fantasia",
+     "date": "Jul 13, 2022",
+     "acts": "Event story",
+     "tags": [
+      "Golden Apple Archipelago"
+     ],
+     "text": "The Golden Apple Archipelago returns, reshaped into illusions drawn from the hearts of Kazuha, Xinyan, Fischl and Mona. Detective Shikanoin Heizou debuts."
+    }
+   ]
+  },
+  {
+   "id": "sumeru",
+   "name": "Sumeru",
+   "chapter": "Chapter III",
+   "hue": "#9bd45c",
+   "blurb": "The Nation of Wisdom, split between rainforest and desert. The Akademiya's sages cage their own archon and try to build a god of their own.",
+   "versions": [
+    {
+     "v": "3.0",
+     "name": "The Morn a Thousand Roses Brings",
+     "date": "Aug 24, 2022",
+     "acts": "Chapter III Acts I to II",
+     "tags": [
+      "Dendro",
+      "Rainforest"
+     ],
+     "text": "Sumeru opens with the Dendro element. The Akademiya rules through the Akasha Terminal and keeps the young archon Nahida confined. During the Sabzeruz Festival the Traveler is caught in a looping day, a samsara built to harvest the dreams of the city."
+    },
+    {
+     "v": "3.1",
+     "name": "King Deshret and the Three Magi",
+     "date": "Sep 28, 2022",
+     "acts": "Chapter III Acts III to IV",
+     "tags": [
+      "Desert"
+     ],
+     "text": "The desert opens. The Traveler learns the sages are building a new god with Fatui help, then gathers Alhaitham, Cyno, Dehya and Candace to plan Nahida's rescue."
+    },
+    {
+     "v": "3.2",
+     "name": "Akasha Pulses, the Kalpa Flame Rises",
+     "date": "Nov 2, 2022",
+     "acts": "Chapter III Act V",
+     "tags": [
+      "Irminsul",
+      "Scaramouche"
+     ],
+     "text": "Nahida is freed. The Traveler defeats Scaramouche in his god-machine, and Nahida erases Greater Lord Rukkhadevata from Irminsul to cure the world of forbidden knowledge. Dottore leaves with two Gnoses."
+    },
+    {
+     "v": "3.3",
+     "name": "All Senses Clear, All Existence Void",
+     "date": "Dec 7, 2022",
+     "acts": "Interlude Act III",
+     "tags": [
+      "Irminsul"
+     ],
+     "text": "Scaramouche tries to delete himself from history inside Irminsul. The world forgets him, yet he survives as the Wanderer and chooses to take his memories back."
+    },
+    {
+     "v": "3.4",
+     "name": "The Exquisite Night Chimes",
+     "date": "Jan 18, 2023",
+     "acts": "Lantern Rite",
+     "tags": [
+      "Desert of Hadramaveth"
+     ],
+     "text": "The Desert of Hadramaveth opens and Lantern Rite returns to Liyue. Alhaitham and the little adeptus disciple Yaoyao debut."
+    },
+    {
+     "v": "3.5",
+     "name": "Windblume's Breath",
+     "date": "Mar 1, 2023",
+     "acts": "Chapter III Act VI",
+     "tags": [
+      "Caribert"
+     ],
+     "text": "Through the memories of Kaeya's ancestor, the Traveler sees how their twin and Chlothar Alberich came to found the Abyss Order. Dehya and Mika debut."
+    },
+    {
+     "v": "3.6",
+     "name": "A Parade of Providence",
+     "date": "Apr 12, 2023",
+     "acts": "Story quests",
+     "tags": [
+      "Girdle of the Sands"
+     ],
+     "text": "The Akademiya holds its Interdarshan Championship, and Nahida's second story returns to the wound in Irminsul. Baizhu and Kaveh debut."
+    },
+    {
+     "v": "3.7",
+     "name": "Duel! The Summoners' Summit!",
+     "date": "May 24, 2023",
+     "acts": "Event story",
+     "tags": [
+      "Genius Invokation"
+     ],
+     "text": "A Genius Invokation TCG tournament draws card players from every nation. Kirara, the nekomata courier, debuts."
+    },
+    {
+     "v": "3.8",
+     "name": "Secret Summer Paradise",
+     "date": "Jul 5, 2023",
+     "acts": "Event story",
+     "tags": [
+      "Veluriyam Mirage"
+     ],
+     "text": "Klee, Eula, Collei and Kaeya explore the Veluriyam Mirage, a world in a bottle kept by the Oceanid Idyia."
+    }
+   ]
+  },
+  {
+   "id": "fontaine",
+   "name": "Fontaine",
+   "chapter": "Chapter IV",
+   "hue": "#58b6f0",
+   "blurb": "The Nation of Justice, where trials are theatre. A prophecy says its people will dissolve into the sea and leave their archon weeping alone on her throne.",
+   "versions": [
+    {
+     "v": "4.0",
+     "name": "As Light Rain Falls Without Reason",
+     "date": "Aug 16, 2023",
+     "acts": "Chapter IV Acts I to II",
+     "tags": [
+      "Opera Epiclese"
+     ],
+     "text": "Fontaine opens. The magician Lyney is tried at the Opera Epiclese for a vanishing during his show, and the Traveler exposes the real culprit behind years of serial disappearances."
+    },
+    {
+     "v": "4.1",
+     "name": "To the Stars Shining in the Depths",
+     "date": "Sep 27, 2023",
+     "acts": "Chapter IV Acts III to IV",
+     "tags": [
+      "Fortress of Meropide"
+     ],
+     "text": "In the undersea Fortress of Meropide, Duke Wriothesley holds back the rising Primordial Sea. Childe is convicted by the Oratrice without cause, and Neuvillette's nature as the Hydro Dragon comes into view."
+    },
+    {
+     "v": "4.2",
+     "name": "Masquerade of the Guilty",
+     "date": "Nov 8, 2023",
+     "acts": "Chapter IV Act V",
+     "tags": [
+      "Prophecy"
+     ],
+     "text": "Furina is put on trial. She is the human half of the archon Focalors, who played a god for five hundred years so that Focalors could return the Hydro authority to Neuvillette and break the prophecy. The flood comes, and Fontaine survives it."
+    },
+    {
+     "v": "4.3",
+     "name": "Roses and Muskets",
+     "date": "Dec 20, 2023",
+     "acts": "Story quests",
+     "tags": [
+      "Spina di Rosula"
+     ],
+     "text": "Navia lays her father's case to rest and takes the Spina di Rosula forward. Captain Chevreuse of the Special Security and Surveillance Patrol debuts."
+    },
+    {
+     "v": "4.4",
+     "name": "Vibrant Harriers Aloft in Spring Breeze",
+     "date": "Jan 31, 2024",
+     "acts": "Lantern Rite",
+     "tags": [
+      "Chenyu Vale"
+     ],
+     "text": "Chenyu Vale opens between Liyue and Fontaine. Cloud Retainer walks among mortals as Xianyun, and the lion dancer Gaming chases his dream during Lantern Rite."
+    },
+    {
+     "v": "4.5",
+     "name": "Blades Weaving Betwixt Brocade",
+     "date": "Mar 13, 2024",
+     "acts": "Story quests",
+     "tags": [
+      "Chioriya Boutique"
+     ],
+     "text": "Chiori, an Inazuman designer who built her boutique in the Court of Fontaine, debuts with a story from her shop floor."
+    },
+    {
+     "v": "4.6",
+     "name": "Two Worlds Aflame, the Crimson Night Fades",
+     "date": "Apr 24, 2024",
+     "acts": "Story quests",
+     "tags": [
+      "Remuria",
+      "House of the Hearth"
+     ],
+     "text": "Arlecchino's story opens the House of the Hearth and the curse of the Crimson Moon. Below the waves, the Sea of Bygone Eras reveals the fallen empire of Remuria."
+    },
+    {
+     "v": "4.7",
+     "name": "An Everlasting Dream Intertwined",
+     "date": "Jun 5, 2024",
+     "acts": "Chapter IV Act VI",
+     "tags": [
+      "Bedtime Story"
+     ],
+     "text": "With Dainsleif, the Traveler meets their twin face to face and learns of the Sinner Vedrfolnir behind the Abyss Order. Clorinde, Sigewinne and Sethos debut."
+    },
+    {
+     "v": "4.8",
+     "name": "Summertide Scales and Tales",
+     "date": "Jul 17, 2024",
+     "acts": "Event story",
+     "tags": [
+      "Simulanka"
+     ],
+     "text": "A storybook world of paper and toys called Simulanka, written by the witches of the Hexenzirkel, needs heroes to save it from its own dragon. Emilie debuts."
+    }
+   ]
+  },
+  {
+   "id": "natlan",
+   "name": "Natlan",
+   "chapter": "Chapter V",
+   "hue": "#f08a4b",
+   "blurb": "The Nation of War, land of dragons and the Sacred Flame. Six tribes fight a war against the Abyss that has never ended, led by a human archon.",
+   "versions": [
+    {
+     "v": "5.0",
+     "name": "Flowers Resplendent on the Sun-Scorched Sojourn",
+     "date": "Aug 28, 2024",
+     "acts": "Chapter V Acts I to II",
+     "tags": [
+      "Saurians",
+      "Night Kingdom"
+     ],
+     "text": "Natlan opens. Its tribes compete in the Pilgrimage of the Return of the Sacred Flame to choose warriors for the Night Warden Wars. When Kachina is lost in the Night Kingdom, the Traveler brings her back and earns an Ancient Name of their own."
+    },
+    {
+     "v": "5.1",
+     "name": "The Rainbow Destined to Burn",
+     "date": "Oct 9, 2024",
+     "acts": "Chapter V Acts III to IV",
+     "tags": [
+      "Six Heroes"
+     ],
+     "text": "Mavuika reveals she is a human who slept five hundred years to finish the plan against the Abyss. She gathers six heroes, and Capitano, First of the Harbingers, becomes an uneasy ally as the Abyss breaks through."
+    },
+    {
+     "v": "5.2",
+     "name": "Tapestry of Spirit and Flame",
+     "date": "Nov 20, 2024",
+     "acts": "Tribal chronicles",
+     "tags": [
+      "Flower-Feather Clan",
+      "Night-Wind"
+     ],
+     "text": "Two more tribes open, the Flower-Feather Clan and the Masters of the Night-Wind. Chasca and Ororon debut."
+    },
+    {
+     "v": "5.3",
+     "name": "Incandescent Ode of Resurrection",
+     "date": "Jan 1, 2025",
+     "acts": "Chapter V Act V",
+     "tags": [
+      "Lord of the Night"
+     ],
+     "text": "All of Natlan fights the last war. Mavuika destroys the Abyss's vessel, and Capitano takes the throne of the Lord of the Night so that the dead can rest and Mavuika can live. Citlali debuts."
+    },
+    {
+     "v": "5.4",
+     "name": "Moonlight Amidst Dreams",
+     "date": "Feb 12, 2025",
+     "acts": "Event story",
+     "tags": [
+      "Mikawa Flower Festival"
+     ],
+     "text": "Inazuma's yokai hold the Mikawa Flower Festival. Yumemizuki Mizuki, a baku who eats nightmares, debuts."
+    },
+    {
+     "v": "5.5",
+     "name": "Day of the Flame's Return",
+     "date": "Mar 26, 2025",
+     "acts": "Chapter V Interlude",
+     "tags": [
+      "Collective of Plenty",
+      "Sacred Mountain"
+     ],
+     "text": "The Collective of Plenty and the great volcano open. Natlan rebuilds after the war, and Varesa and Iansan debut."
+    },
+    {
+     "v": "5.6",
+     "name": "Paralogism",
+     "date": "May 7, 2025",
+     "acts": "Interlude Act IV",
+     "tags": [
+      "Mondstadt"
+     ],
+     "text": "An interlude in Mondstadt centred on Albedo, where an elaborate deception tests what the Traveler can trust. Escoffier, once head chef of the Hotel Debord, and Ifa debut."
+    },
+    {
+     "v": "5.7",
+     "name": "Battle of Imagined Arrays",
+     "date": "Jun 18, 2025",
+     "acts": "Chapter V Act VI",
+     "tags": [
+      "Skirk",
+      "Dainsleif"
+     ],
+     "text": "Skirk, Childe's master, arrives from the Abyss. With her and Dainsleif the Traveler goes after what was lost from their own past. Dahlia debuts."
+    },
+    {
+     "v": "5.8",
+     "name": "Sunspray Summer Resort",
+     "date": "Jul 30, 2025",
+     "acts": "Event story",
+     "tags": [
+      "Easybreeze Holiday Resort"
+     ],
+     "text": "A summer festival at a resort in Natlan. Ineffa, a robot built in Nod-Krai, arrives ahead of the next chapter."
+    }
+   ]
+  },
+  {
+   "id": "nod-krai",
+   "name": "Nod-Krai",
+   "chapter": "Song of the Welkin Moon",
+   "hue": "#9fb7ff",
+   "blurb": "A lawless frontier south of Snezhnaya where three moons once hung. The Frostmoon Scions, the Lightkeepers and the Fatui all reach for the power of the moon.",
+   "versions": [
+    {
+     "v": "6.0",
+     "name": "A Dance of Snowy Tides and Hoarfrost Groves",
+     "tag": "Luna I",
+     "date": "Sep 10, 2025",
+     "acts": "Welkin Moon Acts I to II",
+     "tags": [
+      "Kuuvahki",
+      "Wild Hunt"
+     ],
+     "text": "Nod-Krai opens. The Traveler meets Lauma of the Frostmoon Scions, the Lightkeeper Flins and the inventor Aino while the Wild Hunt stirs and the Fatui move to seize the power of the Moon Maiden."
+    },
+    {
+     "v": "6.1",
+     "name": "An Elegy for Faded Moonlight",
+     "tag": "Luna II",
+     "date": "Oct 22, 2025",
+     "acts": "Welkin Moon Acts III to IV",
+     "tags": [
+      "Nasha Town"
+     ],
+     "text": "The story moves into Nasha Town's underworld and the Curatorium of Secrets, where Nefer trades in information, and toward a nation that does not exist."
+    },
+    {
+     "v": "6.2",
+     "name": "A Nocturne of the Far North",
+     "tag": "Luna III",
+     "date": "Dec 3, 2025",
+     "acts": "Welkin Moon Acts V to VI",
+     "tags": [
+      "Moon-Prayer Night"
+     ],
+     "text": "Columbina, the Moon Maiden, searches the past for her true name. On Moon-Prayer Night she prepares for the journey home. Durin, a dragon reborn from a storybook, and Jahoda debut."
+    },
+    {
+     "v": "6.3",
+     "name": "A Traveler on a Winter's Night",
+     "tag": "Luna IV",
+     "date": "Jan 14, 2026",
+     "acts": "Welkin Moon Acts VII to VIII",
+     "tags": [
+      "True Moon",
+      "Lantern Rite"
+     ],
+     "text": "A battle for Nod-Krai begins on a moonless night. The Doctor's scheme closes in step by step, until the Welkin Moon returns to its homeland. Columbina, Zibai and Illuga debut."
+    },
+    {
+     "v": "6.4",
+     "name": "Homeward, He Who Caught the Wind",
+     "tag": "Luna V",
+     "date": "Feb 25, 2026",
+     "acts": "Story quests",
+     "tags": [
+      "Knights of Favonius"
+     ],
+     "text": "Grand Master Varka, absent since before the Traveler arrived, finally leads his expedition home to Mondstadt and becomes playable."
+    },
+    {
+     "v": "6.5",
+     "name": "Rondo: Augured Homecoming",
+     "tag": "Luna VI",
+     "date": "Apr 8, 2026",
+     "acts": "Event story",
+     "tags": [
+      "Northern Mondstadt"
+     ],
+     "text": "Mondstadt's map grows northward. Linnea, a naturalist who advises the Nod-Krai branch of the Adventurers' Guild, debuts."
+    },
+    {
+     "v": "6.6",
+     "name": "Truth Amongst the Pages of Purana",
+     "tag": "Luna VII",
+     "date": "May 20, 2026",
+     "acts": "Welkin Moon Acts IX to X",
+     "tags": [
+      "Irminsul",
+      "Hexenzirkel"
+     ],
+     "text": "Irminsul falters and Nahida falls into a coma. The Traveler regroups at Caravan Ribat and the Temple of Silence as Sumeru braces for a war beyond ordinary people. Nicole of the Hexenzirkel, Lohen and Prune debut."
+    },
+    {
+     "v": "6.7",
+     "name": "Sunny Summer Fontinalia",
+     "tag": "Luna VIII",
+     "date": "Jul 1, 2026",
+     "acts": "Event story",
+     "tags": [
+      "Fontaine",
+      "Lunar Highlands"
+     ],
+     "text": "A summer festival in Fontaine, and new areas open on the moon itself: the Lunar Highlands, the Moontide Sea and the Dark Side of the Moon. Sandrone, the Harbinger known as Marionette, becomes playable."
+    }
+   ]
+  },
+  {
+   "id": "snezhnaya",
+   "name": "Snezhnaya",
+   "chapter": "Chapter VII",
+   "hue": "#bfe6ff",
+   "blurb": "The Tsaritsa's nation of everwinter and the homeland of the Fatui. After six years of meeting its agents abroad, the Traveler finally walks its snow.",
+   "versions": [
+    {
+     "v": "7.0",
+     "name": "Everwinter Without Mercy",
+     "date": "Aug 12, 2026",
+     "acts": "Chapter VII Acts I to II",
+     "tags": [
+      "Snezhnaya opens"
+     ],
+     "text": "Snezhnaya opens. A catastrophic blizzard and an energy crisis grip the country, and the first acts show what the Fatui have been fighting at home and why their methods grew so extreme. Odette and Alyosha debut."
+    },
+    {
+     "v": "7.1",
+     "name": "A Rekviem for the Underworld",
+     "date": "Sep 23, 2026",
+     "acts": "Chapter VII Acts III to IV",
+     "tags": [
+      "Sixth anniversary",
+      "Ronova"
+     ],
+     "text": "The Snezhnaya chapter continues, and Ronova, the Ruler of Death, appears as a weekly boss. Vesna, commander of the Tsaritsa's Druzhna, and the prima donna Vodyanitsa debut."
+    },
+    {
+     "v": "7.2",
+     "name": "Hour of Ruin",
+     "date": "Nov 4, 2026",
+     "acts": "Chapter VII Acts V to VI",
+     "tags": [
+      "Novokitezhgrad",
+      "Wingspan Peak"
+     ],
+     "text": "The Nails of Retribution grow unstable, pillars of light rise and Holy Soil spreads, a danger to all seven nations. Novokitezhgrad and Wingspan Peak open in eastern Snezhnaya. Mitya and Valeriy debut."
+    }
+   ]
+  }
+ ],
+ "chars": {
+  "Amber": {
+   "lore": "The only Outrider left in the Knights of Favonius and the first friend the Traveler makes in Mondstadt. She inherited her post, and her optimism, from her grandfather."
+  },
+  "Kaeya": {
+   "lore": "Cavalry Captain of the Knights, adopted by the Ragnvindr family as a child. He is the last heir of Khaenri'ah's Alberich line, a secret that broke his bond with Diluc."
+  },
+  "Lisa": {
+   "lore": "The Knights' languid librarian and the finest graduate Sumeru Akademiya had seen in two centuries. She came home wary of what great knowledge costs."
+  },
+  "Jean": {
+   "lore": "Acting Grand Master of the Knights of Favonius. She holds Mondstadt together in Varka's absence and rarely allows herself a day of rest."
+  },
+  "Diluc": {
+   "lore": "Owner of the Dawn Winery. He left the Knights after they covered up his father's death, and now protects the city at night as the Darknight Hero."
+  },
+  "Venti": {
+   "lore": "A bard with a taste for wine who is in truth Barbatos, the Anemo Archon. He wears the face of a friend who died in the rebellion that freed old Mondstadt."
+  },
+  "Klee": {
+   "lore": "The Spark Knight, a child with a gift for explosives and a permanent seat in solitary confinement. Her mother is the witch Alice."
+  },
+  "Barbara": {
+   "lore": "Deaconess of the Church of Favonius and Mondstadt's beloved idol. She is Jean's younger sister, raised apart after their parents separated."
+  },
+  "Bennett": {
+   "lore": "The unluckiest adventurer in Mondstadt, found as a baby by an old explorer and raised by the Guild. He leads Benny's Adventure Team, usually alone."
+  },
+  "Noelle": {
+   "lore": "A maid of the Knights who dreams of knighthood and fails the selection exam year after year. She is far stronger than she believes."
+  },
+  "Fischl": {
+   "lore": "Self-styled Prinzessin der Verurteilung, an Adventurers' Guild investigator who lives inside the fantasy novels she loved. Her raven Oz is quite real."
+  },
+  "Sucrose": {
+   "lore": "A shy alchemist who assists Albedo and specialises in bio-alchemy. She dreams of creating a land full of wonders."
+  },
+  "Mona": {
+   "lore": "A proud and penniless astrologist whose readings are never wrong. She is the disciple of Barbeloth, one of the witches of the Hexenzirkel."
+  },
+  "Razor": {
+   "lore": "A boy raised by the wolves of Wolvendom. Varka gave him his name and a sword, and Lisa taught him to command lightning."
+  },
+  "Xiangling": {
+   "lore": "Head chef of Wanmin Restaurant, fearless with strange ingredients. Her companion Guoba is the faded form of the Stove God Marchosius."
+  },
+  "Xingqiu": {
+   "lore": "Second son of the Feiyun Commerce Guild, a bookworm who trained in the Guhua sword arts and practises chivalry in secret."
+  },
+  "Beidou": {
+   "lore": "Captain of the Crux Fleet, who killed the sea monster Haishan without a Vision. She ferries the Traveler to Inazuma in defiance of the Sakoku Decree."
+  },
+  "Ningguang": {
+   "lore": "The Tianquan of the Liyue Qixing. She rose from selling goods barefoot on the shore to owning the Jade Chamber, and gave it up to save the harbor."
+  },
+  "Chongyun": {
+   "lore": "An exorcist born with so much yang energy that spirits flee before he can see them. He fights to keep his temper cool."
+  },
+  "Keqing": {
+   "lore": "The Yuheng of the Qixing, who dared to question the gods before it was safe to. After Rex Lapis's passing she works harder than anyone to prove humans can rule themselves."
+  },
+  "Qiqi": {
+   "lore": "A child herb gatherer caught in a battle between adepti, revived as a zombie and sealed in amber for centuries. She gives herself orders to keep going."
+  },
+  "Tartaglia": {
+   "lore": "Childe, Eleventh of the Fatui Harbingers. He fell into the Abyss as a boy, was trained there by Skirk, and has loved a good fight ever since."
+  },
+  "Diona": {
+   "lore": "The bartender of the Cat's Tail, a child of the Katzlein bloodline who hates alcohol and cannot make a bad drink no matter how she tries."
+  },
+  "Zhongli": {
+   "lore": "A consultant of the Wangsheng Funeral Parlor and the retired Geo Archon, Morax. After six thousand years he ended his own reign with one last contract."
+  },
+  "Xinyan": {
+   "lore": "Liyue's first rock and roll musician, who plays against prejudice with fire and a home-made guitar."
+  },
+  "Albedo": {
+   "lore": "Chief Alchemist of the Knights, a synthetic human made by Rhinedottir of Khaenri'ah. He fears what he may become and asks friends to stop him if it happens."
+  },
+  "Ganyu": {
+   "lore": "Secretary to the Liyue Qixing, half human and half qilin. She has served the harbor since signing a contract with Rex Lapis during the Archon War."
+  },
+  "Xiao": {
+   "lore": "The Vigilant Yaksha and last survivor of the five yakshas. Freed from a cruel god by Morax, he has spent millennia fighting the remnants of fallen gods."
+  },
+  "Hu Tao": {
+   "lore": "The 77th Director of the Wangsheng Funeral Parlor. A prankster who guards the border between life and death with complete seriousness."
+  },
+  "Rosaria": {
+   "lore": "A sister of the Church who never attends service. Rescued from bandits by Varka, she does the work in the dark that keeps Mondstadt clean."
+  },
+  "Yanfei": {
+   "lore": "Liyue's top legal adviser, half illuminated beast. Born in peacetime, she is bound by no contract and chose the law out of love for it."
+  },
+  "Eula": {
+   "lore": "Captain of the Reconnaissance Company and a descendant of the tyrant Lawrence clan. She joined the Knights her family despises and swears vengeance she never takes."
+  },
+  "Kaedehara Kazuha": {
+   "lore": "A wandering samurai of a fallen clan. He fled Inazuma carrying the dead Vision of a friend who challenged the Shogun, and found shelter with the Crux."
+  },
+  "Kamisato Ayaka": {
+   "lore": "The Shirasagi Himegimi, daughter of the Yashiro Commission's Kamisato Clan. Graceful in public and lonely in private, she quietly shelters those who lost their Visions."
+  },
+  "Yoimiya": {
+   "lore": "Owner of Naganohara Fireworks and the Queen of the Summer Festival. She believes a single bright moment can stay with a person forever."
+  },
+  "Sayu": {
+   "lore": "A tiny ninja of the Shuumatsuban whose only ambitions are sleeping and growing taller."
+  },
+  "Raiden Shogun": {
+   "lore": "Ei, the Electro Archon. After losing her twin Makoto and her friends, she sealed herself in the Plane of Euthymia and left a puppet to rule in pursuit of eternity."
+  },
+  "Kujou Sara": {
+   "lore": "General of the Tenryou Commission, a tengu adopted into the Kujou Clan. Her loyalty to the Shogun survives the discovery of her own clan's treason."
+  },
+  "Sangonomiya Kokomi": {
+   "lore": "Divine Priestess of Watatsumi Island and strategist of the resistance. She plans every battle on paper and saves her energy for the people who rely on her."
+  },
+  "Aloy": {
+   "lore": "A hunter from another world entirely, carried to Teyvat by a crossover."
+  },
+  "Thoma": {
+   "lore": "The Kamisato Clan's housekeeper and fixer, born in Mondstadt. The Shogun marked his Vision as the hundredth to be taken, and the Traveler stopped it."
+  },
+  "Arataki Itto": {
+   "lore": "The loud and proud oni leader of the Arataki Gang, forever challenging Kujou Sara to a rematch for the Vision she took from him."
+  },
+  "Gorou": {
+   "lore": "The dog-eared general of the Watatsumi army, trusted completely by his soldiers and by Kokomi."
+  },
+  "Shenhe": {
+   "lore": "A daughter of exorcists offered to a god by her own father. Cloud Retainer raised her and bound her soul with red ropes to hold back her killing intent."
+  },
+  "Yun Jin": {
+   "lore": "Director of the Yun-Han Opera Troupe, a master of Liyue opera with a private love of rock music."
+  },
+  "Yae Miko": {
+   "lore": "Guuji of the Grand Narukami Shrine, a kitsune and Ei's oldest living friend. She runs the Yae Publishing House and engineered the Traveler's meeting with the Shogun."
+  },
+  "Kamisato Ayato": {
+   "lore": "Head of the Kamisato Clan and Yashiro Commissioner. He took the post young after his parents died and plays politics so that Ayaka does not have to."
+  },
+  "Yelan": {
+   "lore": "An intelligence agent who answers to Ningguang, officially a clerk of the Ministry of Civil Affairs. Her ancestors fought and died in the Chasm."
+  },
+  "Kuki Shinobu": {
+   "lore": "Deputy of the Arataki Gang. She walked away from life as a shrine maiden and holds enough licences to get the gang out of any trouble."
+  },
+  "Shikanoin Heizou": {
+   "lore": "The Tenryou Commission's detective prodigy, who believes solving a case early enough is the only way to prevent the next crime."
+  },
+  "Tighnari": {
+   "lore": "Forest Watcher of Gandharva Ville, a fennec-eared botanist who left the Akademiya because the forest needed him more."
+  },
+  "Collei": {
+   "lore": "A trainee Forest Ranger and survivor of Dottore's experiments. She was freed of the archon residue in her blood and is learning to live without fear."
+  },
+  "Dori": {
+   "lore": "A merchant who can find anything for a price. Her greed began as a promise to someone she could not afford to save."
+  },
+  "Cyno": {
+   "lore": "The General Mahamatra, enforcer of the Akademiya's law, who carries a spirit of King Deshret's priests. He tells terrible jokes."
+  },
+  "Candace": {
+   "lore": "Guardian of Aaru Village and a descendant of King Deshret. She shelters scholars exiled by the Akademiya."
+  },
+  "Nilou": {
+   "lore": "The star dancer of the Zubayr Theater, whose Sabzeruz Festival dance for Nahida the sages tried to ban."
+  },
+  "Nahida": {
+   "lore": "Lesser Lord Kusanali, the Dendro Archon, a branch of Irminsul born after Rukkhadevata's sacrifice. The sages confined her for five hundred years."
+  },
+  "Layla": {
+   "lore": "A Rtawahist student of astrology who never gets enough sleep. A second self finishes her papers while she dreams."
+  },
+  "Wanderer": {
+   "lore": "Once Scaramouche the Harbinger, a puppet made and abandoned by Ei. He tried to erase himself from Irminsul, failed, and took a new name from the Traveler."
+  },
+  "Faruzan": {
+   "lore": "A scholar of ancient machines who was trapped in a ruin for a hundred years. She returned unchanged to an Akademiya that had forgotten her."
+  },
+  "Alhaitham": {
+   "lore": "Scribe of the Akademiya, a rationalist who wants a quiet life and overthrew the sages mostly to get it back."
+  },
+  "Yaoyao": {
+   "lore": "A young disciple of the adeptus Streetward Rambler who looks after everyone older than her, especially Qiqi."
+  },
+  "Dehya": {
+   "lore": "The Flame-Mane, a mercenary of the Eremites with a strict code. She guards Dunyarzad and comes to fight for Sumeru itself."
+  },
+  "Mika": {
+   "lore": "A Front-Line Surveyor of the Knights who returned ahead of Varka's expedition carrying a letter for Jean."
+  },
+  "Baizhu": {
+   "lore": "Owner of Bubu Pharmacy. He inherited a contract with the snake Changsheng that lets him take illness into his own body."
+  },
+  "Kaveh": {
+   "lore": "The architect of the Palace of Alcazarzaray, bankrupted by his own masterpiece. He rents a room from Alhaitham and argues with him daily."
+  },
+  "Kirara": {
+   "lore": "A nekomata courier for Komaniya Express who loves the human world and delivers anywhere."
+  },
+  "Lyney": {
+   "lore": "A famed stage magician and a child of the House of the Hearth. He is Arlecchino's chosen successor and brother to Lynette and Freminet."
+  },
+  "Lynette": {
+   "lore": "Lyney's twin and silent assistant, sharp-eyed and loyal. Arlecchino rescued her from a nobleman who meant to keep her."
+  },
+  "Freminet": {
+   "lore": "A quiet diver of the House of the Hearth who prefers the sea floor and his clockwork penguin to people."
+  },
+  "Neuvillette": {
+   "lore": "Iudex of Fontaine and the reborn Hydro Dragon Sovereign. He presided over its courts for centuries and at last pardoned its people of their original sin."
+  },
+  "Wriothesley": {
+   "lore": "Duke and warden of the Fortress of Meropide. Sentenced there as a boy for killing his murderous foster parents, he rose to run it."
+  },
+  "Furina": {
+   "lore": "The human made by Focalors to play Hydro Archon. She acted the part alone for five hundred years to save Fontaine, and now learns to live for herself."
+  },
+  "Charlotte": {
+   "lore": "A reporter for The Steambird who will chase the truth into any danger with her Kamera, Monsieur Verite."
+  },
+  "Navia": {
+   "lore": "President of the Spina di Rosula. She lost her father to a false verdict, and her closest companions to the flood."
+  },
+  "Chevreuse": {
+   "lore": "Captain of the Special Security and Surveillance Patrol, raised in the Fortress of Meropide and incapable of bending a rule."
+  },
+  "Xianyun": {
+   "lore": "Cloud Retainer, an adeptus inventor of great pride and many words, guardian to Ganyu and Shenhe. She now lives among mortals."
+  },
+  "Gaming": {
+   "lore": "A guard for a transport agency who came to Liyue to become a wushou dancer against his father's wishes."
+  },
+  "Chiori": {
+   "lore": "An Inazuman designer who owns Chioriya Boutique in Fontaine. Blunt, exacting and unwilling to flatter anyone."
+  },
+  "Arlecchino": {
+   "lore": "The Knave, Fourth of the Fatui Harbingers and Father of the House of the Hearth. She killed the last Mother, ended its cruelty, and bears the curse of the Crimson Moon."
+  },
+  "Clorinde": {
+   "lore": "Champion Duelist of Fontaine's court, raised by a Marechaussee hunter. Her blade ended the life of Navia's father, at his own request."
+  },
+  "Sigewinne": {
+   "lore": "The head nurse of the Fortress of Meropide, a Melusine who studies humans with clinical affection."
+  },
+  "Sethos": {
+   "lore": "Heir to the Temple of Silence. As a child he was given half of an ancient priestly spirit, and in the end he passed it to Cyno."
+  },
+  "Emilie": {
+   "lore": "A perfumer of Fontaine who also works as a forensic cleaner, removing every trace a crime leaves behind."
+  },
+  "Kachina": {
+   "lore": "A young warrior of the Children of Echoes who cries easily and gives up never. Her Ancient Name is Uthabiti."
+  },
+  "Kinich": {
+   "lore": "A saurian hunter of the Scions of the Canopy, bound by contract to the dragon Ajaw, who is waiting to take his body."
+  },
+  "Mualani": {
+   "lore": "A guide of the People of the Springs and Natlan's best surfer, cheerful enough to carry a whole team."
+  },
+  "Xilonen": {
+   "lore": "Natlan's finest smith, a leopard-eared craftswoman of the Children of Echoes who forges Ancient Names."
+  },
+  "Chasca": {
+   "lore": "A peacekeeper of the Flower-Feather Clan who was raised by Qucusaurs and learned to fly without wings."
+  },
+  "Ororon": {
+   "lore": "A youth of the Masters of the Night-Wind born with a damaged soul. Citlali raised him, and Capitano trusted him."
+  },
+  "Mavuika": {
+   "lore": "The Pyro Archon, a human who won the Sacred Flame five hundred years ago and slept through the centuries to lead the last war against the Abyss."
+  },
+  "Citlali": {
+   "lore": "A two hundred year old shaman of the Masters of the Night-Wind, known as Granny Itztli, who would rather stay home with light novels."
+  },
+  "Lan Yan": {
+   "lore": "A rattan weaver from Chenyu Vale, quick and bright as a swallow."
+  },
+  "Yumemizuki Mizuki": {
+   "lore": "A baku who works as a clinical psychologist and part-owns Aisa Bathhouse, eating the nightmares of Inazuma."
+  },
+  "Iansan": {
+   "lore": "Natlan's strictest coach, a warrior of the Collective of Plenty and one of Mavuika's six heroes."
+  },
+  "Varesa": {
+   "lore": "An easy-going orchard keeper of the Collective of Plenty who dreams of being a hero and eats like one."
+  },
+  "Escoffier": {
+   "lore": "Once head chef of the Hotel Debord and now a free agent of Fontaine cuisine, exact to the gram."
+  },
+  "Ifa": {
+   "lore": "A saurian veterinarian of the Flower-Feather Clan, never seen without his Qucusaur partner Cacucu."
+  },
+  "Skirk": {
+   "lore": "A solitary swordswoman from beyond Teyvat and a disciple of Surtalogi. She trained a young Childe in the Abyss, and later walked into Teyvat herself."
+  },
+  "Dahlia": {
+   "lore": "Deacon of the Church of Favonius and the Anemo Archon's own representative there, charming and relaxed about doctrine."
+  },
+  "Ineffa": {
+   "lore": "A multifunctional robot assembled from the machines of many nations. She keeps house for Aino and is working out what a self is."
+  },
+  "Aino": {
+   "lore": "A child prodigy mechanic of Nod-Krai whose gadgets brighten a cold frontier. Ineffa is her creation and her family."
+  },
+  "Flins": {
+   "lore": "A courtly Lightkeeper who guards a lighthouse and a graveyard on a northern isle. He is older than he looks and not entirely human."
+  },
+  "Lauma": {
+   "lore": "The Moonchanter of the Frostmoon Scions, a horned maiden who hears the forest and prays to a moon goddess who cannot hear her."
+  },
+  "Nefer": {
+   "lore": "Owner of the Curatorium of Secrets in Nasha Town. She came from the desert and trades in information the way others trade in Mora."
+  },
+  "Jahoda": {
+   "lore": "The Curatorium of Secrets' all-purpose employee, by her own account extremely reliable."
+  },
+  "Durin": {
+   "lore": "A dragon written into being by the witch M, Rhinedottir. The first Durin died on Dragonspine. This one was given a gentler story."
+  },
+  "Columbina": {
+   "lore": "The Moon Maiden born in Nod-Krai, once the Third Harbinger called Damselette. She is the Welkin Moon itself, trying to go home."
+  },
+  "Zibai": {
+   "lore": "The White Horse Adeptus of Liyue's oldest legends, who rode with Rex Lapis in the Archon War and then vanished from history."
+  },
+  "Illuga": {
+   "lore": "The youngest squad leader of the Lightkeepers, who leads the Nightmare Orioles against the Wild Hunt."
+  },
+  "Varka": {
+   "lore": "Grand Master of the Knights of Favonius and Knight of Boreas. He led most of the order on a years-long expedition and left Mondstadt in Jean's hands."
+  },
+  "Linnea": {
+   "lore": "A naturalist and adviser to the Adventurers' Guild in Nod-Krai who would rather be in the field than behind a desk."
+  },
+  "Lohen": {
+   "lore": "Vice Captain of the Knights' Ranged Company, a spear fighter who leads crossbowmen from the very front line."
+  },
+  "Nicole": {
+   "lore": "N of the Hexenzirkel, a voiceless angel and seer who has watched Teyvat's story since before the moons fell."
+  },
+  "Prune": {
+   "lore": "A tiny self-declared Witch Hunter who walked from Nod-Krai to Mondstadt to bring one particular witch to justice."
+  },
+  "Sandrone": {
+   "lore": "Marionette, Seventh of the Fatui Harbingers. An engineer who reads the world as mathematics and never misses a tea party."
+  },
+  "Odette": {
+   "lore": "A celebrated ballerina of the Korolevskiy Troupe, with a beauty as sharp as the frost she dances on."
+  },
+  "Alyosha": {
+   "lore": "A professional hunter who knows the Snezhnayan snowfields better than anyone. A fierce idealism burns under his calm."
+  },
+  "Vesna": {
+   "lore": "Commander of the Druzhna, the Tsaritsa's own guard, and her keenest blade."
+  },
+  "Vodyanitsa": {
+   "lore": "Prima donna of the Korolevskiy Troupe, a Water Imp who left her own kind for the stage."
+  },
+  "Mitya": {
+   "lore": "A brilliant energy specialist of Snezhnaya's Royal Energy Commission and an expert at avoiding his own schedule."
+  },
+  "Valeriy": {
+   "lore": "Commander of a special battalion in the Fatui Grenadier Guards, trusted to protect key people and keep operations on course."
+  },
+  "Aether": {
+   "lore": "An outlander who crossed worlds with a twin and lost them to an unknown god. Wakes in Teyvat centuries later and walks the seven nations looking for answers."
+  },
+  "Lumine": {
+   "lore": "An outlander who crossed worlds with a twin and lost them to an unknown god. Wakes in Teyvat centuries later and walks the seven nations looking for answers."
+  }
+ },
+ "bonds": {
+  "Diluc|Kaeya": "Sworn brothers raised in the same house. They fought the night Diluc's father died, when Kaeya confessed where he came from, and have kept a wary peace since.",
+  "Jean|Barbara": "Sisters separated by their parents' divorce. Each admires the other and neither quite knows how to say so.",
+  "Jean|Diluc": "Former comrades in the Knights. Jean still trusts him, and he still helps, as long as nobody calls it helping the Knights.",
+  "Jean|Varka": "Grand Master and the deputy he left in charge. She has run the order for years in his name.",
+  "Venti|Zhongli": "The two oldest of the Seven. One brings wine, the other disapproves and drinks it anyway.",
+  "Venti|Xiao": "Long ago the sound of Venti's flute pulled Xiao back from the edge of his karmic debt.",
+  "Zhongli|Xiao": "Morax freed the yaksha from a cruel master and gave him his name. Xiao has served him ever since.",
+  "Zhongli|Hu Tao": "Employer and consultant. She is the only person in Liyue who orders the Geo Archon around.",
+  "Zhongli|Tartaglia": "Childe paid Zhongli's bills while being used in the Archon's final contract. He took the deception surprisingly well.",
+  "Zhongli|Ganyu": "She has kept the contract she signed with Rex Lapis for three thousand years.",
+  "Zhongli|Zibai": "The White Horse Adeptus fought beside Rex Lapis in the Archon War, before the histories lost her.",
+  "Ningguang|Beidou": "The Tianquan and the pirate she pretends not to fund. They play chess and trade favours.",
+  "Ningguang|Keqing": "Fellow Qixing who rarely agree and work well together because of it.",
+  "Ganyu|Xianyun": "Cloud Retainer helped raise Ganyu, and will tell anyone the embarrassing stories.",
+  "Shenhe|Xianyun": "Master and disciple. Cloud Retainer took in the abandoned child and taught her the adepti arts.",
+  "Xingqiu|Chongyun": "Best friends. Xingqiu's hobby is finding new ways to trick Chongyun into eating spicy food.",
+  "Qiqi|Baizhu": "He took her in at Bubu Pharmacy. She suspects he wants the secret of her immortality, and stays anyway.",
+  "Qiqi|Hu Tao": "Hu Tao wants to give Qiqi a proper burial. Qiqi wants Hu Tao to go away.",
+  "Klee|Albedo": "Alice left Klee in Albedo's care. He treats her as a little sister.",
+  "Albedo|Sucrose": "Mentor and assistant in the alchemy lab.",
+  "Albedo|Durin": "Both are creations of Rhinedottir. Albedo studied the first Durin's remains on Dragonspine, and now has a living brother.",
+  "Amber|Eula": "Amber was the first in Mondstadt to befriend the Lawrence heir without caring about her name.",
+  "Amber|Collei": "Amber befriended Collei when she was brought to Mondstadt, and taught her to trust again.",
+  "Lisa|Razor": "She taught the wolf boy to use Electro, and a few human words.",
+  "Raiden Shogun|Yae Miko": "Friends for centuries. Yae kept watch while Ei hid from the world, and found the Traveler to wake her.",
+  "Raiden Shogun|Kujou Sara": "The general whose devotion to the Shogun is absolute.",
+  "Raiden Shogun|Wanderer": "He was her first puppet body, set aside when he wept. She let him live, and he never forgave being left.",
+  "Kamisato Ayaka|Kamisato Ayato": "Siblings who run the Yashiro Commission together. He takes the dirty work so she can stay in the light.",
+  "Kamisato Ayaka|Thoma": "He came to the Kamisato estate as a boy and became the family's most trusted friend.",
+  "Arataki Itto|Kuki Shinobu": "Boss and deputy. She gets him out of jail with paperwork.",
+  "Arataki Itto|Kujou Sara": "She confiscated his Vision. He has demanded a rematch ever since.",
+  "Sangonomiya Kokomi|Gorou": "Priestess and her general. He would follow her plan into any battle.",
+  "Kaedehara Kazuha|Beidou": "She took the fugitive samurai aboard the Crux without asking what he had done.",
+  "Nahida|Wanderer": "She saw through his memories, spared him, and gave him work and a place in Sumeru.",
+  "Nahida|Alhaitham": "He led the plan that freed her. She values him for telling her the truth.",
+  "Alhaitham|Kaveh": "Housemates and old research partners who cannot agree on anything.",
+  "Cyno|Tighnari": "Close friends. Tighnari is one of the few who tells Cyno his jokes are bad.",
+  "Tighnari|Collei": "He is her teacher in the Forest Rangers and her doctor.",
+  "Cyno|Sethos": "The same priestly spirit was planted in both as children. Sethos gave his half to Cyno.",
+  "Dehya|Candace": "Two desert-born fighters who trust each other without many words.",
+  "Lyney|Lynette": "Twins who survived the streets together and will not be separated.",
+  "Lyney|Arlecchino": "She raised him in the House of the Hearth and named him her successor.",
+  "Furina|Neuvillette": "For five hundred years he judged beside her without knowing what she carried alone.",
+  "Neuvillette|Wriothesley": "Chief Justice and Duke, who share tea, information and a duty to the same sea.",
+  "Navia|Clorinde": "Friends since childhood, divided by the duel that killed Navia's father and reunited by the truth.",
+  "Wriothesley|Sigewinne": "The Duke and the nurse who has patched him up since he was a prisoner.",
+  "Kinich|Mualani": "Friends across tribes. She talks, he listens.",
+  "Mavuika|Citlali": "The Archon and the shaman who watched her plan unfold over centuries, between novels.",
+  "Citlali|Ororon": "She raised him, and scolds him to hide how much she worries.",
+  "Xilonen|Kachina": "Xilonen forged Kachina's Ancient Name and looks out for her.",
+  "Tartaglia|Skirk": "Master and pupil. She taught a lost boy to survive the Abyss in three months.",
+  "Lauma|Columbina": "The Moonchanter's faith is given to the very Moon Maiden she comes to know as a person.",
+  "Aino|Ineffa": "Inventor and invention, and each other's family.",
+  "Flins|Illuga": "Fellow Lightkeepers. The young squad leader never knows when Flins will drop in.",
+  "Nefer|Jahoda": "Boss and employee at the Curatorium of Secrets.",
+  "Columbina|Sandrone": "Fellow Harbingers. The Moon Maiden finds the Marionette's clockwork nature endlessly interesting.",
+  "Columbina|Arlecchino": "Harbingers who share a rare mutual respect.",
+  "Varka|Razor": "Varka found the wolf boy, named him and gave him his first sword.",
+  "Varka|Lohen": "The Grand Master and one of his expedition's frontline officers.",
+  "Klee|Nicole": "Klee's mother Alice counts Nicole among her sisters of the Hexenzirkel.",
+  "Mona|Nicole": "Mona's master Barbeloth is one of Nicole's fellow witches.",
+  "Prune|Klee": "The Witch Hunter's quarry is Klee's mother, which makes this friendship complicated."
+ },
+ "aliases": {
+  "Father": "Arlecchino",
+  "The Knave": "Arlecchino",
+  "\"Father\"": "Arlecchino",
+  "Childe": "Tartaglia",
+  "Itto": "Arataki Itto",
+  "Baal": "Raiden Shogun",
+  "the Raiden Shogun": "Raiden Shogun",
+  "the Electro Archon": "Raiden Shogun",
+  "Buer": "Nahida",
+  "Lesser Lord Kusanali": "Nahida",
+  "the Dendro Archon": "Nahida",
+  "Morax": "Zhongli",
+  "Rex Lapis": "Zhongli",
+  "the Geo Archon": "Zhongli",
+  "the God of Contracts": "Zhongli",
+  "the Anemo Archon": "Venti",
+  "the God of Freedom": "Venti",
+  "Kunikuzushi": "Wanderer",
+  "The Balladeer": "Wanderer",
+  "the Wanderer": "Wanderer",
+  "Marionette": "Sandrone",
+  "Damselette": "Columbina",
+  "the Moon Goddess": "Columbina",
+  "Kuutar": "Columbina",
+  "the Pyro Archon": "Mavuika",
+  "the Pyro Archon...": "Mavuika",
+  "the Boss of the Curatorium of Secrets": "Nefer",
+  "the White Horse Adeptus": "Zibai",
+  "the Whiz-Kid Mechanic": "Aino",
+  "the Tavern Owner": "Diluc",
+  "the Lady with Fox Ears": "Yae Miko"
+ }
+}

@@ -1,0 +1,140 @@
+[
+ {
+  "mode": "Tower of Adversity",
+  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics.",
+  "teams": [
+   {
+    "name": "Electro Unison",
+    "chars": [
+     "Hsin",
+     "Suoming",
+     "Lily"
+    ],
+    "note": "Hsin and Suoming trade Unison triggers while Lily heals and buffs."
+   },
+   {
+    "name": "Echo Skill",
+    "chars": [
+     "Sigrika",
+     "Lucilla",
+     "Shorekeeper"
+    ],
+    "note": "Lucilla in Echo mode feeds Sigrika's Echo Skill damage."
+   },
+   {
+    "name": "Glacio Chafe",
+    "chars": [
+     "Hiyuki",
+     "Lucilla",
+     "Chisa"
+    ],
+    "note": "Both supports stack Glacio Chafe damage for Hiyuki."
+   },
+   {
+    "name": "Havoc Bane",
+    "chars": [
+     "Yangyang: Xuanling",
+     "Suisui",
+     "Chisa"
+    ],
+    "note": "Chisa applies Havoc Bane and Suisui buffs Xuanling's Heavy Attacks."
+   },
+   {
+    "name": "Fusion Burst",
+    "chars": [
+     "Aemeath",
+     "Lynae",
+     "Mornye"
+    ],
+    "note": "Tune Break support and healing around Aemeath."
+   },
+   {
+    "name": "Fusion Echo",
+    "chars": [
+     "Galbrena",
+     "Qiuyuan",
+     "Shorekeeper"
+    ],
+    "note": "Qiuyuan buffs Echo Skill damage for Galbrena."
+   },
+   {
+    "name": "Aero Erosion",
+    "chars": [
+     "Cartethyia",
+     "Ciaccona",
+     "Rover"
+    ],
+    "note": "Aero Rover and Ciaccona keep Aero Erosion stacked."
+   },
+   {
+    "name": "Spectro Frazzle",
+    "chars": [
+     "Zani",
+     "Phoebe",
+     "Shorekeeper"
+    ],
+    "note": "Phoebe in Confession mode applies Frazzle for Zani to detonate."
+   },
+   {
+    "name": "Havoc Echo",
+    "chars": [
+     "Phrolova",
+     "Cantarella",
+     "Roccia"
+    ],
+    "note": "A full Havoc core that needs no dedicated healer."
+   },
+   {
+    "name": "Electro Heavy",
+    "chars": [
+     "Augusta",
+     "Iuno",
+     "Shorekeeper"
+    ],
+    "note": "Iuno shields and buffs Augusta's Heavy Attacks."
+   }
+  ]
+ },
+ {
+  "mode": "Whimpering Wastes",
+  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics. This mode rewards wide area damage.",
+  "teams": [
+   {
+    "name": "Basic Attack sweep",
+    "chars": [
+     "Camellya",
+     "Roccia",
+     "Shorekeeper"
+    ],
+    "note": "Roccia groups enemies and buffs Camellya."
+   },
+   {
+    "name": "Fusion swap",
+    "chars": [
+     "Changli",
+     "Lupa",
+     "Brant"
+    ],
+    "note": "Constant quick-swaps with strong area coverage."
+   },
+   {
+    "name": "Aero cleave",
+    "chars": [
+     "Jiyan",
+     "Mortefi",
+     "Verina"
+    ],
+    "note": "A long-standing budget team for crowds."
+   },
+   {
+    "name": "Spectro burst",
+    "chars": [
+     "Jinhsi",
+     "Zhezhi",
+     "Shorekeeper"
+    ],
+    "note": "Coordinated attacks charge Jinhsi's big hit."
+   }
+  ]
+ }
+]

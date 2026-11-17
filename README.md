@@ -1,12 +1,12 @@
 # Lore Atlas
 
-An unofficial fan site with interactive lore timelines for **Wuthering Waves** and **Genshin Impact**.
+An unofficial fan site for **Wuthering Waves** and **Genshin Impact**: story timelines, the current version's banners and events, character builds and materials, bosses, popular teams, and the voice lines that connect the cast.
 
 - `index.html` is the gateway where you pick a world.
-- `wuthering-waves.html` is the Wuthering Waves page (data current to version 3.8).
-- `genshin-impact.html` is the Genshin Impact page (data current to version 7.2).
+- `wuthering-waves.html` is the Wuthering Waves page.
+- `genshin-impact.html` is the Genshin Impact page.
 
-It is a plain static site. There is nothing to install or build.
+It is a plain static site. Visitors need nothing installed.
 
 ## View it on your computer (localhost)
 
@@ -19,40 +19,87 @@ python3 -m http.server 8000
 
 3. Open `http://localhost:8000` in your browser.
 
-To stop the server, press `Ctrl + C` in the terminal.
+To stop the server, press `Ctrl + C` in the terminal. Opening the HTML files by double-clicking does not work, because the 3D scenes need a web server.
 
-## Put it online with GitHub Pages
+## How the site updates by itself
 
-1. Create a new repository on GitHub.
-2. Upload everything in this folder to it, keeping the folder structure the same. `index.html` must sit at the top level.
-3. In the repository, open **Settings**, then **Pages**.
-4. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick the `main` branch and the `/ (root)` folder, then save.
-5. After a minute or two the site is live at `https://YOUR-USERNAME.github.io/REPOSITORY-NAME/`.
+The file `.github/workflows/update.yml` tells GitHub to run the updater once a day. The updater is the script `tools/update.mjs`. When something changed, GitHub commits the new data and the live site refreshes.
+
+What the updater refreshes without any help:
+
+| Updated automatically | Where it comes from |
+| --- | --- |
+| New characters, their icons, elements, weapons and factions | Public game data files |
+| Voice lines and the connections graph | Public game data files |
+| Ascension and skill materials, and which boss drops them | Public game data files |
+| The current version, its dates and the next version | The Fandom wikis |
+| Banners, events, new outfits, new story quests and areas | The Fandom wikis and the games' own announcement feeds |
+| The pull estimate | A formula based on the version's length and events |
+| A basic timeline entry for a brand-new version | The Fandom wikis |
+
+What still needs a person, because no data source has it:
+
+| Written by hand | File to edit |
+| --- | --- |
+| Story summaries and character lore | `content/<game>/story.json` |
+| Character builds and team suggestions | `content/<game>/builds.txt` |
+| Popular endgame teams | `content/<game>/teams.json` |
+| Short notes about bosses | `content/<game>/bosses.json` |
+
+Until someone writes them, a new version shows an automatic summary marked "Auto entry", and a new character shows the game's own one-line description with no build.
+
+To run the daily update by hand on GitHub: open the repository, click **Actions**, choose **Update game data**, then **Run workflow**.
+
+## Running the updater on your computer
+
+You need Node.js 20 or newer.
+
+```bash
+cd tools
+```
+
+```bash
+npm install
+```
+
+```bash
+node update.mjs
+```
+
+After editing the HTML template in `tools/pages.mjs`, rebuild the three pages with:
+
+```bash
+node tools/pages.mjs
+```
 
 ## What is in the folder
 
 | Path | What it holds |
 | --- | --- |
-| `assets/data/wuwa.js`, `assets/data/genshin.js` | All content: chapters, versions, characters, voice lines, relationship notes |
-| `assets/data/summary.js` | The numbers and faces shown on the gateway |
-| `assets/css/site.css` | All styling. Each world has its own colour and font settings at the top of the file |
-| `assets/css/fonts.css`, `assets/fonts/` | The fonts, stored locally so the site works offline |
-| `assets/js/app.js` | Timeline, character grid, profile panel and connections graph |
-| `assets/js/warp.js` | The animated transition when you switch worlds |
-| `assets/js/ambient.js` | The moving backgrounds |
-| `assets/img/` | Character icons, portraits and element icons |
+| `content/` | Everything written by hand: story, builds, teams, boss notes |
+| `tools/` | The updater and the page generator |
+| `assets/data/` | The generated data the pages read. Do not edit by hand; it is overwritten |
+| `assets/css/site.css` | All styling. Each world has its own colours and fonts at the top of the file |
+| `assets/js/app.js` | Every page section: current version, timeline, characters, bosses, teams, connections |
+| `assets/js/scene.js` | The 3D scenes, built with three.js |
+| `assets/js/warp.js`, `assets/js/ambient.js` | The world-switch transition and the moving backgrounds |
+| `assets/vendor/` | A copy of three.js (MIT licence) |
+| `assets/img/`, `assets/fonts/` | Icons, portraits, material icons and fonts |
 
-## Updating the content
+## Writing a build
 
-Open `assets/data/wuwa.js` or `assets/data/genshin.js` in a text editor.
+Each line in `content/<game>/builds.txt` is one character. Fields are separated by ` | `:
 
-- To add a version, add an entry to the `versions` list of the right chapter inside `arcs`.
-- To add a character, add an entry to `chars`, then put a square icon at `assets/img/<world>/icons/<id>.webp`. A portrait at `assets/img/<world>/art/<id>.webp` is optional. Set `"art": true` if you add one.
-- To add a voice line, add an entry to `lines`. `f` is the id of the speaker, `t` is the id of the character being talked about, and `q` is the quote.
-- To add a relationship note, add an entry to `bonds`. The key is the two character ids in alphabetical order, joined with `|`.
+```
+Name | Role | Weapons | Sets | Main stats | Substats | Skill priority | Teams | Note
+```
+
+Separate several weapons, sets or teams with `;`. Inside a team, separate names with `,`. Put the word "Provisional" in the note to show an "Early guide" label.
 
 ## Credits and disclaimer
 
 This is a non-commercial fan project. It is not affiliated with or endorsed by Kuro Games or HoYoverse. Wuthering Waves and Genshin Impact, their characters, artwork and voice lines belong to their respective owners.
 
-Story summaries were written for this site. Voice lines are short excerpts of in-game dialogue.
+Story summaries, lore notes and builds were written for this site. Voice lines are short excerpts of in-game dialogue. Popular teams are hand-picked and are not usage statistics. The pull estimate is an approximation.
+
+Data sources: genshin-db, the AnimeGameData and WutheringWaves_Data dumps, the Fandom wikis for both games, and each game's official announcement feed.
