@@ -365,7 +365,7 @@
   }
 
   // ---------- character sheet ----------
-  var sheetOpen = false, lastFocus = null, sheetTab = 'profile';
+  var sheetOpen = false, lastFocus = null, sheetTab = 'profile', sheetId = null;
   var EL_HEX = { Pyro: '#ff7d55', Hydro: '#4cc2f1', Anemo: '#74e0bb', Dendro: '#a5c83b', Cryo: '#9fe3ef', Geo: '#f2b83a', Electro: '#b98cf5', Glacio: '#5fc8ff', Fusion: '#ff7a4d', Aero: '#5ff0b5', Spectro: '#f7df6b', Havoc: '#e85aa8' };
   function elHex(c) { return EL_HEX[c && c.el] || (WORLD === 'wuwa' ? '#e6c98a' : '#d9c08f'); }
   function quoteBlock(l, who, dir) {
@@ -450,6 +450,8 @@
   function openSheet(id) {
     var c = byId[id]; if (!c) return;
     var sheet = $('#sheet'), body = $('#sheet-body'), cid = canon(id), wasOpen = sheetOpen;
+    if (id !== sheetId) sheetTab = 'profile';
+    sheetId = id;
     if (!sheetOpen) lastFocus = document.activeElement;
     G.form[cid] = id;
     var says = outLines[cid] || [], said = inLines[cid] || [], L = D.labels;
@@ -499,7 +501,7 @@
         h('div', { class: 'sheet-chips' }, c.el ? h('span', { class: 'pill el' }, h('img', { src: elIcon(c.el), alt: '' }), c.el) : null,
           c.tag ? h('span', { class: 'pill', text: c.tag }) : null, h('span', { class: 'pill', text: c.weapon }), h('span', { class: 'pill rare' }, stars(c.rarity)),
           tr ? h('span', { class: 'pill tierpill t-' + tr.tier.toLowerCase(), text: tr.tier + ' tier' }) : null)),
-      h('span', { class: 'drag-hint', text: 'Drag to turn' }));
+      null);
     var content = h('div', { class: 'sheet-in r' + c.rarity + ' ' + (c.el ? 'el-' + c.el.toLowerCase() : 'el-none') + (wasOpen ? ' quiet' : '') }, hero, tabs, holder);
     body.replaceChildren(content); body.scrollTop = 0;
     show(sheetTab);
@@ -624,6 +626,7 @@
     renderBond();
   }
   function selectBond(id) {
+    if (!id && !G.sel) return;
     if (id && G.sel === id) { setCenter(id, G.center); return; }
     G.sel = id;
     $$('#graph .gnode').forEach(function (n) { n.classList.toggle('sel', n.dataset.id === id); });
@@ -734,7 +737,11 @@
     var shown = n === all.length ? n + (n === 1 ? ' connection' : ' connections') : n + ' of ' + all.length + ' connections';
     $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + shown;
   }
+  var bondKeyShown = '';
   function renderBond() {
+    var key = formOf(G.center) + '|' + (G.sel ? formOf(G.sel) : '') + '|' + GF.region + GF.mutual;
+    if (key === bondKeyShown && $('#bond').firstChild) return;
+    bondKeyShown = key;
     var box = $('#bond'), c = byId[formOf(G.center)] || byId[G.center], nb = neighbours(G.center);
     if (!G.sel) {
       var list = h('div', { class: 'bond-list' });

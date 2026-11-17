@@ -2,11 +2,25 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { get, getMany, toWebp, clean, dedupeLines, gslug, verKey, log, warn, CACHE, OUT } from './util.mjs';
+import { get, getMany, repoFiles, toWebp, clean, dedupeLines, gslug, verKey, log, warn, CACHE, OUT } from './util.mjs';
 
 const require = createRequire(import.meta.url);
 const DATA = 'https://raw.githubusercontent.com/DimbreathBot/AnimeGameData/master/';
 const PAIMON = 'https://raw.githubusercontent.com/MadeBaruna/paimon-moe/main/static/images/';
+// file names in that repository are not always predictable ("freedom-sworn", "key_of_khaj-nisut"),
+// so look each name up in its file list, ignoring punctuation
+let pmIndex = null;
+function paimonFile(folder, name) {
+  const key = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  if (!pmIndex) {
+    pmIndex = new Map();
+    for (const f of repoFiles('MadeBaruna/paimon-moe', 'main', 'paimon')) {
+      const m = f.match(/^static\/images\/([^/]+(?:\/full)?)\/([^/]+)\.png$/); if (m) pmIndex.set(m[1] + '/' + key(m[2]), m[1] + '/' + m[2]);
+    }
+  }
+  const hit = pmIndex.get(folder + '/' + key(name));
+  return hit ? PAIMON + hit + '.png' : PAIMON + folder + '/' + name.toLowerCase().replace(/['’"“”]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + '.png';
+}
 const TWINS = 'https://raw.githubusercontent.com/FortOfFans/GI/main/Cards/';
 const REGFIX = { Zibai: 'Liyue', Nicole: 'Beyond', Skirk: 'Beyond', Aloy: 'Beyond', Aether: 'Beyond', Lumine: 'Beyond' };
 const SKIP = new Set(['Manekin', 'Manekina']);
@@ -122,9 +136,8 @@ export async function buildGenshin(content, autoVer) {
     const jobs = [], conv = [];
     for (const w of list) {
       const dest = path.join(OUT, 'img/genshin/weapons', gslug(w.n) + '.webp'); if (fs.existsSync(dest)) continue;
-      const slug = w.n.toLowerCase().replace(/['’"“”]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-      const tmp = path.join(CACHE, 'img/gi', 'w_' + slug + '.png');
-      jobs.push({ url: PAIMON + 'weapons/' + slug + '.png', file: tmp }); conv.push([tmp, dest]);
+      const tmp = path.join(CACHE, 'img/gi', 'w_' + gslug(w.n) + '.png');
+      jobs.push({ url: paimonFile('weapons', w.n), file: tmp }); conv.push([tmp, dest]);
     }
     if (!jobs.length) return;
     log('genshin: fetching', jobs.length, 'weapon images');
@@ -196,8 +209,7 @@ async function images(chars, items) {
     want(PAIMON + 'characters/full/' + c.id + '.png', 'f_' + c.id + '.png', path.join(dir('art'), c.id + '.webp'), { w: 800, q: 78 });
   }
   for (const [id, it] of Object.entries(items)) {
-    const slug = it.n.toLowerCase().replace(/['’"“”]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-    want(PAIMON + 'items/' + slug + '.png', 'i_' + slug + '.png', path.join(dir('items'), id + '.webp'), { w: 96, q: 86 });
+    want(paimonFile('items', it.n), 'i_' + gslug(it.n) + '.png', path.join(dir('items'), id + '.webp'), { w: 96, q: 86 });
   }
   if (!jobs.length) return;
   log('genshin: fetching', jobs.length, 'new images');

@@ -192,14 +192,17 @@ async function images(chars, roleOf, items) {
 async function fetchImages(need) {
   if (!need.length) return;
   log('wuwa: fetching', need.length, 'new images');
-  const branches = repoBranches(ASSETS).filter(b => /^beta\d/i.test(b)).sort((a, b) => verKey(b.replace(/[^\d.]/g, '')) - verKey(a.replace(/[^\d.]/g, '')));
-  const branch = branches[0]; if (!branch) { warn('wuwa: no asset branch found'); return; }
-  const files = repoFiles(ASSETS, branch, 'ww-assets-' + branch);
-  const lower = new Map(files.map(f => [f.toLowerCase(), f]));
+  // the main branch tracks the live game; the newest beta branch is a fallback for anything missing there
+  const all = repoBranches(ASSETS);
+  const betas = all.filter(b => /^beta\d/i.test(b)).sort((a, b) => verKey(b.replace(/[^\d.]/g, '')) - verKey(a.replace(/[^\d.]/g, '')));
+  const order = [...(all.includes('main') ? ['main'] : []), ...betas.slice(0, 1)];
+  if (!order.length) { warn('wuwa: no asset branch found'); return; }
+  const lists = order.map(b => [b, new Map(repoFiles(ASSETS, b, 'ww-assets-' + b).map(f => [f.toLowerCase(), f]))]);
   const jobs = [];
   for (const n of need) {
     const rel = 'ui/' + n.game.split('.')[0].replace(/^\/Game\/Aki\/UI\//, '').toLowerCase() + '.png';
-    const real = lower.get(rel);
+    let real = null, branch = null;
+    for (const [b, lower] of lists) { real = lower.get(rel); if (real) { branch = b; break; } }
     if (!real) { if (!n.optional) warn('wuwa: image not in asset repo:', path.basename(n.dest)); continue; }
     n.tmp = path.join(CACHE, 'img/ww', real.replace(/[\/]/g, '_'));
     jobs.push({ url: `https://raw.githubusercontent.com/${ASSETS}/${branch}/${real}`, file: n.tmp });

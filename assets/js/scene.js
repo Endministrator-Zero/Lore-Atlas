@@ -307,76 +307,118 @@ function starmap(el, data, onPick) {
 }
 
 // ---------------------------------------------------------------- profile showcase
+// The art stays steady and faces you. Depth comes from parallax: the camera drifts a little with the pointer
+// (or a finger drag), so the halo, light beams and particles behind and in front of the art move at different speeds.
 let S = null;
-function runeTexture(world) {
+function haloTexture(world) {
   const c = document.createElement('canvas'); c.width = c.height = 512;
   const g = c.getContext('2d'); g.translate(256, 256); g.strokeStyle = '#fff'; g.fillStyle = '#fff';
-  g.lineWidth = 3; g.beginPath(); g.arc(0, 0, 240, 0, Math.PI * 2); g.stroke();
-  g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, 206, 0, Math.PI * 2); g.stroke();
-  g.beginPath(); g.arc(0, 0, 150, 0, Math.PI * 2); g.stroke();
-  for (let i = 0; i < 72; i++) { const a = i / 72 * Math.PI * 2, l = i % 6 ? 10 : 24; g.lineWidth = i % 6 ? 1.5 : 3; g.beginPath(); g.moveTo(Math.cos(a) * 206, Math.sin(a) * 206); g.lineTo(Math.cos(a) * (206 + l), Math.sin(a) * (206 + l)); g.stroke(); }
+  g.lineWidth = 2.5; g.beginPath(); g.arc(0, 0, 236, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, 214, 0, Math.PI * 2); g.stroke();
+  for (let i = 0; i < 120; i++) { const a = i / 120 * Math.PI * 2, l = i % 10 ? 7 : 18; g.lineWidth = i % 10 ? 1 : 2.5; g.beginPath(); g.moveTo(Math.cos(a) * 214, Math.sin(a) * 214); g.lineTo(Math.cos(a) * (214 - l), Math.sin(a) * (214 - l)); g.stroke(); }
+  g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, 160, 0, Math.PI * 2); g.stroke();
   const sides = world === 'wuwa' ? 4 : 8;
-  for (const rot of [0, Math.PI / sides]) { g.lineWidth = 1.5; g.beginPath(); for (let i = 0; i <= sides; i++) { const a = rot + i / sides * Math.PI * 2; g[i ? 'lineTo' : 'moveTo'](Math.cos(a) * 150, Math.sin(a) * 150); } g.stroke(); }
-  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; g.save(); g.rotate(a); g.translate(0, -178); if (world === 'wuwa') { g.rotate(Math.PI / 4); g.strokeRect(-6, -6, 12, 12); } else { g.beginPath(); g.moveTo(0, -9); g.lineTo(3, 0); g.lineTo(0, 9); g.lineTo(-3, 0); g.closePath(); g.fill(); } g.restore(); }
-  const t = new THREE.CanvasTexture(c); return t;
+  for (const rot of [0, Math.PI / sides]) { g.beginPath(); for (let i = 0; i <= sides; i++) { const a = rot + i / sides * Math.PI * 2; g[i ? 'lineTo' : 'moveTo'](Math.cos(a) * 160, Math.sin(a) * 160); } g.stroke(); }
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; g.save(); g.rotate(a); g.translate(0, -190); if (world === 'wuwa') { g.rotate(Math.PI / 4); g.strokeRect(-5, -5, 10, 10); } else { g.beginPath(); g.moveTo(0, -8); g.lineTo(3, 0); g.lineTo(0, 8); g.lineTo(-3, 0); g.closePath(); g.fill(); } g.restore(); }
+  return new THREE.CanvasTexture(c);
+}
+function beamTexture() {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+  const g = c.getContext('2d');
+  const v = g.createLinearGradient(0, 0, 0, 256); v.addColorStop(0, 'rgba(255,255,255,0)'); v.addColorStop(0.45, 'rgba(255,255,255,1)'); v.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = v; g.fillRect(0, 0, 64, 256);
+  g.globalCompositeOperation = 'destination-in';
+  const h = g.createLinearGradient(0, 0, 64, 0); h.addColorStop(0, 'rgba(0,0,0,0)'); h.addColorStop(0.5, 'rgba(0,0,0,1)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = h; g.fillRect(0, 0, 64, 256);
+  return new THREE.CanvasTexture(c);
+}
+function motes(count, zMin, zMax, size) {
+  const p = new Float32Array(count * 3), seeds = [];
+  for (let i = 0; i < count; i++) seeds.push([Math.random() * 2 - 1, Math.random() * 2 - 1, zMin + Math.random() * (zMax - zMin), 0.08 + Math.random() * 0.22, Math.random() * Math.PI * 2]);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({ map: discTexture(), size, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }));
+  pts.userData.seeds = seeds;
+  return pts;
 }
 function showcase(el, o, onReady) {
   if (!el) return;
   if (!S) {
     const renderer = makeRenderer(el, { powerPreference: 'default' });
-    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
-    camera.position.set(0, 0, 7);
-    const rig = new THREE.Group(); scene.add(rig);
-    const dot = discTexture();
-    const back = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending }));
-    back.scale.set(7, 7, 1); back.position.z = -1.6; rig.add(back);
-    const ringA = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 4.4), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending }));
-    const ringB = ringA.clone(); ringB.material = ringA.material.clone(); ringB.scale.setScalar(0.62);
-    ringA.rotation.x = ringB.rotation.x = -Math.PI / 2 + 0.12; rig.add(ringA, ringB);
-    const sil = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
-    const art = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, alphaTest: 0.03 }));
-    sil.position.z = -0.25; rig.add(sil, art);
-    const P = 170, pp = new Float32Array(P * 3), seeds = [];
-    for (let i = 0; i < P; i++) seeds.push([Math.random() * Math.PI * 2, 1.2 + Math.random() * 1.6, Math.random() * 5 - 2.5, 0.15 + Math.random() * 0.45]);
-    const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
-    const motes = new THREE.Points(pg, new THREE.PointsMaterial({ map: dot, size: 0.09, transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending }));
-    rig.add(motes);
-    const st = { renderer, scene, camera, rig, back, ringA, ringB, sil, art, motes, seeds, pp, yaw: 0, pitch: 0, ty: 0, tp: 0, drag: null, running: false, tex: null };
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(32, 1, 0.1, 60);
+    camera.position.set(0, 0, 8);
+    const dot = discTexture(), add = THREE.AdditiveBlending;
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, transparent: true, opacity: 0.6, depthWrite: false, blending: add }));
+    glow.position.z = -3.2;
+    const haloA = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.42, depthWrite: false, blending: add }));
+    const haloB = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.22, depthWrite: false, blending: add }));
+    haloA.position.z = -1.6; haloB.position.z = -2.4;
+    const beamTex = beamTexture(), beams = [];
+    for (let i = 0; i < 4; i++) {
+      const b = new THREE.Mesh(new THREE.PlaneGeometry(0.55 + i * 0.12, 7), new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, opacity: 0.1, depthWrite: false, blending: add }));
+      b.position.z = -2 - i * 0.25; b.userData.phase = i * 1.7; beams.push(b);
+    }
+    // the art: a basic material with a soft light sheen that follows the pointer
+    const uSheen = { value: 0.2 };
+    const artMat = new THREE.MeshBasicMaterial({ transparent: true, alphaTest: 0.03 });
+    artMat.onBeforeCompile = sh => {
+      sh.uniforms.uSheen = uSheen;
+      sh.fragmentShader = 'uniform float uSheen;\n' + sh.fragmentShader.replace('#include <map_fragment>',
+        '#include <map_fragment>\n  float sheenBand = exp(-pow((vMapUv.x * 0.8 + (1.0 - vMapUv.y) * 0.45 - uSheen) * 6.5, 2.0));\n  diffuseColor.rgb += sheenBand * 0.13 * diffuseColor.a;');
+    };
+    const art = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), artMat);
+    const back = motes(70, -2.6, -0.6, 0.06), front = motes(26, 0.6, 2.2, 0.1);
+    scene.add(glow, haloB, haloA, ...beams, back, art, front);
+    const st = { renderer, scene, camera, glow, haloA, haloB, beams, art, back, front, uSheen, p: { x: 0, y: 0 }, t: { x: 0, y: 0 }, running: false };
+    // pointer and touch: hover moves the view on a desktop, a drag moves it on a phone, and it eases back when you let go
+    const host = () => st.host;
+    const onMove = e => {
+      const r = host().getBoundingClientRect();
+      if (e.pointerType === 'mouse' || st.drag) { st.t.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2)); st.t.y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2)); }
+    };
     const dom = renderer.domElement;
-    dom.addEventListener('pointerdown', e => { st.drag = [e.clientX, e.clientY, st.ty, st.tp]; dom.setPointerCapture(e.pointerId); });
-    dom.addEventListener('pointermove', e => {
-      if (st.drag) { st.ty = Math.max(-0.75, Math.min(0.75, st.drag[2] + (e.clientX - st.drag[0]) * 0.006)); st.tp = Math.max(-0.22, Math.min(0.22, st.drag[3] + (e.clientY - st.drag[1]) * 0.003)); }
-      else { const r = dom.getBoundingClientRect(); st.hx = ((e.clientX - r.left) / r.width - 0.5) * 0.25; st.hy = ((e.clientY - r.top) / r.height - 0.5) * 0.1; }
-    });
-    const end = () => { st.drag = null; };
-    dom.addEventListener('pointerup', end); dom.addEventListener('pointercancel', end);
-    dom.addEventListener('pointerleave', () => { st.hx = st.hy = 0; });
+    dom.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') st.drag = true; });
+    dom.addEventListener('pointermove', onMove);
+    const rest = () => { st.drag = false; st.t.x = 0; st.t.y = 0; };
+    dom.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') rest(); });
+    dom.addEventListener('pointercancel', rest);
+    dom.addEventListener('pointerleave', rest);
     let last = performance.now();
-    st.frame = t => {
+    st.frame = now => {
       if (!st.running) { st._on = false; return; }
-      const dt = Math.min(0.05, (t - last) / 1000); last = t; const time = t / 1000;
-      if (!st.drag) { st.ty += ((reduce ? 0 : Math.sin(time * 0.45) * 0.14) + (st.hx || 0) - st.ty) * 0.05; st.tp += ((st.hy || 0) - st.tp) * 0.05; }
-      st.yaw += (st.ty - st.yaw) * 0.12; st.sil.position.z = -0.5; st.pitch += (st.tp - st.pitch) * 0.12;
-      st.rig.rotation.y = st.yaw; st.rig.rotation.x = st.pitch;
-      st.sil.position.x = st.art.position.x - st.yaw * 0.35;
-      st.ringA.rotation.z += dt * 0.15; st.ringB.rotation.z -= dt * 0.3;
-      const a = st.pp;
-      st.seeds.forEach((s, i) => { const y = ((s[2] + time * s[3] + 2.5) % 5) - 2.5; const ang = s[0] + time * 0.2; a[i * 3] = Math.cos(ang) * s[1] + st.art.position.x * 0.6; a[i * 3 + 1] = y; a[i * 3 + 2] = Math.sin(ang) * s[1] * 0.6; });
-      st.motes.geometry.attributes.position.needsUpdate = true;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now; const time = now / 1000;
+      const idleX = reduce ? 0 : Math.sin(time * 0.35) * 0.18, idleY = reduce ? 0 : Math.sin(time * 0.27) * 0.1;
+      const k = 1 - Math.pow(0.002, dt);
+      st.p.x += (st.t.x + idleX - st.p.x) * k; st.p.y += (st.t.y + idleY - st.p.y) * k;
+      const c = st.center || { x: 0, y: 0 };
+      st.camera.position.set(c.x + st.p.x * 0.75, c.y - st.p.y * 0.4, 8);
+      st.camera.lookAt(c.x + st.p.x * 0.12, c.y - st.p.y * 0.06, 0);
+      st.art.rotation.y = st.p.x * 0.06; st.art.rotation.x = st.p.y * 0.03;
+      st.art.position.y = st.baseY + (reduce ? 0 : Math.sin(time * 1.1) * 0.02);
+      st.haloA.rotation.z += dt * 0.12; st.haloB.rotation.z -= dt * 0.07;
+      st.beams.forEach(b => { b.rotation.z = Math.sin(time * 0.3 + b.userData.phase) * 0.18 + (b.userData.phase % 2 ? 0.22 : -0.22); b.material.opacity = 0.07 + Math.sin(time * 0.6 + b.userData.phase) * 0.035; });
+      st.uSheen.value = 0.55 + st.p.x * 0.55 + Math.sin(time * 0.25) * 0.08;
+      for (const pts of [st.back, st.front]) {
+        const a = pts.geometry.attributes.position.array, w = st.vw || 4, h = st.vh || 4;
+        pts.userData.seeds.forEach((s, i) => {
+          const y = ((s[1] * 0.5 + 0.5 + time * s[3] * 0.25) % 1) * h * 1.1 - h * 0.55;
+          a[i * 3] = c.x * 0.5 + s[0] * w * 0.55 + Math.sin(time * 0.5 + s[4]) * 0.08; a[i * 3 + 1] = y; a[i * 3 + 2] = s[2];
+        });
+        pts.geometry.attributes.position.needsUpdate = true;
+      }
       st.renderer.render(st.scene, st.camera);
       requestAnimationFrame(st.frame);
     };
-    new ResizeObserver(() => { if (st.host) { fit(st.host, renderer, camera); place(st); } }).observe(document.body);
+    new ResizeObserver(() => { if (st.host && st.host.isConnected) { fit(st.host, renderer, camera); place(st); } }).observe(document.body);
     S = st;
   }
   const st = S;
   st.host = el; el.appendChild(st.renderer.domElement);
   fit(el, st.renderer, st.camera);
   const c = new THREE.Color(o.color || '#e6c98a');
-  st.back.material.color = c; st.sil.material.color = c; st.motes.material.color = c;
-  if (!st.runes || st.runesWorld !== o.world) { st.runes = runeTexture(o.world); st.runesWorld = o.world; }
-  for (const r of [st.ringA, st.ringB]) { r.material.map = st.runes; r.material.color = c; r.material.needsUpdate = true; }
-  st.world = o.world; st.isIcon = o.isIcon;
+  for (const m of [st.glow.material, st.haloA.material, st.haloB.material, st.back.material, st.front.material, ...st.beams.map(b => b.material)]) m.color = c;
+  if (st.haloWorld !== o.world) { st.haloTex = haloTexture(o.world); st.haloWorld = o.world; }
+  st.haloA.material.map = st.haloTex; st.haloB.material.map = st.haloTex; st.haloA.material.needsUpdate = st.haloB.material.needsUpdate = true;
+  st.world = o.world; st.isIcon = o.isIcon; st.t.x = st.t.y = 0;
   const token = (st.token = (st.token || 0) + 1);
   loader.load(o.art, tex => {
     if (token !== st.token) { tex.dispose(); return; }
@@ -384,9 +426,8 @@ function showcase(el, o, onReady) {
     if (st.tex) st.tex.dispose();
     st.tex = tex; st.aspect = tex.image.width / tex.image.height;
     st.art.material.map = tex; st.art.material.needsUpdate = true;
-    st.sil.material.map = tex; st.sil.material.needsUpdate = true;
     place(st);
-    st.yaw = -0.35; st.ty = 0;
+    st.p.x = -0.6;
     st.running = true; if (!st._on) { st._on = true; requestAnimationFrame(st.frame); }
     if (onReady) onReady();
   });
@@ -394,14 +435,20 @@ function showcase(el, o, onReady) {
 function place(st) {
   if (!st.aspect) return;
   const cam = st.camera, vh = 2 * Math.tan(cam.fov * Math.PI / 360) * cam.position.z, vw = vh * cam.aspect;
-  let H = st.isIcon ? vh * 0.55 : st.world === 'wuwa' ? vh * 1.42 : vh * 1.0, W = H * st.aspect;
-  if (W > vw * 1.15) { W = vw * 1.15; H = W / st.aspect; }
-  const x = Math.max(0, vw / 2 - W / 2 - vw * 0.02), y = st.isIcon ? vh * 0.12 : st.world === 'wuwa' ? vh / 2 - H / 2 + vh * 0.04 : vh * 0.06;
-  st.art.scale.set(W, H, 1); st.art.position.set(x, y, 0);
-  st.sil.scale.set(W * 1.04, H * 1.04, 1); st.sil.position.set(x, y, -0.25);
-  st.back.position.set(x, y + vh * 0.05, -1.6);
-  const floor = -vh * 0.36;
-  st.ringA.position.set(x, floor, 0.4); st.ringB.position.set(x, floor + 0.01, 0.4);
+  st.vw = vw; st.vh = vh;
+  let H = st.isIcon ? vh * 0.55 : st.world === 'wuwa' ? vh * 1.42 : vh * 1.02, W = H * st.aspect;
+  if (W > vw * 1.1) { W = vw * 1.1; H = W / st.aspect; }
+  const x = Math.max(0, vw / 2 - W / 2 - vw * 0.03);
+  const y = st.isIcon ? vh * 0.12 : st.world === 'wuwa' ? vh / 2 - H / 2 + vh * 0.04 : vh * 0.06;
+  st.art.scale.set(W, H, 1); st.art.position.set(x, y, 0); st.baseY = y;
+  // halo sits behind the head and shoulders
+  const hy = st.isIcon ? y : st.world === 'wuwa' ? y + H * 0.2 : y + H * 0.06;
+  const hs = Math.min(vw, vh) * (st.isIcon ? 0.7 : 0.82);
+  st.haloA.scale.setScalar(hs); st.haloA.position.set(x, hy, -1.6);
+  st.haloB.scale.setScalar(hs * 1.45); st.haloB.position.set(x, hy, -2.4);
+  st.glow.scale.set(hs * 2.2, hs * 2.2, 1); st.glow.position.set(x, hy, -3.2);
+  st.beams.forEach((b, i) => b.position.set(x + (i - 1.5) * hs * 0.32, hy - vh * 0.05, b.position.z));
+  st.center = { x: 0, y: 0 };
 }
 
 window.LoreScene = {

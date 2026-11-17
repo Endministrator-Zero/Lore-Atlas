@@ -397,8 +397,9 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
 .gname { font: 600 12.5px/1.1 var(--f-ui); letter-spacing: .04em; color: var(--mute); white-space: nowrap; max-width: 96px; overflow: hidden; text-overflow: ellipsis; transition: color .2s; text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg) }
 [data-world="wuwa"] .gname { text-transform: uppercase }
 .gnode.center .gname { font-size: 15px; color: var(--ink); max-width: 160px }
-.gnode:hover .face { transform: scale(1.1) } .gnode:hover .gname, .gnode.sel .gname { color: var(--accent2) }
-.gnode.sel .face, .gnode.center .face { filter: drop-shadow(0 0 10px var(--glow)) }
+.gnode:not(.center):hover .face { transform: scale(1.1) }
+.gnode.center:hover .face { box-shadow: 0 0 0 2px var(--accent2), 0 0 36px color-mix(in srgb, var(--accent) 60%, transparent) } .gnode:hover .gname, .gnode.sel .gname { color: var(--accent2) }
+.gnode.sel .face { filter: drop-shadow(0 0 10px var(--glow)) }
 .gnode.sel { z-index: 4 } .gnode.sel .face { transform: scale(1.16) }
 .gnode.in { opacity: 0 } .gnode.out { opacity: 0; pointer-events: none }
 .g-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-top: 10px; font: 600 13px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--mute) }
@@ -681,8 +682,7 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
 /* ---------- sheet: 3D showcase, quiet character switch ---------- */
 .sheet-art.loaded { opacity: 1 }
 .sheet-hero.has3d .sheet-art { opacity: 0 }
-.sheet-3d { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; cursor: grab; touch-action: pan-y }
-.sheet-3d:active { cursor: grabbing }
+.sheet-3d { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; touch-action: pan-y }
 .sheet-hero.has3d .sheet-3d { opacity: 1 }
 .sheet-3d canvas { width: 100%; height: 100%; display: block }
 .sheet-id { pointer-events: none } .sheet-id button, .sheet-id a { pointer-events: auto }
@@ -789,8 +789,11 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
 .g-label small { color: var(--mute); font-size: 10px }
 .gnode .face { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--rh, transparent) 70%, transparent) }
 .gnode.center .face { box-shadow: 0 0 0 2px var(--accent), 0 0 30px color-mix(in srgb, var(--accent) 45%, transparent) }
-.gnode.center::before { content: ""; position: absolute; left: 50%; top: calc(50% - 8px); width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); animation: halo 3s ease-out infinite; pointer-events: none }
+.gnode.center::before { content: ""; position: absolute; z-index: -1; left: 50%; top: calc(50% - 8px); width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); animation: halo 3s ease-out infinite; pointer-events: none }
 @keyframes halo { from { transform: translate(-50%, -50%) scale(.7); opacity: .8 } to { transform: translate(-50%, -50%) scale(1.5); opacity: 0 } }
+.gnode.center { isolation: isolate }
+.bond { overflow-x: hidden }
+.bond-row:hover { transform: none; background: var(--card-soft); box-shadow: inset 2px 0 0 var(--accent) }
 .graph { margin-top: 18px; margin-bottom: 18px }
 
 /* ---------- responsive ---------- */
