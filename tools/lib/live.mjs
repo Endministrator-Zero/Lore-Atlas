@@ -5,9 +5,9 @@ import { getJSON, verKey, log, warn } from './util.mjs';
 const WIKI = { wuwa: 'wutheringwaves', genshin: 'genshin-impact' };
 const DAY = 864e5;
 
-function wikitext(game, title) {
+export function wikitext(game, title, maxAgeH = 10) {
   const url = `https://${WIKI[game]}.fandom.com/api.php?action=parse&prop=wikitext&format=json&redirects=1&page=` + encodeURIComponent(title);
-  const j = getJSON(url, `wiki/${game}/` + title.replace(/[^\w.-]+/g, '_') + '.json', { optional: true, maxAgeH: 10 });
+  const j = getJSON(url, `wiki/${game}/` + title.replace(/[^\w.-]+/g, '_') + '.json', { optional: true, maxAgeH });
   return j && j.parse ? j.parse.wikitext['*'] : null;
 }
 const field = (txt, key) => { const m = txt.match(new RegExp('\\|\\s*' + key + '\\s*=\\s*([^\\n|]*)')); return m ? m[1].replace(/<!--.*?-->/g, '').trim() : ''; };
@@ -41,8 +41,8 @@ const linkDate = raw => { const m = raw.match(/\/(\d{4}-\d{2}-\d{2})/); return m
 const inParens = text => { const m = text.match(/\(([^)]*)\)\s*$/); return m ? m[1].split(/,|&| and /).map(s => s.trim()).filter(Boolean) : []; };
 const noParens = text => text.replace(/\s*\([^)]*\)\s*$/, '').trim();
 
-function parseVersion(game, v) {
-  const txt = wikitext(game, 'Version/' + v);
+function parseVersion(game, v, opt = {}) {
+  const txt = wikitext(game, 'Version/' + v, opt.maxAgeH || 10);
   if (!txt) return null;
   const S = sections(txt);
   const info = { v, name: field(txt, 'title'), start: when(field(txt, 'date')), end: when(field(txt, 'date_end')), expected: when(field(txt, 'expected')), next: field(txt, 'next') };
@@ -65,7 +65,7 @@ function parseVersion(game, v) {
       info.areas = [...part.matchAll(/^\*+\s*(.+)$/gm)].map(m => plain(m[1]));
     }
     // convene pages carry exact start and end times
-    for (const b of info.banners) {
+    for (const b of opt.light ? [] : info.banners) {
       const page = wikitext(game, b.date ? `${b.name}/${b.date}` : b.name);
       if (page) { b.start = when(field(page, 'time_start')); b.end = when(field(page, 'time_end')); }
       if (!b.start && b.date) b.start = when(b.date + ' 11:00');
@@ -90,7 +90,7 @@ function parseVersion(game, v) {
     const q = []; let ch = '';
     for (const x of S['New Quests'] || []) {
       if (x.depth === 1 && !/Archon/.test(x.text)) break;
-      if (x.depth === 2) ch = x.text;
+      if (x.depth === 2) { ch = x.text; if (/(Act [IVXL]+|Prologue|Interlude)\s*[-–:]/.test(x.text)) q.push(x.text); }
       if (x.depth === 3) q.push(ch + ' ' + x.text);
     }
     info.quests = q;
@@ -221,5 +221,19 @@ export function buildLive(game, knownVersion) {
 }
 
 /** Facts about one version for a timeline stub (used when the site has no written entry yet). */
-export function versionFacts(game, v) { try { return parseVersion(game, v); } catch { return null; } }
+export function versionFacts(game, v, opt = { light: true }) { try { return parseVersion(game, v, opt); } catch { return null; } }
+
+/** An act page on the wiki: its official description and the names of its quests. */
+export function actPage(game, title, maxAgeH = 24 * 14) {
+  const txt = wikitext(game, title, maxAgeH);
+  if (!txt) return null;
+  let desc = field(txt, 'description');
+  const d = txt.match(/\{\{(?:Quest )?Description\|([^}]*)\}\}/);
+  if (!desc && d) desc = d[1];
+  desc = plain(String(desc || '').replace(/<br\s*\/?>/g, ' '));
+  const sec = txt.match(/==\s*(?:Quests|List of Parts|Parts)\s*==\n([\s\S]*?)(?:\n==|$)/);
+  const quests = sec ? [...sec[1].matchAll(/^[#*]+\s*(.+)$/gm)].map(m => plain(m[1])).filter(Boolean) : [];
+  return { desc, quests };
+}
+export { plain };
 export { verKey };

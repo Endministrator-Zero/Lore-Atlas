@@ -25,7 +25,14 @@
       "Mondstadt",
       "Liyue"
      ],
-     "text": "Separated from their twin by an unknown god, the Traveler wakes in Teyvat and meets Paimon. In Mondstadt they help the Knights of Favonius free the dragon Dvalin from the Abyss Order, only for the Fatui Harbinger Signora to steal Venti's Gnosis. In Liyue, Rex Lapis falls dead at the Rite of Descension and the Traveler is pulled into the hunt for his killer."
+     "text": "Separated from their twin by an unknown god, the Traveler wakes in Teyvat and meets Paimon. In Mondstadt they help the Knights of Favonius free the dragon Dvalin from the Abyss Order, only for the Fatui Harbinger Signora to steal Venti's Gnosis. In Liyue, Rex Lapis falls dead at the Rite of Descension and the Traveler is pulled into the hunt for his killer.",
+     "quests": [
+      "The Outlander Who Caught the Wind",
+      "For a Tomorrow Without Tears",
+      "Song of the Dragon and Freedom",
+      "Of the Land Amidst Monoliths",
+      "Farewell, Archaic Lord"
+     ]
     },
     {
      "v": "1.1",
@@ -149,7 +156,10 @@
       "Enkanomiya",
       "Lantern Rite"
      ],
-     "text": "Enkanomiya, the sunless realm beneath Watatsumi, opens. In Liyue, Ningguang rebuilds the Jade Chamber, and Shenhe helps defend it from Beisht, Osial's vengeful consort."
+     "text": "Enkanomiya, the sunless realm beneath Watatsumi, opens. In Liyue, Ningguang rebuilds the Jade Chamber, and Shenhe helps defend it from Beisht, Osial's vengeful consort.",
+     "quests": [
+      "The Crane Returns on the Wind"
+     ]
     },
     {
      "v": "2.5",
@@ -170,7 +180,10 @@
       "The Chasm",
       "Irodori Festival"
      ],
-     "text": "The Chasm opens. With Dainsleif, the Traveler learns of the curse on Khaenri'ah's people and the Abyss Order's plan for a Loom of Fate. Kamisato Ayato steps out of the shadows."
+     "text": "The Chasm opens. With Dainsleif, the Traveler learns of the curse on Khaenri'ah's people and the Abyss Order's plan for a Loom of Fate. Kamisato Ayato steps out of the shadows.",
+     "quests": [
+      "Requiem of the Echoing Depths"
+     ]
     },
     {
      "v": "2.7",
@@ -241,7 +254,10 @@
      "tags": [
       "Irminsul"
      ],
-     "text": "Scaramouche tries to delete himself from history inside Irminsul. The world forgets him, yet he survives as the Wanderer and chooses to take his memories back."
+     "text": "Scaramouche tries to delete himself from history inside Irminsul. The world forgets him, yet he survives as the Wanderer and chooses to take his memories back.",
+     "quests": [
+      "Inversion of Genesis"
+     ]
     },
     {
      "v": "3.4",
@@ -261,7 +277,10 @@
      "tags": [
       "Caribert"
      ],
-     "text": "Through the memories of Kaeya's ancestor, the Traveler sees how their twin and Chlothar Alberich came to found the Abyss Order. Dehya and Mika debut."
+     "text": "Through the memories of Kaeya's ancestor, the Traveler sees how their twin and Chlothar Alberich came to found the Abyss Order. Dehya and Mika debut.",
+     "quests": [
+      "Caribert"
+     ]
     },
     {
      "v": "3.6",
@@ -463,7 +482,10 @@
       "Collective of Plenty",
       "Sacred Mountain"
      ],
-     "text": "The Collective of Plenty and the great volcano open. Natlan rebuilds after the war, and Varesa and Iansan debut."
+     "text": "The Collective of Plenty and the great volcano open. Natlan rebuilds after the war, and Varesa and Iansan debut.",
+     "quests": [
+      "All Fires Fuel the Flame"
+     ]
     },
     {
      "v": "5.6",
@@ -473,7 +495,10 @@
      "tags": [
       "Mondstadt"
      ],
-     "text": "An interlude in Mondstadt centred on Albedo, where an elaborate deception tests what the Traveler can trust. Escoffier, once head chef of the Hotel Debord, and Ifa debut."
+     "text": "An interlude in Mondstadt centred on Albedo, where an elaborate deception tests what the Traveler can trust. Escoffier, once head chef of the Hotel Debord, and Ifa debut.",
+     "quests": [
+      "Paralogism"
+     ]
     },
     {
      "v": "5.7",

@@ -148,7 +148,7 @@
     if ((N.newChars || []).length) add(fresh, [h('span', { class: 'lbl', text: D.meta.charWord }), h('div', { class: 'cast one' }, N.newChars.map(function (id) {
       var c = byId[id]; return c ? h('button', { class: 'chip-char', type: 'button', onclick: function () { openSheet(id); } }, face(c), h('span', null, h('b', { text: c.name }), h('small', { text: (c.el ? c.el + ' · ' : '') + c.weapon }))) : h('span', { class: 'tag', text: id });
     }))]);
-    if ((N.newWeapons || []).length) add(fresh, [h('span', { class: 'lbl', text: 'Weapons' }), chipList(N.newWeapons)]);
+    if ((N.newWeapons || []).length) add(fresh, [h('span', { class: 'lbl', text: 'Weapons' }), weaponChips(N.newWeapons)]);
     if ((N.outfits || []).length) add(fresh, [h('span', { class: 'lbl', text: 'Outfits' }), h('div', { class: 'outfits' }, N.outfits.map(function (o) {
       var c = byId[o.char]; return h('div', { class: 'outfit' }, c ? faceBtn(o.char) : null, h('span', null, h('b', { text: o.name }), h('small', { text: c ? c.name : o.char })));
     }))]);
@@ -238,6 +238,7 @@
           h('p', { class: 'ver-text', text: v.text }),
           h('div', { class: 'tags' }, (v.tags || []).map(function (t) { return h('span', { class: 'tag', text: t }); })))),
       h('div', { class: 'ver-cast' }, h('span', { class: 'lbl', text: 'First appearances' + (v.chars.length ? ' · ' + v.chars.length : '') }), cast)));
+    renderVerMore(v);
   }
   function stepVersion(d) {
     var gi = VERS.findIndex(function (x) { return x.arc === T.arc && x.idx === T.ver; }) + d;
@@ -247,7 +248,82 @@
   }
   function goVersion(vstr) {
     var n = VERS.filter(function (x) { return x.v.v === vstr; })[0]; if (!n) return;
-    closeSheet(); selectArc(n.arc, n.idx, true); scrollToId('timeline');
+    closeSheet(true); selectArc(n.arc, n.idx, true); scrollToId('timeline');
+  }
+
+  // ---------- version detail: main story and what came with it ----------
+  var W_BY_NAME = {};
+  Object.keys(D.weapons || {}).forEach(function (k) { W_BY_NAME[D.weapons[k].n] = k; });
+  function weaponChips(names) {
+    return h('div', { class: 'tags' }, names.map(function (n) {
+      var k = W_BY_NAME[n];
+      return h('span', { class: 'tag wtag' }, k ? weaponIcon(k, 'tiny') : null, n);
+    }));
+  }
+  function renderVerMore(v) {
+    var box = $('#ver-more'), d = v.detail;
+    if (!box) return;
+    if (!d) { box.hidden = true; box.replaceChildren(); return; }
+    box.hidden = false;
+    var story = h('div', { class: 'vm-story' }, h('h4', { text: 'Main story' }));
+    if (d.story && d.story.length) d.story.forEach(function (a, ai) {
+      var parts = a.parts || [], fold = parts.length > 4;
+      var act = h('article', { class: 'act' + (fold ? ' folded' : ''), style: '--i:' + ai });
+      add(act, [h('span', { class: 'lbl', text: a.label || 'Main story' }), h('h5', { text: a.title }),
+        a.desc ? h('p', { class: 'act-desc', text: a.desc }) : null,
+        parts.length ? h('ol', { class: 'steps' }, parts.map(function (p, i) { return h('li', { class: fold && i >= 3 ? 'extra' : null }, h('b', { text: p.t }), p.d ? h('p', { text: p.d }) : null); })) : null,
+        fold ? h('button', { class: 'linkish more', type: 'button', onclick: function (e) { var f = act.classList.toggle('folded'); e.currentTarget.textContent = f ? 'Show all ' + parts.length + ' quests' : 'Show fewer'; } }, 'Show all ' + parts.length + ' quests') : null]);
+      add(story, act);
+    });
+    else add(story, h('p', { class: 'empty', text: 'No main story chapter was released in this version. Its story came from events and character stories.' }));
+    var side = h('div', { class: 'vm-side' });
+    if (d.featured) add(side, [h('span', { class: 'lbl', text: 'Featured on banners' }), h('div', { class: 'team-faces' }, d.featured.map(function (id) { return faceBtn(id); }))]);
+    if (d.areas) add(side, [h('span', { class: 'lbl', text: 'New areas' }), chipList(d.areas)]);
+    if (d.weapons) add(side, [h('span', { class: 'lbl', text: 'New weapons' }), weaponChips(d.weapons)]);
+    if (d.events) add(side, [h('span', { class: 'lbl', text: 'Events' }), h('ul', { class: 'plain' }, d.events.map(function (e) { return h('li', { text: e }); }))]);
+    swap(box, h('div', { class: 'vm-in' }, story, side.childNodes.length ? h('aside', { class: 'vm-aside cardish' }, side) : null));
+  }
+
+  // ---------- tier list ----------
+  var TF = '';
+  function initTiers() {
+    var T = D.tiers;
+    if (!T) { $('#tiers').hidden = true; return; }
+    var stale = verKey(T.reviewed) < verKey(D.meta.current);
+    $('#tier-meta').replaceChildren(
+      h('div', { class: 'tier-pills' }, h('span', { class: 'pill', text: 'Reviewed for version ' + T.reviewed }), stale ? h('span', { class: 'pill warnpill', text: 'Not reviewed for ' + D.meta.current + ' yet' }) : h('span', { class: 'pill live-live', text: 'Up to date' })),
+      h('p', { class: 'fine', text: T.note }));
+    var row = $('#tier-el');
+    function chip(label, val) {
+      var b = h('button', { class: 'chip' + (val ? ' el-' + val.toLowerCase() : ''), type: 'button', onclick: function () { TF = val; $$('.chip', row).forEach(function (x) { x.classList.toggle('on', x === b); }); renderTiers(); } }, val ? h('img', { src: elIcon(val), alt: '' }) : null, h('span', { text: label }));
+      if (val === TF) b.classList.add('on');
+      return b;
+    }
+    row.appendChild(chip('All', ''));
+    D.elements.forEach(function (e) { row.appendChild(chip(e, e)); });
+    renderTiers();
+  }
+  function renderTiers() {
+    var T = D.tiers, keep = function (id) { var c = byId[id]; return c && (!TF || c.el === TF); };
+    function cell(ids) {
+      return h('div', { class: 'tier-cell' }, ids.filter(keep).map(function (id) {
+        var c = byId[id];
+        return h('button', { class: 'tier-face', type: 'button', title: c.name, onclick: function () { openSheet(id); } }, face(c), h('small', { text: shortName(c) }));
+      }));
+    }
+    var grid = h('div', { class: 'tier-grid', style: '--cols:' + T.columns.length },
+      h('div', { class: 'tier-head' }, h('span'), T.columns.map(function (c) { return h('span', { class: 'lbl', text: c }); })));
+    T.rows.forEach(function (r, i) {
+      grid.appendChild(h('div', { class: 'tier-row t-' + r.tier.toLowerCase(), style: '--i:' + i },
+        h('div', { class: 'tier-badge' }, h('b', { text: r.tier }), r.label ? h('small', { text: r.label }) : null),
+        r.cells.map(function (ids, j) { return h('div', { class: 'tier-col', 'data-col': T.columns[j] }, cell(ids)); })));
+    });
+    if (T.unrated.length) {
+      grid.appendChild(h('div', { class: 'tier-row t-new' },
+        h('div', { class: 'tier-badge' }, h('b', { text: 'New' }), h('small', { text: 'Not rated yet' })),
+        h('div', { class: 'tier-col wide' }, cell(T.unrated))));
+    }
+    swap($('#tier-body'), grid);
   }
 
   // ---------- roster ----------
@@ -290,6 +366,8 @@
 
   // ---------- character sheet ----------
   var sheetOpen = false, lastFocus = null, sheetTab = 'profile';
+  var EL_HEX = { Pyro: '#ff7d55', Hydro: '#4cc2f1', Anemo: '#74e0bb', Dendro: '#a5c83b', Cryo: '#9fe3ef', Geo: '#f2b83a', Electro: '#b98cf5', Glacio: '#5fc8ff', Fusion: '#ff7a4d', Aero: '#5ff0b5', Spectro: '#f7df6b', Havoc: '#e85aa8' };
+  function elHex(c) { return EL_HEX[c && c.el] || (WORLD === 'wuwa' ? '#e6c98a' : '#d9c08f'); }
   function quoteBlock(l, who, dir) {
     var c = byId[formOf(who)] || byId[who];
     return h('div', { class: 'quote' },
@@ -305,21 +383,55 @@
       h('span', { class: 'mat-ico' }, it.i ? h('img', { src: IMG + 'items/' + id + '.webp', alt: '', loading: 'lazy' }) : h('i', { text: it.n.charAt(0) })),
       h('b', { text: n != null ? '×' + big(n) : '' }), h('span', { class: 'mat-name', text: it.n }), src ? h('small', { text: src }) : null);
   }
-  function teamRow(t) { return h('div', { class: 'team-faces' }, t.map(function (id) { return faceBtn(id); })); }
+  function teamRow(t) {
+    var ids = t.filter(function (x) { return byId[x]; });
+    if (ids.length < t.length) return h('p', { class: 'team-text', text: t.join(', ') });
+    return h('div', { class: 'team-faces' }, ids.map(function (id) { return faceBtn(id); }));
+  }
+  function weaponIcon(k, cls) {
+    var w = (D.weapons || {})[k]; if (!w) return null;
+    return h('span', { class: 'w-ico r' + w.r + (cls ? ' ' + cls : '') }, w.i ? h('img', { src: IMG + 'weapons/' + k + '.webp', alt: '', loading: 'lazy' }) : h('i', { text: w.n.charAt(0) }));
+  }
+  function weaponCard(k, badge, rank) {
+    var w = (D.weapons || {})[k]; if (!w) return null;
+    return h('article', { class: 'weapon r' + w.r + (badge === 'Signature' ? ' sig' : '') },
+      h('div', { class: 'weapon-top' }, weaponIcon(k, 'big'),
+        h('div', { class: 'weapon-id' },
+          h('div', { class: 'weapon-tags' }, badge ? h('em', { class: 'wbadge', text: badge }) : null, rank ? h('span', { class: 'wrank', text: '#' + rank }) : null),
+          h('b', { text: w.n }),
+          h('span', { class: 'weapon-meta' }, stars(w.r), ' ' + w.type))),
+      h('dl', { class: 'weapon-stats' },
+        h('div', null, h('dt', { text: 'Base ATK' }), h('dd', { text: String(w.atk) })),
+        w.sub ? h('div', null, h('dt', { text: w.sub }), h('dd', { text: w.subv })) : null),
+      w.p ? h('details', { class: 'weapon-passive' }, h('summary', null, w.pn || 'Passive', h('small', { text: ' · rank 1' })), h('p', { text: w.p })) : null);
+  }
+  function weaponsPane(c) {
+    var b = c.build || {}, list = (b.wk || []).filter(Boolean), seen = {};
+    var out = h('div', { class: 'weapons-pane' });
+    if (c.sig) { seen[c.sig] = 1; add(out, [h('span', { class: 'lbl', text: 'Signature weapon' }), weaponCard(c.sig, 'Signature')]); }
+    var rec = list.filter(function (k) { return !seen[k] && (seen[k] = 1); });
+    if (rec.length) add(out, [h('span', { class: 'lbl', text: c.sig ? 'Other good picks' : 'Recommended weapons' }), h('div', { class: 'weapon-list' }, rec.map(function (k) { return weaponCard(k, list.indexOf(k) === 0 && !c.sig ? 'Best' : '', list.indexOf(k) + 1); }))]);
+    if (!c.sig && !rec.length) add(out, h('p', { class: 'empty', text: 'No weapon data for ' + c.name + ' yet.' }));
+    add(out, h('p', { class: 'fine', text: 'Stats are at level 90. Passives are shown at rank 1. The signature weapon is the one released alongside the character.' }));
+    return out;
+  }
   function buildPane(c) {
     var b = c.build;
     if (!b) return h('p', { class: 'empty', text: 'No build guide has been written for ' + c.name + ' yet. Farming materials are listed under Materials.' });
     function row(k, v) { return v ? h('div', { class: 'brow' }, h('dt', { text: k }), h('dd', { text: v })) : null; }
-    function list(k, arr, best) {
-      return arr && arr.length ? h('div', { class: 'brow' }, h('dt', { text: k }), h('dd', null, h('ol', { class: 'rank' }, arr.map(function (x, i) { return h('li', null, x, i === 0 && best ? h('em', { text: best }) : null); })))) : null;
+    function list(k, arr, best, keys) {
+      return arr && arr.length ? h('div', { class: 'brow' }, h('dt', { text: k }), h('dd', null, h('ol', { class: 'rank' }, arr.map(function (x, i) {
+        var key = keys && keys[i];
+        return h('li', null, key ? weaponIcon(key, 'tiny') : null, x, key && key === c.sig ? h('em', { class: 'sigtag', text: 'Signature' }) : i === 0 && best ? h('em', { text: best }) : null);
+      })))) : null;
     }
     var provisional = /provisional/i.test(b.note || '');
     return h('div', { class: 'build' },
       h('p', { class: 'build-role' }, h('span', { class: 'lbl', text: 'Role' }), b.role, provisional ? h('em', { class: 'warn', text: 'Early guide' }) : null),
-      h('dl', { class: 'btable' }, list('Weapons', b.weapons, 'Best'), list(WORLD === 'wuwa' ? 'Echo sets' : 'Artifact sets', b.sets, 'Best'),
+      h('dl', { class: 'btable' }, list('Weapons', b.weapons, 'Best', b.wk), list(WORLD === 'wuwa' ? 'Echo sets' : 'Artifact sets', b.sets, 'Best'),
         row('Main stats', b.main), row('Substats', b.subs), row(WORLD === 'wuwa' ? 'Forte priority' : 'Talent priority', b.skills)),
       b.teams && b.teams.length ? h('div', { class: 'build-teams' }, h('span', { class: 'lbl', text: 'Suggested teams' }), b.teams.map(teamRow)) : null,
-      b.note ? h('p', { class: 'bond-note', text: b.note }) : null,
+      b.note ? h('p', { class: 'bond-note', text: b.note.replace(/^Provisional build\.?\s*/i, '') || 'An early build that may change as players test the character.' }) : null,
       h('p', { class: 'fine', text: 'Builds are community-standard recommendations written for this site. Check an up-to-date guide before spending rare resources.' }));
   }
   function matsPane(c) {
@@ -328,11 +440,16 @@
     function group(label, list) { return list.length ? [h('span', { class: 'lbl', text: label }), h('div', { class: 'mats' }, list.map(function (x) { return itemTile(x[0], x[1]); }))] : null; }
     return h('div', { class: 'mat-pane' }, group(D.labels.asc || 'Ascension', m.a), group(D.labels.skill || 'Skills', m.s),
       WORLD === 'genshin' ? h('p', { class: 'fine', text: 'Talent books show the days their domain is open. Books you can farm today are outlined. Sunday opens every domain.' }) : null,
-      h('button', { class: 'btn ghost', type: 'button', onclick: function () { closeSheet(); scrollToId('bosses'); } }, 'See the boss list'));
+      h('button', { class: 'btn ghost', type: 'button', onclick: function () { closeSheet(true); scrollToId('bosses'); } }, 'See the boss list'));
+  }
+  function tierOf(cid) {
+    var T = D.tiers; if (!T) return null;
+    for (var i = 0; i < T.rows.length; i++) for (var j = 0; j < T.rows[i].cells.length; j++) if (T.rows[i].cells[j].indexOf(cid) >= 0) return { tier: T.rows[i].tier, col: T.columns[j] };
+    return null;
   }
   function openSheet(id) {
     var c = byId[id]; if (!c) return;
-    var sheet = $('#sheet'), body = $('#sheet-body'), cid = canon(id);
+    var sheet = $('#sheet'), body = $('#sheet-body'), cid = canon(id), wasOpen = sheetOpen;
     if (!sheetOpen) lastFocus = document.activeElement;
     G.form[cid] = id;
     var says = outLines[cid] || [], said = inLines[cid] || [], L = D.labels;
@@ -350,18 +467,19 @@
     var t2 = vtab('Others on ' + first(c), said, 'From', 'f', 'Nobody has a recorded voice line about ' + c.name + ' yet.');
     if (!says.length && said.length) pick(t2[0], t2[1]); else pick(t1[0], t1[1]);
     add(voice, [vtabs, vpanes]);
-
+    var tr = tierOf(cid);
     var profile = h('div', null,
       h('p', { class: 'sheet-lore', text: c.lore }),
-      h('dl', { class: 'facts' }, fact('First appeared', 'Version ' + c.ver, function () { goVersion(c.ver); }), fact(L.faction, c.faction), fact(L.region, c.region), fact('Birthday', c.birthday), L.extra ? fact(L.extra, c.extra) : null),
+      h('dl', { class: 'facts' }, fact('First appeared', 'Version ' + c.ver, function () { goVersion(c.ver); }),
+        tr ? fact('Tier', tr.tier + ' · ' + tr.col, function () { closeSheet(true); scrollToId('tiers'); }) : null,
+        fact(L.faction, c.faction), fact(L.region, c.region), fact('Birthday', c.birthday), L.extra ? fact(L.extra, c.extra) : null),
       h('div', { class: 'sheet-actions' },
-        h('button', { class: 'btn', type: 'button', onclick: function () { closeSheet(); setCenter(cid, null); scrollToId('connections'); } }, 'Show connections'),
+        h('button', { class: 'btn', type: 'button', onclick: function () { closeSheet(true); setCenter(cid, null); scrollToId('connections'); } }, 'Show connections'),
         other ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { openSheet(other.id); } }, other.tag ? 'View ' + other.tag.toLowerCase() + ' version' : 'View ' + other.name) : null));
-
-    var panes = { profile: profile, build: buildPane(c), mats: matsPane(c), voice: voice };
+    var panes = { profile: profile, build: buildPane(c), weapons: weaponsPane(c), mats: matsPane(c), voice: voice };
     var tabs = h('div', { class: 'tabs main', role: 'tablist' });
     var holder = h('div', { class: 'sheet-pane' });
-    [['profile', 'Profile'], ['build', 'Build'], ['mats', 'Materials'], ['voice', 'Voice-overs']].forEach(function (t) {
+    [['profile', 'Profile'], ['build', 'Build'], ['weapons', 'Weapons'], ['mats', 'Materials'], ['voice', 'Voice-overs']].forEach(function (t) {
       tabs.appendChild(h('button', { class: 'tab', type: 'button', role: 'tab', 'data-t': t[0], onclick: function () { show(t[0]); } }, t[1], t[0] === 'voice' ? h('i', { text: String(says.length + said.length) }) : null));
     });
     function show(k) {
@@ -369,27 +487,36 @@
       $$('.tab', tabs).forEach(function (b) { b.classList.toggle('on', b.dataset.t === k); b.setAttribute('aria-selected', b.dataset.t === k ? 'true' : 'false'); });
       swap(holder, panes[k]);
     }
-    var art = c.art ? h('img', { class: 'sheet-art', src: IMG + 'art/' + c.id + '.webp', alt: c.name + ' artwork', decoding: 'async' })
-      : h('img', { class: 'sheet-art sheet-art-icon', src: IMG + 'icons/' + c.id + '.webp', alt: '' });
-    var content = h('div', { class: 'sheet-in r' + c.rarity + ' ' + (c.el ? 'el-' + c.el.toLowerCase() : 'el-none') },
-      h('div', { class: 'sheet-hero' }, art,
-        h('div', { class: 'sheet-id' }, h('span', { class: 'lbl', text: place(c) }),
-          h('h3', { id: 'sheet-name', text: c.name }),
-          c.title ? h('p', { class: 'sheet-title', text: (WORLD === 'wuwa' ? L.title + ': ' : '') + c.title }) : null,
-          h('div', { class: 'sheet-chips' }, c.el ? h('span', { class: 'pill el' }, h('img', { src: elIcon(c.el), alt: '' }), c.el) : null,
-            c.tag ? h('span', { class: 'pill', text: c.tag }) : null, h('span', { class: 'pill', text: c.weapon }), h('span', { class: 'pill rare' }, stars(c.rarity))))),
-      tabs, holder);
+    var artSrc = c.art ? IMG + 'art/' + c.id + '.webp' : IMG + 'icons/' + c.id + '.webp';
+    var img = h('img', { class: 'sheet-art' + (c.art ? '' : ' sheet-art-icon'), src: artSrc, alt: c.name + ' artwork', decoding: 'async' });
+    function loaded() { img.classList.add('loaded'); }
+    if (img.complete) loaded(); else img.addEventListener('load', loaded);
+    var stage = h('div', { class: 'sheet-3d', 'aria-hidden': 'true' });
+    var hero = h('div', { class: 'sheet-hero', style: '--elc:' + elHex(c) }, img, stage,
+      h('div', { class: 'sheet-id' }, h('span', { class: 'lbl', text: place(c) }),
+        h('h3', { id: 'sheet-name', text: c.name }),
+        c.title ? h('p', { class: 'sheet-title', text: (WORLD === 'wuwa' ? L.title + ': ' : '') + c.title }) : null,
+        h('div', { class: 'sheet-chips' }, c.el ? h('span', { class: 'pill el' }, h('img', { src: elIcon(c.el), alt: '' }), c.el) : null,
+          c.tag ? h('span', { class: 'pill', text: c.tag }) : null, h('span', { class: 'pill', text: c.weapon }), h('span', { class: 'pill rare' }, stars(c.rarity)),
+          tr ? h('span', { class: 'pill tierpill t-' + tr.tier.toLowerCase(), text: tr.tier + ' tier' }) : null)),
+      h('span', { class: 'drag-hint', text: 'Drag to turn' }));
+    var content = h('div', { class: 'sheet-in r' + c.rarity + ' ' + (c.el ? 'el-' + c.el.toLowerCase() : 'el-none') + (wasOpen ? ' quiet' : '') }, hero, tabs, holder);
     body.replaceChildren(content); body.scrollTop = 0;
     show(sheetTab);
     sheet.setAttribute('aria-labelledby', 'sheet-name');
     if (!sheetOpen) { sheetOpen = true; sheet.hidden = false; $('#scrim').hidden = false; void sheet.offsetWidth; document.documentElement.classList.add('sheet-open'); }
-    $('#sheet-close').focus();
+    $('#sheet-close').focus({ preventScroll: true });
+    whenScene(function () {
+      if (!sheetOpen) return;
+      window.LoreScene.showcase(stage, { art: artSrc, color: elHex(c), world: WORLD, isIcon: !c.art }, function () { hero.classList.add('has3d'); });
+    });
   }
-  function closeSheet() {
+  function closeSheet(leaving) {
     if (!sheetOpen) return;
     sheetOpen = false; document.documentElement.classList.remove('sheet-open');
+    if (window.LoreScene) window.LoreScene.showcaseStop();
     setTimeout(function () { if (!sheetOpen) { $('#sheet').hidden = true; $('#scrim').hidden = true; } }, reduceMotion ? 0 : 380);
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (leaving !== true && lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
 
   // ---------- bosses ----------
@@ -481,7 +608,8 @@
   function mapData() {
     return {
       world: WORLD,
-      nodes: D.chars.filter(function (c) { return !c.same; }).map(function (c) { return { id: c.id, name: c.name, region: c.region, img: IMG + 'icons/' + formOf(c.id) + '.webp', deg: DEG[c.id] || 0 }; }),
+      nodes: D.chars.filter(function (c) { return !c.same; }).map(function (c) { return { id: c.id, name: c.name, region: c.region, img: IMG + 'icons/' + formOf(c.id) + '.webp', deg: DEG[c.id] || 0, color: elHex(c), rare: c.rarity }; }),
+      regionHue: D.regions.reduce(function (o, r) { o[r] = regionHue(r); return o; }, {}),
       edges: D.lines.filter(function (l) { return byId[l.f] && byId[l.t]; }).map(function (l) { return [l.f, l.t]; })
     };
   }
@@ -489,6 +617,7 @@
   function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
   function setCenter(id, sel, fromMap) {
     id = canon(id); if (!byId[id]) return;
+    if (G.center !== id) GF.region = '';
     G.center = id; G.sel = sel;
     $$('#hub-row .hub').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
     if (G.view === 'focus') layoutGraph(true); else if (!fromMap && window.LoreScene) window.LoreScene.focus(id);
@@ -501,69 +630,109 @@
     $$('#graph-edges .edge').forEach(function (e) { e.classList.toggle('sel', e.getAttribute('data-id') === id); });
     renderBond();
   }
+  var GF = { region: '', mutual: false };
+  var REGION_HUE = ['#e6c98a', '#7fe3c4', '#8fc7ff', '#c9a2ff', '#ff9d7a', '#9bd45c', '#ffd36b', '#ff8fb8', '#9fe3ef', '#b9b9c9'];
+  function regionOf(id) { var c = byId[id]; return c ? c.region || 'Unknown' : 'Unknown'; }
+  function regionHue(r) { var i = D.regions.indexOf(r); return REGION_HUE[(i < 0 ? D.regions.length : i) % REGION_HUE.length]; }
+  function renderGraphFilters(all) {
+    var box = $('#g-filters');
+    if (all.length <= 20) { box.hidden = true; box.replaceChildren(); GF.region = ''; GF.mutual = false; return; }
+    var counts = {};
+    all.forEach(function (x) { var r = regionOf(x.id); counts[r] = (counts[r] || 0) + 1; });
+    var regs = Object.keys(counts).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
+    if (GF.region && !counts[GF.region]) GF.region = '';
+    var mutualN = all.filter(function (x) { return x.out && x.inn; }).length;
+    function f(label, n, on, click, hue) {
+      return h('button', { class: 'chip' + (on ? ' on' : ''), type: 'button', style: hue ? '--rh:' + hue : null, onclick: click }, hue ? h('i', { class: 'rdot' }) : null, h('span', { text: label }), h('small', { text: String(n) }));
+    }
+    box.hidden = false;
+    box.replaceChildren();
+    add(box, [
+      f('Everyone', all.length, !GF.region, function () { GF.region = ''; layoutGraph(true); }),
+      regs.map(function (r) { return f(r, counts[r], GF.region === r, function () { GF.region = GF.region === r ? '' : r; layoutGraph(true); }, regionHue(r)); }),
+      h('span', { class: 'g-sep' }),
+      f('Both speak only', mutualN, GF.mutual, function () { GF.mutual = !GF.mutual; layoutGraph(true); })]);
+  }
   function layoutGraph(animate) {
     var stage = $('#graph'), svg = $('#graph-edges');
     if (!stage.clientWidth) return;
-    var nb = neighbours(G.center), n = nb.length, pos = {};
+    var all = neighbours(G.center);
+    renderGraphFilters(all);
+    var nb = all.filter(function (x) { return (!GF.region || regionOf(x.id) === GF.region) && (!GF.mutual || (x.out && x.inn)); });
+    var n = nb.length, pos = {};
     pos[G.center] = { x: 50, y: 50 };
-    var rings, radii;
-    if (n <= 11) { rings = [n]; radii = [n <= 4 ? 30 : 37]; }
-    else if (n <= 26) { var inner = Math.min(9, Math.ceil(n * 0.38)); rings = [inner, n - inner]; radii = [24, 42]; }
-    else {
-      // many neighbours: as many rings as needed, filled in proportion to their circumference
-      var gap = n > 54 ? 5.4 : 7.4, startR = n > 54 ? 14 : 17, k = 2, cap = 0;
-      for (; k < 7; k++) { cap = 0; for (var q = 0; q < k; q++) cap += Math.floor(2 * Math.PI * (startR + q * (45.5 - startR) / (k - 1)) / gap); if (cap >= n) break; }
-      radii = []; rings = []; var total = 0, placed = 0;
-      for (var q2 = 0; q2 < k; q2++) { radii.push(startR + q2 * (45.5 - startR) / (k - 1)); total += radii[q2]; }
-      for (var q3 = 0; q3 < k; q3++) { var cnt = q3 === k - 1 ? n - placed : Math.round(n * radii[q3] / total); rings.push(cnt); placed += cnt; }
-    }
-    var idx = 0;
-    rings.forEach(function (count, ri) {
-      for (var k = 0; k < count && idx < n; k++, idx++) {
-        var ang = -Math.PI / 2 + (k / Math.max(count, 1)) * Math.PI * 2 + (ri % 2 ? Math.PI / Math.max(count, 1) : 0);
-        pos[nb[idx].id] = { x: 50 + Math.cos(ang) * radii[ri], y: 50 + Math.sin(ang) * radii[ri], nb: nb[idx] };
-      }
+    // group neighbours by region so the circle reads as named sectors instead of a random ring
+    var ri = function (id) { var i = D.regions.indexOf(regionOf(id)); return i < 0 ? 99 : i; };
+    nb.sort(function (a, b) { return ri(a.id) - ri(b.id) || ((b.out && b.inn) ? 1 : 0) - ((a.out && a.inn) ? 1 : 0) || verKey(byId[a.id].ver) - verKey(byId[b.id].ver); });
+    var groups = [];
+    nb.forEach(function (x) { var r = regionOf(x.id); if (!groups.length || groups[groups.length - 1].r !== r) groups.push({ r: r, items: [] }); groups[groups.length - 1].items.push(x); });
+    var L = n <= 12 ? 1 : n <= 28 ? 2 : n <= 56 ? 3 : 4;
+    var radii = L === 1 ? [n <= 5 ? 30 : 37] : L === 2 ? [27, 41.5] : L === 3 ? [21, 32.5, 44] : [18, 27, 36, 45];
+    var gap = groups.length > 1 ? Math.min(0.16, 1.1 / groups.length) : 0;
+    var avail = Math.PI * 2 - gap * groups.length, a = -Math.PI / 2 + gap / 2, sectors = [];
+    groups.forEach(function (gp) {
+      var spanA = avail * gp.items.length / Math.max(n, 1), per = Math.ceil(gp.items.length / L);
+      gp.items.forEach(function (x, j) {
+        var layer = L - 1 - (j % L), slot = Math.floor(j / L), cols = per;
+        var off = L > 1 && per > 1 ? (layer % 2 ? 0.22 : -0.22) : 0;
+        var ang = a + (slot + 0.5 + off) / cols * spanA;
+        pos[x.id] = { x: 50 + Math.cos(ang) * radii[layer], y: 50 + Math.sin(ang) * radii[layer], nb: x, ang: ang, mid: a + spanA / 2, r: radii[layer] };
+      });
+      sectors.push({ r: gp.r, a0: a, a1: a + spanA, count: gp.items.length });
+      a += spanA + gap;
     });
-    stage.classList.toggle('dense', n > 13); stage.classList.toggle('crowd', n > 26); stage.classList.toggle('swarm', n > 54);
+    stage.classList.toggle('dense', n > 13); stage.classList.toggle('crowd', n > 28); stage.classList.toggle('swarm', n > 56);
+    // nodes: reuse elements so they glide between layouts
     Object.keys(G.nodes).forEach(function (id) { if (!pos[id]) { var old = G.nodes[id]; old.classList.add('out'); delete G.nodes[id]; setTimeout(function () { old.remove(); }, 350); } });
-    Object.keys(pos).forEach(function (id, i) {
+    Object.keys(pos).forEach(function (id) {
       var c = byId[formOf(id)] || byId[id], p = pos[id], node = G.nodes[id];
       if (!node) {
         var fromCentre = G.nodes[G.center] && id !== G.center;
         node = h('button', { class: 'gnode in', type: 'button', 'data-id': id, style: 'left:' + (fromCentre ? 50 : p.x) + '%;top:' + (fromCentre ? 50 : p.y) + '%' }, face(c), h('span', { class: 'gname', text: shortName(c) }));
         node.addEventListener('click', function () { if (id === G.center) selectBond(null); else selectBond(id); });
         node.addEventListener('dblclick', function () { if (id !== G.center) setCenter(id, null); });
+        node.addEventListener('mouseenter', function () { var e = $('#graph-edges .edge[data-id="' + id + '"]'); if (e) e.classList.add('hot'); });
+        node.addEventListener('mouseleave', function () { var e = $('#graph-edges .edge[data-id="' + id + '"]'); if (e) e.classList.remove('hot'); });
         stage.appendChild(node); G.nodes[id] = node; void node.offsetWidth;
-      } else { var im = $('img', node); var src = IMG + 'icons/' + c.id + '.webp'; if (im.getAttribute('src') !== src) im.setAttribute('src', src); $('.gname', node).textContent = shortName(c); }
+      } else { var im = $('img', node), src = IMG + 'icons/' + c.id + '.webp'; if (im.getAttribute('src') !== src) im.setAttribute('src', src); $('.gname', node).textContent = shortName(c); }
       node.className = 'gnode' + (id === G.center ? ' center' : '') + (id === G.sel ? ' sel' : '') + (p.nb && p.nb.out && p.nb.inn ? ' mutual' : '') + ' r' + c.rarity;
       node.style.left = p.x + '%'; node.style.top = p.y + '%';
+      node.style.setProperty('--rh', id === G.center ? '' : regionHue(regionOf(id)));
       node.setAttribute('aria-label', c.name + (id === G.center ? ', centre' : ''));
     });
+    // region labels around the rim
+    $$('.g-label', stage).forEach(function (l) { l.remove(); });
+    if (groups.length > 1) sectors.forEach(function (s) {
+      var m = (s.a0 + s.a1) / 2, x = 50 + Math.cos(m) * 50.5, y = 50 + Math.sin(m) * 50.5;
+      if (s.a1 - s.a0 < 0.22 && s.count < 3) return;
+      stage.appendChild(h('span', { class: 'g-label', style: 'left:' + x + '%;top:' + y + '%;--rh:' + regionHue(s.r) + ';--tx:' + (Math.cos(m) > 0.25 ? '0%' : Math.cos(m) < -0.25 ? '-100%' : '-50%') + ';--ty:' + (Math.sin(m) > 0.25 ? '0%' : Math.sin(m) < -0.25 ? '-100%' : '-50%') }, s.r, h('small', { text: ' ' + s.count })));
+    });
+    // edges: curves bundled per region sector, so a big circle stays readable
     svg.replaceChildren();
-    var NS = 'http://www.w3.org/2000/svg', crowd = n > 26;
+    var NS = 'http://www.w3.org/2000/svg', rim = L === 1 ? radii[0] + 6.5 : 48;
+    function el(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+    if (groups.length > 1) sectors.forEach(function (s) {
+      var p0 = [50 + Math.cos(s.a0) * rim, 50 + Math.sin(s.a0) * rim], p1 = [50 + Math.cos(s.a1) * rim, 50 + Math.sin(s.a1) * rim];
+      var arc = el('path', { d: 'M' + p0 + ' A' + rim + ' ' + rim + ' 0 ' + (s.a1 - s.a0 > Math.PI ? 1 : 0) + ' 1 ' + p1, class: 'sector' });
+      arc.style.stroke = regionHue(s.r); svg.appendChild(arc);
+    });
+    var c1 = n > 56 ? 2.4 : n > 28 ? 3.2 : n > 13 ? 4.8 : 6.2, c0 = n > 13 ? 8 : 9.5;
     nb.forEach(function (x, i) {
-      var p = pos[x.id], dx = p.x - 50, dy = p.y - 50, len = Math.sqrt(dx * dx + dy * dy), ux = dx / len, uy = dy / len;
-      var c0 = n > 54 ? 6.6 : crowd ? 7.4 : n > 13 ? 8.5 : 10, c1 = n > 54 ? 2.6 : crowd ? 3.4 : n > 13 ? 5.2 : 6.4;
-      var x1 = 50 + ux * c0, y1 = 50 + uy * c0, x2 = p.x - ux * c1, y2 = p.y - uy * c1;
-      var g = document.createElementNS(NS, 'g');
-      g.setAttribute('class', 'edge ' + (x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in') + (x.id === G.sel ? ' sel' : ''));
-      g.setAttribute('data-id', x.id); g.style.setProperty('--d', (160 + Math.min(i, 40) * 14) + 'ms');
-      var line = document.createElementNS(NS, 'line');
-      line.setAttribute('x1', x1); line.setAttribute('y1', y1); line.setAttribute('x2', x2); line.setAttribute('y2', y2); line.setAttribute('pathLength', '1');
-      g.appendChild(line);
-      function tip(f, sx, sy, ex, ey) {
-        var tx = sx + (ex - sx) * f, ty = sy + (ey - sy) * f, a = Math.atan2(ey - sy, ex - sx), s = crowd ? 1.1 : 1.7;
-        tx += Math.cos(a) * s * 0.5; ty += Math.sin(a) * s * 0.5;
-        var pth = document.createElementNS(NS, 'path');
-        pth.setAttribute('d', 'M' + tx + ' ' + ty + ' L' + (tx - Math.cos(a - 0.45) * s) + ' ' + (ty - Math.sin(a - 0.45) * s) + ' L' + (tx - Math.cos(a + 0.45) * s) + ' ' + (ty - Math.sin(a + 0.45) * s) + 'Z');
-        g.appendChild(pth);
-      }
-      if (x.out) tip(x.inn ? 0.72 : 0.6, x1, y1, x2, y2);
-      if (x.inn) tip(x.out ? 0.72 : 0.6, x2, y2, x1, y1);
+      var p = pos[x.id], bund = Math.min(p.r * 0.42, 15), cx = 50 + Math.cos(p.mid) * bund, cy = 50 + Math.sin(p.mid) * bund;
+      if (groups.length <= 1 || L === 1) { cx = 50 + (p.x - 50) * 0.5; cy = 50 + (p.y - 50) * 0.5; }
+      var sx = cx - 50, sy = cy - 50, sl = Math.sqrt(sx * sx + sy * sy) || 1;
+      var x0 = 50 + sx / sl * c0, y0 = 50 + sy / sl * c0;
+      var ex = p.x - cx, ey = p.y - cy, el2 = Math.sqrt(ex * ex + ey * ey) || 1;
+      var x1 = p.x - ex / el2 * c1, y1 = p.y - ey / el2 * c1;
+      var g = el('path', { d: 'M' + x0 + ' ' + y0 + ' Q' + cx + ' ' + cy + ' ' + x1 + ' ' + y1, class: 'edge ' + (x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in') + (x.id === G.sel ? ' sel' : ''), 'data-id': x.id });
+      g.style.setProperty('--d', (120 + Math.min(i, 50) * 10) + 'ms');
+      if (x.out && x.inn) g.style.setProperty('--rh', regionHue(regionOf(x.id)));
       svg.appendChild(g);
+      if (n <= 13) svg.appendChild(el('circle', { cx: x1, cy: y1, r: 0.7, class: 'edge-dot ' + (x.out ? 'out' : 'in'), 'data-id': x.id }));
     });
     if (animate) { svg.classList.remove('draw'); void svg.getBoundingClientRect(); svg.classList.add('draw'); }
-    $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + n + (n === 1 ? ' connection' : ' connections');
+    var shown = n === all.length ? n + (n === 1 ? ' connection' : ' connections') : n + ' of ' + all.length + ' connections';
+    $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + shown;
   }
   function renderBond() {
     var box = $('#bond'), c = byId[formOf(G.center)] || byId[G.center], nb = neighbours(G.center);
@@ -634,7 +803,7 @@
     window.addEventListener('scroll', function () { top.classList.toggle('scrolled', window.scrollY > 24); }, { passive: true });
   }
 
-  initHero(); renderNow(); initTimeline(); initRoster(); initBosses(); initTeams(); initGraph(); initNav();
+  initHero(); renderNow(); initTimeline(); initRoster(); initTiers(); initBosses(); initTeams(); initGraph(); initNav();
   setInterval(function () { if (!document.hidden) renderNow(); }, 60000);
   whenScene(function () { try { window.LoreScene.hero($('#hero-3d'), WORLD); } catch (e) {} });
   document.documentElement.classList.add('ready');

@@ -137,6 +137,30 @@ export async function buildWuwa(content, autoVer) {
     if (n && !outfits.some(o => o.name === n && o.char === canon(id))) outfits.push({ name: n, char: id });
   }
 
+  // ----- weapons -----
+  const conf = bin('weapon/weaponconf.json', { optional: true }) || [];
+  const growth = bin('property/weaponpropertygrowth.json', { optional: true }) || [];
+  const at90 = curve => (growth.find(g => g.CurveId === curve && g.Level === 90 && g.BreachLevel === 6) || {}).CurveValue || 0;
+  const PROP = { 7: ['ATK', 0], 8: ['Crit. Rate', 1], 9: ['Crit. DMG', 1], 10: ['DEF', 0], 11: ['Energy Regen', 1], 10002: ['HP%', 1], 10007: ['ATK%', 1], 10010: ['DEF%', 1] };
+  const weaponIndex = {};
+  for (const w of conf) {
+    const n = clean(t(w.WeaponName)); if (!n || !w.IsShow) continue;
+    const sp = w.SecondPropId || {}, info = PROP[sp.Id] || [String(sp.Id), 1];
+    const sv = (sp.Value || 0) * at90(w.SecondCurve) / 10000 * (sp.IsRatio ? 10000 : 1);
+    let passive = t(w.Desc);
+    (w.DescParams || []).forEach((p, i) => { passive = passive.split('{' + i + '}').join((p.ArrayString || [])[0] || ''); });
+    weaponIndex[wslug(n)] = {
+      n, r: w.QualityId, type: WP[w.WeaponType] || '', atk: Math.floor((w.FirstPropId?.Value || 0) * at90(w.FirstCurve) / 10000),
+      sub: info[0], subv: info[1] ? (sv / 100).toFixed(1) + '%' : String(Math.floor(sv)),
+      p: clean(passive), _icon: w.Icon, id: w.ItemId,
+    };
+  }
+  const weaponImages = async list => {
+    const need = list.filter(w => w._icon && !fs.existsSync(path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp')))
+      .map(w => ({ game: w._icon, dest: path.join(OUT, 'img/wuwa/weapons', wslug(w.n) + '.webp'), w: 128, q: 86 }));
+    await fetchImages(need);
+  };
+
   // ----- images -----
   await images(chars, roleOf, items);
   for (const c of chars) c.art = fs.existsSync(path.join(OUT, 'img/wuwa/art', c.id + '.webp'));
@@ -144,7 +168,7 @@ export async function buildWuwa(content, autoVer) {
 
   log(`wuwa: ${chars.length} characters, ${lines.length} lines, ${Object.keys(items).length} items, ${bosses.length} bosses (data ${dataVersion})`);
   return {
-    chars, lines, items, bosses, outfits, nameToId, dataVersion,
+    chars, lines, items, bosses, outfits, nameToId, dataVersion, weaponIndex, weaponImages, slug: wslug,
     elements: ['Glacio', 'Fusion', 'Electro', 'Aero', 'Spectro', 'Havoc'],
     regions: ['Huanglong', 'Black Shores', 'Rinascita', 'Lahai-Roi', 'New Federation', 'Fractsidus', 'Crossover', 'Unknown'],
     labels: { extra: 'Attributes', title: 'Resonance power', faction: 'Affiliation', region: 'Sphere', weapon: 'Weapon', el: 'Attribute', asc: 'Ascension to level 90', skill: 'All Forte skills to max', boss: 'Weekly Challenge' },
@@ -162,6 +186,10 @@ async function images(chars, roleOf, items) {
   for (const [id, it] of Object.entries(items)) {
     if (it._icon && !fs.existsSync(path.join(dir('items'), id + '.webp'))) need.push({ game: it._icon, dest: path.join(dir('items'), id + '.webp'), w: 96, q: 86 });
   }
+  await fetchImages(need);
+}
+
+async function fetchImages(need) {
   if (!need.length) return;
   log('wuwa: fetching', need.length, 'new images');
   const branches = repoBranches(ASSETS).filter(b => /^beta\d/i.test(b)).sort((a, b) => verKey(b.replace(/[^\d.]/g, '')) - verKey(a.replace(/[^\d.]/g, '')));

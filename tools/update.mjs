@@ -9,6 +9,7 @@ import { ROOT, OUT, readJSON, parseBuilds, verKey, fmtDate, log, warn } from './
 import { buildWuwa } from './lib/wuwa.mjs';
 import { buildGenshin } from './lib/genshin.mjs';
 import { buildLive, versionFacts } from './lib/live.mjs';
+import { buildStory } from './lib/story.mjs';
 
 const DAY = 864e5;
 const HUES = ['#7fe3c4', '#ffc46b', '#8fc7ff', '#c9a2ff', '#ff9d7a', '#9bd45c', '#bfe6ff'];
@@ -93,6 +94,40 @@ async function run(game) {
   // builds and teams
   const builds = parseBuilds(path.join(dir, 'builds.txt'), d.nameToId);
   for (const c of d.chars) { const b = builds[c.id] || builds[c.same]; if (b) c.build = b; }
+
+  // weapons: signature (hand list, plus pairs read from the live version's banners) and recommended picks
+  const sigs = readJSON(path.join(dir, 'signatures.json'), {});
+  const wkey = n => d.slug(String(n || '').replace(/[“”"]/g, ''));
+  const weaponFor = n => d.weaponIndex[wkey(n)] ? wkey(n) : null;
+  if (live) {
+    for (const ph of [...new Set(live.banners.map(b => (b.start || '').slice(0, 10)))]) {
+      const cs = live.banners.filter(b => b.kind === 'char' && (b.start || '').slice(0, 10) === ph);
+      const ws = live.banners.filter(b => b.kind === 'weapon' && (b.start || '').slice(0, 10) === ph).flatMap(b => b.weapons);
+      cs.forEach((b, i) => { const c = b.chars[0], w = ws[i]; if (c && w && !sigs[c] && (live.newWeapons || []).includes(w)) { sigs[c] = w; log(game, 'signature from banners:', c, '=', w); } });
+    }
+  }
+  const usedW = new Set(), missingW = new Set();
+  for (const c of d.chars) {
+    const sig = sigs[c.name] || sigs[(d.chars.find(x => x.id === c.same) || {}).name];
+    if (sig) { const k = weaponFor(sig); if (k) { c.sig = k; usedW.add(k); } else missingW.add(sig); }
+    if (c.build) c.build.wk = c.build.weapons.map(n => { const k = weaponFor(n); if (k) usedW.add(k); else missingW.add(n); return k || ''; });
+  }
+  if (missingW.size) warn(game, 'weapons not found in game data:', [...missingW].join(', '));
+  const weapons = {};
+  for (const k of [...usedW].sort()) { const { _icon, id: _id, ...w } = d.weaponIndex[k]; weapons[k] = w; }
+  await d.weaponImages([...usedW].map(k => d.weaponIndex[k]));
+  for (const k of Object.keys(weapons)) weapons[k].i = fs.existsSync(path.join(OUT, 'img', game, 'weapons', k + '.webp')) ? 1 : 0;
+
+  // tier list: hand ranking plus every playable character it does not mention yet
+  const tierSrc = readJSON(path.join(dir, 'tiers.json'), null);
+  let tiers = null;
+  if (tierSrc) {
+    const placed = new Set();
+    const rows = tierSrc.rows.map(r => ({ tier: r.tier, label: r.label || '', cells: tierSrc.columns.map(col => (r[col] || []).map(n => { const i = id(n); if (!i) warn(game, 'tiers.json: unknown name', n); else placed.add(canon(i)); return i; }).filter(Boolean)) }));
+    const unrated = d.chars.filter(c => !c.same && !placed.has(c.id)).sort((a, b) => verKey(b.ver) - verKey(a.ver)).map(c => c.id);
+    tiers = { reviewed: tierSrc.reviewed, note: tierSrc.note || '', columns: tierSrc.columns, rows, unrated };
+  }
+
   const teams = (readJSON(path.join(dir, 'teams.json'), []) || []).map(m => ({ ...m, teams: (m.teams || []).map(t => ({ ...t, chars: t.chars.map(n => id(n) || n) })) }));
 
   // relationship notes
@@ -117,8 +152,23 @@ async function run(game) {
   }
 
   const meta = { ...content.meta, current: live?.v || content.meta.current, updated: new Date().toISOString().slice(0, 10) };
+  try { buildStory(game, content.arcs, d.chars, d.nameToId, meta.current); } catch (e) { warn(game, 'story detail failed:', e.message); }
+
+  // what still needs a person to write it
+  const cur = meta.current, list = [];
+  const autoV = content.arcs.flatMap(a => a.versions).filter(v => v.auto).map(v => v.v);
+  if (autoV.length) list.push(['Story summaries for versions', autoV]);
+  const noBuild = d.chars.filter(c => !c.same && !c.build).map(c => c.name);
+  if (noBuild.length) list.push(['Builds for', noBuild]);
+  if (tiers && tiers.unrated.length) list.push(['Tier placements for', tiers.unrated.map(i => d.chars.find(c => c.id === i).name)]);
+  if (tiers && verKey(tiers.reviewed) < verKey(cur)) list.push(['Tier list review (last reviewed for ' + tiers.reviewed + ')', [cur]]);
+  const autoLore = d.chars.filter(c => c.auto).map(c => c.name);
+  if (autoLore.length) list.push(['Profiles (lore) for', autoLore]);
+  const noSig = d.chars.filter(c => !c.same && c.rarity === 5 && !c.sig && verKey(c.ver) >= verKey(cur)).map(c => c.name);
+  if (noSig.length) list.push(['Signature weapon for', noSig]);
+  CHECK[game] = list;
   for (const c of d.chars) { for (const k of Object.keys(c)) if (c[k] === undefined || c[k] === '') delete c[k]; }
-  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, now, teams, elements: d.elements, regions: d.regions, labels: d.labels };
+  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, weapons, tiers, now, teams, elements: d.elements, regions: d.regions, labels: d.labels };
 
   // only touch the file when something other than timestamps changed
   const strip = o => JSON.stringify(o, (k, v) => (k === 'updated' || k === 'fetched' ? undefined : v));
@@ -133,6 +183,7 @@ const FACES = {
   wuwa: ['jinhsi', 'shorekeeper', 'cartethyia', 'camellya', 'changli', 'phrolova', 'aemeath', 'rover', 'jiyan', 'carlotta', 'lynae', 'qingxiao', 'zani', 'yinlin', 'iuno', 'lily'],
   genshin: ['furina', 'zhongli', 'raiden_shogun', 'nahida', 'venti', 'mavuika', 'hu_tao', 'columbina', 'arlecchino', 'kaedehara_kazuha', 'neuvillette', 'xiao', 'ganyu', 'klee', 'varka', 'lumine'],
 };
+const CHECK = {};
 const games = process.argv.slice(2).filter(a => !a.startsWith('-'));
 const todo = games.length ? games : ['wuwa', 'genshin'];
 const summary = readJSON(path.join(OUT, 'data', 'summary.json'), {});
@@ -149,4 +200,17 @@ for (const g of todo) {
 }
 fs.writeFileSync(path.join(OUT, 'data', 'summary.json'), JSON.stringify(summary, null, 1) + '\n');
 fs.writeFileSync(path.join(OUT, 'data', 'summary.js'), 'window.LORE_SUMMARY = ' + JSON.stringify(summary) + ';\n');
+
+// checklist for the GitHub issue that the daily workflow keeps up to date
+const NAMES = { wuwa: 'Wuthering Waves', genshin: 'Genshin Impact' };
+let md = '';
+for (const [g, list] of Object.entries(CHECK)) {
+  if (!list.length) continue;
+  md += `### ${NAMES[g]}\n\n`;
+  for (const [what, items] of list) md += `- [ ] **${what}:** ${items.join(', ')}\n`;
+  md += '\n';
+}
+fs.mkdirSync(path.join(ROOT, '.cache'), { recursive: true });
+fs.writeFileSync(path.join(ROOT, '.cache', 'checklist.md'), md ? 'The daily update found things that only a person can write. Each file to edit is listed in the README under "How the site updates by itself".\n\n' + md : '');
+log(md ? 'checklist written to .cache/checklist.md' : 'checklist: nothing to write');
 process.exit(failed === todo.length ? 1 : 0);

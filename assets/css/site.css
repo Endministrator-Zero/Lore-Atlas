@@ -185,9 +185,9 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 .latest-row span { font-size: 14px; color: var(--mute) }
 .latest-faces { display: flex; gap: 8px }
 .latest-faces .face { --fs: 52px }
-.hero-text > * { animation: rise .8s var(--ease) both }
+.hero-text > * { animation: rise .8s var(--ease) backwards }
 .hero-text > :nth-child(2) { animation-delay: .06s } .hero-text > :nth-child(3) { animation-delay: .12s } .hero-text > :nth-child(4) { animation-delay: .18s } .hero-text > :nth-child(5) { animation-delay: .24s }
-.latest { animation: rise .9s .2s var(--ease) both }
+.latest { animation: rise .9s .2s var(--ease) backwards }
 @keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
 
 /* ---------- sections ---------- */
@@ -234,7 +234,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 [data-world="wuwa"] .node.on .pip { background: var(--hue); border-color: var(--hue); transform: rotate(45deg) scale(1.5); box-shadow: 0 0 0 4px color-mix(in srgb, var(--hue) 22%, transparent), 0 0 18px var(--hue) }
 [data-world="genshin"] .node.past .pip { background: var(--hue) }
 [data-world="genshin"] .node.on .pip { background: #fff; transform: scale(1.7) rotate(45deg); filter: drop-shadow(0 0 6px var(--hue)) }
-.rail-in .node { animation: rise .5s var(--ease) both; animation-delay: calc(var(--i) * 35ms) }
+.rail-in .node { animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i) * 35ms) }
 .rail-ctl { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 6px; font: 600 13px/1 var(--f-ui); letter-spacing: .1em; color: var(--mute); font-variant-numeric: tabular-nums }
 .step { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line2); font-size: 20px; line-height: 1; transition: border-color .2s, color .2s, background .2s; border-radius: var(--radius-s) }
 [data-world="genshin"] .step { border-radius: 50% }
@@ -242,7 +242,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 .step:disabled { opacity: .3; cursor: default }
 
 .ver-detail { margin-top: 28px }
-.swap-in > * { animation: swap .55s var(--ease) both }
+.swap-in > * { animation: swap .55s var(--ease) backwards }
 @keyframes swap { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
 .ver-card { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0 }
 .ver-main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; padding: 32px }
@@ -262,7 +262,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 [data-world="genshin"] .ver-cast { border-radius: 0 var(--radius) var(--radius) 0 }
 .cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; margin-top: 14px }
 .cast-none { color: var(--mute); font-size: 14.5px; margin-top: 12px }
-.chip-char { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); transition: transform .25s var(--ease), border-color .2s, background .2s; min-width: 0; border-radius: var(--radius-s); animation: rise .5s var(--ease) both; animation-delay: calc(120ms + var(--i) * 30ms) }
+.chip-char { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; border: 1px solid var(--line); transition: transform .25s var(--ease), border-color .2s, background .2s; min-width: 0; border-radius: var(--radius-s); animation: rise .5s var(--ease) backwards; animation-delay: calc(120ms + var(--i) * 30ms) }
 .chip-char:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--card-soft) }
 .chip-char b { display: block; font: 600 15px/1.15 var(--f-ui); letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 [data-world="genshin"] .chip-char b { font-weight: 800; font-size: 14.5px }
@@ -279,7 +279,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 .search::before, .g-search label::before { content: ""; position: absolute; left: 14px; top: 13px; width: 11px; height: 11px; border: 1.5px solid var(--mute); border-radius: 50%; box-shadow: 5px 5px 0 -4px var(--mute); pointer-events: none }
 .count { margin-left: auto; font: 600 13px/1 var(--f-ui); letter-spacing: .12em; color: var(--mute); text-transform: uppercase; font-variant-numeric: tabular-nums }
 .grid-in { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 14px 12px }
-.card { display: block; text-align: center; min-width: 0; animation: pop .45s var(--ease) both; animation-delay: calc(var(--i) * 14ms); transition: transform .3s var(--ease) }
+.card { display: block; text-align: center; min-width: 0; animation: pop .45s var(--ease) backwards; animation-delay: calc(var(--i) * 14ms); transition: transform .3s var(--ease) }
 @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.96) } to { opacity: 1; transform: none } }
 .card-art { position: relative; display: block; aspect-ratio: 1; overflow: hidden; transition: box-shadow .3s, filter .3s }
 .card-art > img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s var(--ease) }
@@ -301,7 +301,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 [data-world="genshin"] .card:hover { box-shadow: 0 0 0 2px #fff, 0 14px 30px -12px rgba(0, 0, 0, .8) }
 
 /* ---------- sheet ---------- */
-.scrim { position: fixed; inset: 0; z-index: 90; background: rgba(4, 6, 10, .62); opacity: 0; transition: opacity .35s; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px) }
+.scrim { position: fixed; inset: 0; z-index: 90; background: rgba(4, 6, 10, .62); opacity: 0; transition: opacity .35s }
 .sheet { position: fixed; z-index: 100; top: 0; right: 0; bottom: 0; width: min(560px, 100vw); background: var(--bg2); border-left: 1px solid var(--line2); transform: translateX(104%); transition: transform .45s var(--ease-io); display: flex; flex-direction: column; box-shadow: -30px 0 80px -30px #000 }
 .sheet-open .scrim { opacity: 1 } .sheet-open .sheet { transform: none }
 .sheet-open body { overflow: hidden }
@@ -311,9 +311,9 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 .sheet-body { overflow-y: auto; overscroll-behavior: contain; flex: 1; scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
 .sheet-in { padding-bottom: 40px }
 .sheet-in > :not(.sheet-hero) { margin-inline: 28px }
-.sheet-in > * { animation: rise .55s var(--ease) both } .sheet-in > :nth-child(2) { animation-delay: .05s } .sheet-in > :nth-child(3) { animation-delay: .1s } .sheet-in > :nth-child(n+4) { animation-delay: .15s }
+.sheet-in > * { animation: rise .55s var(--ease) backwards } .sheet-in > :nth-child(2) { animation-delay: .05s } .sheet-in > :nth-child(3) { animation-delay: .1s } .sheet-in > :nth-child(n+4) { animation-delay: .15s }
 .sheet-hero { position: relative; min-height: 340px; display: flex; align-items: flex-end; overflow: hidden; background: radial-gradient(90% 80% at 70% 20%, color-mix(in srgb, var(--el) 30%, transparent), transparent 70%), var(--panel) }
-.sheet-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; -webkit-mask-image: linear-gradient(180deg, #000 52%, transparent 96%); mask-image: linear-gradient(180deg, #000 52%, transparent 96%) }
+.sheet-art { opacity: 0; transition: opacity .5s; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; -webkit-mask-image: linear-gradient(180deg, #000 52%, transparent 96%); mask-image: linear-gradient(180deg, #000 52%, transparent 96%) }
 [data-world="wuwa"] .sheet-hero { min-height: 420px }
 [data-world="wuwa"] .sheet-art { object-fit: contain; object-position: 85% 0; height: 135%; -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent 72%); mask-image: linear-gradient(180deg, #000 45%, transparent 72%) }
 .sheet-art-icon { object-fit: contain !important; object-position: 80% 30% !important; height: 70% !important; top: 8%; opacity: .9 }
@@ -343,7 +343,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 400; text-wrap: bal
 .tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform .3s var(--ease) }
 .tab.on { color: var(--ink) } .tab.on::after { transform: scaleX(1) }
 .pane { display: grid; gap: 14px; padding-top: 18px }
-.quote { display: grid; gap: 8px; animation: rise .45s var(--ease) both }
+.quote { display: grid; gap: 8px; animation: rise .45s var(--ease) backwards }
 .quote-who { display: flex; align-items: center; gap: 10px; width: fit-content; transition: transform .25s var(--ease) }
 .quote-who:hover { transform: translateX(3px) } .quote-who:hover b { color: var(--accent2) }
 .quote-who .face { --fs: 38px }
@@ -377,13 +377,17 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 [data-world="wuwa"] .g-deco i:nth-child(2) { border-style: dotted; border-width: 2px; border-color: var(--line2); animation: spin 140s linear infinite reverse }
 [data-world="genshin"] .g-deco i:nth-child(1) { border-style: solid; border-color: var(--line2); box-shadow: 0 0 0 5px var(--bg), 0 0 0 6px var(--line) }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg) } }
-.edge line { stroke: var(--line2); stroke-width: .16; stroke-linecap: round; transition: stroke .25s, stroke-width .25s }
-.edge path { fill: var(--mute); transition: fill .25s }
-.edge.mutual line { stroke: color-mix(in srgb, var(--accent) 75%, transparent); stroke-width: .26 }
-.edge.mutual path { fill: var(--accent) }
-.edge.sel line { stroke: var(--accent2); stroke-width: .5 } .edge.sel path { fill: var(--accent2) }
-.draw .edge line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: dash .6s var(--ease) forwards; animation-delay: var(--d) }
-.draw .edge path { opacity: 0; animation: fadein .3s forwards; animation-delay: calc(var(--d) + .4s) }
+path.edge { fill: none; stroke: var(--line2); stroke-width: .18; stroke-linecap: round; transition: stroke .25s, stroke-width .25s, opacity .25s }
+path.edge.in { stroke-dasharray: .9 .7 }
+path.edge.mutual { stroke: color-mix(in srgb, var(--rh, var(--accent)) 70%, transparent); stroke-width: .28 }
+path.edge.hot, path.edge.sel { stroke: var(--accent2); stroke-width: .55; stroke-dasharray: 1.2 .8; animation: flow 1.2s linear infinite }
+@keyframes flow { to { stroke-dashoffset: -4 } }
+.graph:has(path.edge.sel) path.edge:not(.sel):not(.hot) { opacity: .35 }
+.edge-dot { fill: var(--mute) } .edge-dot.out { fill: var(--accent) }
+path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 }
+.draw path.edge { opacity: 0; animation: fadein .5s var(--ease) forwards; animation-delay: var(--d) }
+.draw path.sector { stroke-dasharray: 200; stroke-dashoffset: 200; animation: dash2 1s var(--ease) forwards }
+@keyframes dash2 { to { stroke-dashoffset: 0 } }
 @keyframes dash { to { stroke-dashoffset: 0 } } @keyframes fadein { to { opacity: 1 } }
 .gnode { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 4px; transition: left .7s var(--ease-io), top .7s var(--ease-io), opacity .35s; z-index: 2; width: max-content }
 .gnode .face { --fs: 58px; transition: width .5s var(--ease), height .5s var(--ease), box-shadow .25s, transform .25s var(--ease); box-shadow: 0 0 0 0 transparent }
@@ -404,6 +408,8 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 .dir::after { right: -4px; border-left-color: var(--mute) }
 .dir.mutual { background: var(--accent) } .dir.mutual::after { border-left-color: var(--accent) } .dir.mutual::before { left: -4px; border-right-color: var(--accent) }
 .dir.in::after { right: auto; left: -4px; border-left-color: transparent; border-right-color: var(--mute) }
+.legend .dir.in { background: repeating-linear-gradient(90deg, var(--mute) 0 5px, transparent 5px 9px) }
+.legend .dir.in::after { display: none }
 .bond { min-width: 0; padding: 26px; position: sticky; top: 76px; max-height: calc(100vh - 92px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
 .bond-in { display: grid; gap: 16px }
 .bond-top { display: flex; gap: 16px; align-items: center }
@@ -470,7 +476,7 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 @keyframes w-card-out { to { opacity: 0; transform: scale(1.06) } }
 @keyframes w-open-line { from { clip-path: inset(0) } 70% { clip-path: inset(49.6% 0) } to { clip-path: inset(50% 50%) } }
 @keyframes w-open-iris { from { clip-path: circle(150vmax at 50% 50%) } to { clip-path: circle(0 at 50% 50%) } }
-.warp-reveal main > *, .warp-reveal .gate > * { animation: rise .9s .35s var(--ease) both }
+.warp-reveal main > *, .warp-reveal .gate > * { animation: rise .9s .35s var(--ease) backwards }
 
 /* ---------- gateway (index) ---------- */
 .gate-top { position: fixed; z-index: 5; left: 0; right: 0; top: 0; display: flex; justify-content: center; padding: 22px 20px; pointer-events: none }
@@ -508,7 +514,7 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 .door.w-genshin { box-shadow: inset 1px 0 0 var(--line2) }
 .seam i { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px; background: var(--bg); border: 1.5px solid var(--accent); transform: rotate(45deg); animation: sig 14s linear infinite }
 .gate-foot { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; text-align: center; padding: 10px 20px; font-size: 12px; color: #8b8fa0; pointer-events: none; text-shadow: 0 1px 4px #000 }
-.door-in > * { animation: rise .9s var(--ease) both }
+.door-in > * { animation: rise .9s var(--ease) backwards }
 .door-in > :nth-child(2) { animation-delay: .08s } .door-in > :nth-child(3) { animation-delay: .16s } .door-in > :nth-child(4) { animation-delay: .24s } .door-in > :nth-child(5) { animation-delay: .32s } .door-in > :nth-child(6) { animation-delay: .4s }
 
 /* ---------- status colours ---------- */
@@ -627,7 +633,7 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 
 /* ---------- bosses and teams ---------- */
 .boss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; margin-top: 20px }
-.boss { padding: 22px; display: grid; gap: 12px; align-content: start; animation: pop .45s var(--ease) both; animation-delay: calc(var(--i) * 20ms); min-width: 0 }
+.boss { padding: 22px; display: grid; gap: 12px; align-content: start; animation: pop .45s var(--ease) backwards; animation-delay: calc(var(--i) * 20ms); min-width: 0 }
 .boss h4 { font-size: 22px }
 [data-world="wuwa"] .boss h4 { font-weight: 600; text-transform: uppercase }
 .boss-note { font-size: 14.5px; color: var(--mute); line-height: 1.5 }
@@ -636,7 +642,7 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 .drop-who { display: grid; gap: 8px }
 .team-note { color: var(--mute); margin-block: 16px 20px; max-width: 80ch; font-size: 15px }
 .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px }
-.team { padding: 20px 22px; display: grid; gap: 12px; align-content: start; animation: pop .45s var(--ease) both; animation-delay: calc(var(--i) * 30ms) }
+.team { padding: 20px 22px; display: grid; gap: 12px; align-content: start; animation: pop .45s var(--ease) backwards; animation-delay: calc(var(--i) * 30ms) }
 .team p { font-size: 14.5px; line-height: 1.5 }
 .team-faces.big { gap: 10px }
 .team-slot { display: grid; justify-items: center; gap: 5px; transition: transform .2s var(--ease); min-width: 0 }
@@ -663,6 +669,130 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
 .nav a { white-space: nowrap }
 @media (max-width: 1180px) { .nav a { padding-inline: 9px; font-size: 13px; letter-spacing: .1em } .brand small { display: none } }
 
+/* ---------- buttons: one consistent press and shine ---------- */
+.btn { position: relative; overflow: hidden }
+.btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none }
+.btn:hover::after { transform: translateX(120%); transition: transform .7s var(--ease) }
+.btn.ghost::after { background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--accent) 30%, transparent) 50%, transparent 65%) }
+.btn:active, .chip:active, .tab:active, .step:active:not(:disabled), .switch:active { transform: translateY(0) scale(.97); transition-duration: .08s }
+[data-world="wuwa"] .btn:hover { box-shadow: none; filter: brightness(1.06) }
+.chip, .tab, .hub, .face-btn, .tier-face { -webkit-tap-highlight-color: transparent }
+
+/* ---------- sheet: 3D showcase, quiet character switch ---------- */
+.sheet-art.loaded { opacity: 1 }
+.sheet-hero.has3d .sheet-art { opacity: 0 }
+.sheet-3d { position: absolute; inset: 0; opacity: 0; transition: opacity .7s; cursor: grab; touch-action: pan-y }
+.sheet-3d:active { cursor: grabbing }
+.sheet-hero.has3d .sheet-3d { opacity: 1 }
+.sheet-3d canvas { width: 100%; height: 100%; display: block }
+.sheet-id { pointer-events: none } .sheet-id button, .sheet-id a { pointer-events: auto }
+.drag-hint { position: absolute; right: 16px; top: 64px; font: 600 11px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); opacity: 0; transition: opacity .6s .6s; pointer-events: none }
+.sheet-hero.has3d .drag-hint { opacity: .8 }
+.sheet-in.quiet > * { animation: none }
+.sheet-in.quiet { animation: quiet .35s var(--ease) }
+@keyframes quiet { from { opacity: .35 } to { opacity: 1 } }
+.tierpill { border-color: var(--accent); color: var(--accent) }
+.team-text { font-size: 14px; color: var(--mute); font-style: italic }
+
+/* ---------- weapons ---------- */
+.w-ico { --ws: 56px; width: var(--ws); height: var(--ws); flex: none; display: inline-grid; place-items: center; border-radius: 10px; background: linear-gradient(160deg, var(--m1, #4a4f5c), var(--m2, #8a90a0)); overflow: hidden }
+.w-ico img { width: 100%; height: 100%; object-fit: contain }
+.w-ico i { font: 700 18px/1 var(--f-display); font-style: normal; color: #fff }
+.w-ico.big { --ws: 72px } .w-ico.tiny { --ws: 22px; border-radius: 5px; vertical-align: -6px; margin-right: 7px }
+.w-ico.r5 { --m1: #7a5527; --m2: #d8a85c } .w-ico.r4 { --m1: #4e4686; --m2: #a68bd6 } .w-ico.r3 { --m1: #2f5b85; --m2: #6fb2e0 }
+[data-world="wuwa"] .w-ico { border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px) }
+[data-world="wuwa"] .w-ico.tiny { clip-path: none; border-radius: 3px }
+.weapons-pane { display: grid; gap: 10px }
+.weapon-list { display: grid; gap: 10px }
+.weapon { border: 1px solid var(--line); padding: 14px; display: grid; gap: 12px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--panel) 55%, transparent); transition: border-color .2s, transform .25s var(--ease) }
+.weapon:hover { border-color: var(--line2); transform: translateY(-2px) }
+.weapon.sig { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), color-mix(in srgb, var(--panel) 55%, transparent) }
+.weapon-top { display: flex; gap: 14px; align-items: center; min-width: 0 }
+.weapon-id { display: grid; gap: 4px; min-width: 0 }
+.weapon-id b { font: 400 19px/1.2 var(--f-display) }
+[data-world="wuwa"] .weapon-id b { font-weight: 600 }
+.weapon-meta { font-size: 13px; color: var(--mute) }
+.weapon-tags { display: flex; gap: 6px; align-items: center; min-height: 18px }
+.wbadge, .sigtag { font: 700 10.5px/1 var(--f-ui); font-style: normal; letter-spacing: .12em; text-transform: uppercase; padding: 4px 8px; background: var(--accent); color: var(--on-accent); border-radius: 999px }
+.sigtag { margin-left: 8px; vertical-align: 2px }
+.wrank { font: 600 12px/1 var(--f-ui); color: var(--mute); letter-spacing: .08em }
+.weapon-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 }
+.weapon-stats div { padding: 8px 10px; background: var(--card-soft); border-left: 2px solid var(--line2) }
+.weapon-stats dt { font: 600 11px/1.2 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--mute) }
+.weapon-stats dd { margin: 3px 0 0; font: 600 19px/1 var(--f-display); font-variant-numeric: tabular-nums }
+.weapon-passive summary { cursor: pointer; font: 600 14px/1.3 var(--f-ui); letter-spacing: .03em; list-style: none; display: flex; align-items: center; gap: 6px; color: var(--accent2) }
+.weapon-passive summary::-webkit-details-marker { display: none }
+.weapon-passive summary::before { content: "+"; width: 18px; height: 18px; display: grid; place-items: center; border: 1px solid var(--line2); border-radius: 50%; font-size: 13px; transition: transform .25s var(--ease) }
+.weapon-passive[open] summary::before { transform: rotate(45deg) }
+.weapon-passive summary small { color: var(--mute); font-weight: 500 }
+.weapon-passive p { margin-top: 8px; font-size: 14.5px; line-height: 1.6; color: var(--ink) }
+.rank li { display: flex; align-items: center; flex-wrap: wrap }
+.wtag { display: inline-flex; align-items: center }
+
+/* ---------- version detail: main story ---------- */
+.ver-more { margin-top: 18px }
+.vm-in { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 24px; align-items: start }
+.vm-story { display: grid; gap: 14px; min-width: 0 }
+.vm-story h4, .vm-aside h4 { font-size: 22px }
+[data-world="wuwa"] .vm-story h4 { font-weight: 600; text-transform: uppercase }
+.act { position: relative; padding: 18px 20px 16px 22px; border: 1px solid var(--line); border-left: 3px solid var(--hue, var(--accent)); border-radius: var(--radius-s); background: color-mix(in srgb, var(--panel) 45%, transparent); display: grid; gap: 8px; animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i) * 60ms) }
+.act h5 { font: 400 22px/1.2 var(--f-display); margin: 0 }
+[data-world="wuwa"] .act h5 { font-weight: 600 }
+.act-desc { font: 500 17px/1.5 var(--f-quote); font-style: italic; color: var(--ink); opacity: .9 }
+.steps { counter-reset: s; list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 0; position: relative }
+.steps::before { content: ""; position: absolute; left: 11px; top: 12px; bottom: 12px; width: 1px; background: var(--line2) }
+.steps li { counter-increment: s; position: relative; padding: 6px 0 10px 36px }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: 5px; width: 23px; height: 23px; display: grid; place-items: center; font: 700 11.5px/1 var(--f-ui); background: var(--bg2); border: 1px solid var(--hue, var(--accent)); color: var(--hue, var(--accent)); border-radius: 50% }
+[data-world="wuwa"] .steps li::before { border-radius: 0; transform: rotate(45deg) } 
+[data-world="wuwa"] .steps li::before { content: ""; width: 11px; height: 11px; left: 6px; top: 11px; background: var(--hue, var(--accent)) }
+.steps li b { display: block; font: 600 15.5px/1.3 var(--f-ui); letter-spacing: .02em }
+[data-world="genshin"] .steps li b { font-weight: 800; font-size: 15px }
+.steps li p { font-size: 14.5px; line-height: 1.55; color: var(--mute); margin-top: 3px }
+.act.folded .extra { display: none }
+.act .more { justify-self: start; font-size: 14px }
+.vm-aside { padding: 20px 22px; display: grid; gap: 10px; align-content: start }
+.vm-side { display: grid; gap: 10px }
+.vm-side .lbl:not(:first-child) { margin-top: 8px }
+.vm-side .team-faces .face { --fs: 40px }
+
+/* ---------- tier list ---------- */
+.tier-meta { display: grid; gap: 8px; margin-bottom: 16px }
+.tier-pills { display: flex; flex-wrap: wrap; gap: 8px }
+.warnpill { border-color: var(--accent); color: var(--accent) }
+#tier-el { margin-bottom: 18px }
+.tier-grid { display: grid; gap: 8px }
+.tier-head, .tier-row { display: grid; grid-template-columns: 112px repeat(var(--cols), minmax(0, 1fr)); gap: 8px }
+.tier-head { padding-bottom: 2px } .tier-head .lbl { padding-left: 4px }
+.tier-row { --tc: var(--accent); animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i) * 50ms) }
+.tier-row.t-ss { --tc: #ffcf6e } .tier-row.t-s { --tc: #ff9d7a } .tier-row.t-a { --tc: #c9a2ff } .tier-row.t-b { --tc: #8fc7ff } .tier-row.t-c { --tc: #9aa3b5 } .tier-row.t-new { --tc: #7fe3a8 }
+.tier-badge { display: grid; align-content: center; justify-items: center; gap: 4px; padding: 10px 6px; background: linear-gradient(160deg, color-mix(in srgb, var(--tc) 30%, transparent), color-mix(in srgb, var(--tc) 8%, transparent)); border: 1px solid color-mix(in srgb, var(--tc) 55%, transparent); border-radius: var(--radius-s); text-align: center }
+.tier-badge b { font: 700 34px/1 var(--f-display); color: var(--tc) }
+[data-world="genshin"] .tier-badge b { font-weight: 400 }
+.tier-badge small { font: 600 11px/1.2 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--mute) }
+.tier-col { border: 1px solid var(--line); border-radius: var(--radius-s); padding: 8px; background: color-mix(in srgb, var(--panel) 40%, transparent); min-width: 0 }
+.tier-col.wide { grid-column: span var(--cols) }
+.tier-cell { display: flex; flex-wrap: wrap; gap: 8px }
+.tier-face { display: grid; justify-items: center; gap: 3px; width: 58px; transition: transform .2s var(--ease) }
+.tier-face:hover { transform: translateY(-3px) }
+.tier-face .face { --fs: 52px }
+.tier-face small { font: 600 11px/1.1 var(--f-ui); max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--mute) }
+.tier-face:hover small { color: var(--ink) }
+
+/* ---------- connections: filters, sectors, labels ---------- */
+.g-filters { margin: -6px 0 16px; flex-wrap: wrap }
+.g-filters .chip small { font-size: 11px; opacity: .7; margin-left: 2px }
+.g-filters .rdot { width: 8px; height: 8px; border-radius: 50%; background: var(--rh); display: inline-block }
+.g-filters .chip.on .rdot { box-shadow: 0 0 0 2px var(--on-accent) }
+.g-sep { width: 1px; height: 22px; background: var(--line2); margin-inline: 4px }
+.g-label { position: absolute; transform: translate(var(--tx), var(--ty)); font: 600 11px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--rh); white-space: nowrap; pointer-events: none; z-index: 1; text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg) }
+[data-world="genshin"] .g-label { letter-spacing: .04em; text-transform: none; font-weight: 800; font-size: 12px }
+.g-label small { color: var(--mute); font-size: 10px }
+.gnode .face { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--rh, transparent) 70%, transparent) }
+.gnode.center .face { box-shadow: 0 0 0 2px var(--accent), 0 0 30px color-mix(in srgb, var(--accent) 45%, transparent) }
+.gnode.center::before { content: ""; position: absolute; left: 50%; top: calc(50% - 8px); width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); animation: halo 3s ease-out infinite; pointer-events: none }
+@keyframes halo { from { transform: translate(-50%, -50%) scale(.7); opacity: .8 } to { transform: translate(-50%, -50%) scale(1.5); opacity: 0 } }
+.graph { margin-top: 18px; margin-bottom: 18px }
+
 /* ---------- responsive ---------- */
 @media (max-width: 980px) {
   .hero { grid-template-columns: 1fr; gap: 32px; padding-block: 36px 40px }
@@ -673,6 +803,7 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
   [data-world="genshin"] .ver-cast { border-radius: 0 0 var(--radius) var(--radius) }
   .g-layout { grid-template-columns: 1fr }
   .now-body { grid-template-columns: 1fr }
+  .vm-in { grid-template-columns: 1fr }
   .hero-side { min-height: 360px } .hero-3d { inset: -20px 0 90px 0 }
   .bond { position: static; max-height: none }
   .sec-head { grid-template-columns: 1fr }
@@ -718,6 +849,15 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
   .bond { padding: 20px }
   .sheet-in > :not(.sheet-hero) { margin-inline: 20px } .sheet-id { padding-inline: 20px }
   .facts { grid-template-columns: 1fr }
+  .tier-head { display: none }
+  .tier-row { grid-template-columns: 1fr }
+  .tier-badge { grid-auto-flow: column; justify-content: start; gap: 10px; padding: 8px 12px }
+  .tier-badge b { font-size: 24px }
+  .tier-col::before { content: attr(data-col); display: block; font: 600 11px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin-bottom: 8px }
+  .tier-col.wide { grid-column: auto }
+  .tier-face { width: 50px } .tier-face .face { --fs: 46px }
+  .g-label { display: none }
+  .weapon-stats dd { font-size: 16px }
   .count { margin-left: 0 }
   .node { flex-basis: 84px }
 }
@@ -725,3 +865,4 @@ blockquote { font: 500 19px/1.45 var(--f-quote); font-style: italic; padding: 2p
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important }
   html { scroll-behavior: auto }
 }
+.sheet-3d { -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 97%); mask-image: linear-gradient(180deg, #000 55%, transparent 97%) }

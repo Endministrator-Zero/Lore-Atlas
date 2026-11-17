@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: update-data
@@ -47,4 +48,16 @@ jobs:
           else
             git commit -m "Update game data"
             git push
+          fi
+      - name: Keep the content checklist issue up to date
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="Content to write for Lore Atlas"
+          NUM=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -s .cache/checklist.md ]; then
+            if [ -n "$NUM" ]; then gh issue edit "$NUM" --body-file .cache/checklist.md; else gh issue create --title "$TITLE" --body-file .cache/checklist.md; fi
+          elif [ -n "$NUM" ]; then
+            gh issue close "$NUM" --comment "Everything on the list has been written."
           fi

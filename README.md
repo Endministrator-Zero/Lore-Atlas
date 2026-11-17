@@ -1,6 +1,6 @@
 # Lore Atlas
 
-An unofficial fan site for **Wuthering Waves** and **Genshin Impact**: story timelines, the current version's banners and events, character builds and materials, bosses, popular teams, and the voice lines that connect the cast.
+An unofficial fan site for **Wuthering Waves** and **Genshin Impact**: story timelines with every main quest, the current version's banners and events, character builds, weapons and materials, a tier list, bosses, popular teams, and the voice lines that connect the cast, with 3D scenes built in three.js.
 
 - `index.html` is the gateway where you pick a world.
 - `wuthering-waves.html` is the Wuthering Waves page.
@@ -36,6 +36,10 @@ What the updater refreshes without any help:
 | Banners, events, new outfits, new story quests and areas | The Fandom wikis and the games' own announcement feeds |
 | The pull estimate | A formula based on the version's length and events |
 | A basic timeline entry for a brand-new version | The Fandom wikis |
+| Main story acts, their quests and official quest descriptions for every version | Game data files and the Fandom wikis |
+| Weapon stats at level 90, passives and icons | Game data files |
+| Signature weapon of a new character | Read from the new version's paired banners |
+| New characters in the tier list, shown in a "Not rated yet" row | Automatic |
 
 What still needs a person, because no data source has it:
 
@@ -45,8 +49,14 @@ What still needs a person, because no data source has it:
 | Character builds and team suggestions | `content/<game>/builds.txt` |
 | Popular endgame teams | `content/<game>/teams.json` |
 | Short notes about bosses | `content/<game>/bosses.json` |
+| Tier placements | `content/<game>/tiers.json` |
+| Signature weapons (older characters) | `content/<game>/signatures.json` |
 
 Until someone writes them, a new version shows an automatic summary marked "Auto entry", and a new character shows the game's own one-line description with no build.
+
+### The checklist issue
+
+After each daily run, GitHub keeps one issue open in your repository called **Content to write for Lore Atlas**. It lists exactly what is missing, for example "Builds for Lily" or "Tier placements for Lily". When everything is written, the issue closes by itself. You can see it under the **Issues** tab.
 
 To run the daily update by hand on GitHub: open the repository, click **Actions**, choose **Update game data**, then **Run workflow**.
 
@@ -85,6 +95,10 @@ node tools/pages.mjs
 | `assets/js/warp.js`, `assets/js/ambient.js` | The world-switch transition and the moving backgrounds |
 | `assets/vendor/` | A copy of three.js (MIT licence) |
 | `assets/img/`, `assets/fonts/` | Icons, portraits, material icons and fonts |
+
+## Updating the tier list
+
+`content/<game>/tiers.json` has one entry per tier (SS, S, A, B, C) with three lists of names: Main DPS, Sub DPS and Support. Move names between lists, then change `"reviewed"` to the current version. Until you do, the page says the list has not been reviewed for the new version yet.
 
 ## Writing a build
 

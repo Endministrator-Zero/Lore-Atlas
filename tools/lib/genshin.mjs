@@ -104,13 +104,41 @@ export async function buildGenshin(content, autoVer) {
     }
   } catch {}
 
+  // ----- weapons -----
+  const weaponIndex = {};
+  for (const n of g.weapons('names', { matchCategories: true })) {
+    const w = g.weapons(n, opt); if (!w || w.rarity < 3) continue;
+    let st = {}; try { st = w.stats(90, '+') || {}; } catch {}
+    const pct = w.mainStatType && w.mainStatType !== 'FIGHT_PROP_ELEMENT_MASTERY';
+    let passive = w.effectTemplateRaw || '';
+    ((w.r1 && w.r1.values) || []).forEach((v, i) => { passive = passive.split('{' + i + '}').join(v); });
+    weaponIndex[gslug(w.name)] = {
+      n: w.name, r: w.rarity, type: w.weaponText, atk: Math.round(st.attack || 0),
+      sub: w.mainStatText || '', subv: w.mainStatText ? (pct ? (st.specialized * 100).toFixed(1) + '%' : String(Math.round(st.specialized || 0))) : '',
+      pn: w.effectName || '', p: clean(passive),
+    };
+  }
+  const weaponImages = async list => {
+    const jobs = [], conv = [];
+    for (const w of list) {
+      const dest = path.join(OUT, 'img/genshin/weapons', gslug(w.n) + '.webp'); if (fs.existsSync(dest)) continue;
+      const slug = w.n.toLowerCase().replace(/['’"“”]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      const tmp = path.join(CACHE, 'img/gi', 'w_' + slug + '.png');
+      jobs.push({ url: PAIMON + 'weapons/' + slug + '.png', file: tmp }); conv.push([tmp, dest]);
+    }
+    if (!jobs.length) return;
+    log('genshin: fetching', jobs.length, 'weapon images');
+    getMany(jobs);
+    for (const [tmp, dest] of conv) await toWebp(tmp, dest, { w: 128, q: 86 });
+  };
+
   await images(chars, items);
   for (const c of chars) c.art = fs.existsSync(path.join(OUT, 'img/genshin/art', c.id + '.webp'));
   for (const id of Object.keys(items)) items[id].i = fs.existsSync(path.join(OUT, 'img/genshin/items', id + '.webp')) ? 1 : 0;
 
   log(`genshin: ${chars.length} characters, ${lines.length} lines, ${Object.keys(items).length} items, ${bosses.length} bosses`);
   return {
-    chars, lines, items, bosses, outfits, nameToId,
+    chars, lines, items, bosses, outfits, nameToId, weaponIndex, weaponImages, slug: gslug,
     elements: ['Pyro', 'Hydro', 'Anemo', 'Electro', 'Dendro', 'Cryo', 'Geo'],
     regions: ['Mondstadt', 'Liyue', 'Inazuma', 'Sumeru', 'Fontaine', 'Natlan', 'Nod-Krai', 'Snezhnaya', 'Beyond'],
     labels: { extra: 'Constellation', title: 'Title', faction: 'Affiliation', region: 'Nation', weapon: 'Weapon', el: 'Vision', asc: 'Ascension to level 90', skill: 'All three talents to level 10', boss: 'Weekly boss' },

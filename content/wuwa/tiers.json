@@ -1,0 +1,118 @@
+{
+ "reviewed": "3.8",
+ "note": "This site's own consensus, put together from several community tier lists. It ranks how strong a character is in current endgame content at no or low duplicates. A lower tier does not mean a character is bad.",
+ "columns": [
+  "Main DPS",
+  "Sub DPS",
+  "Support"
+ ],
+ "rows": [
+  {
+   "tier": "SS",
+   "label": "Defines the meta",
+   "Main DPS": [
+    "Hsin",
+    "Qingxiao",
+    "Hiyuki",
+    "Yangyang: Xuanling",
+    "Jingran"
+   ],
+   "Sub DPS": [
+    "Suoming",
+    "Chisa",
+    "Lucilla"
+   ],
+   "Support": [
+    "Lily",
+    "Shorekeeper",
+    "Suisui"
+   ]
+  },
+  {
+   "tier": "S",
+   "label": "Excellent",
+   "Main DPS": [
+    "Sigrika",
+    "Aemeath",
+    "Cartethyia",
+    "Phrolova",
+    "Augusta",
+    "Galbrena",
+    "Zani",
+    "Camellya"
+   ],
+   "Sub DPS": [
+    "Qiuyuan",
+    "Iuno",
+    "Denia",
+    "Ciaccona",
+    "Lupa",
+    "Cantarella",
+    "Lynae"
+   ],
+   "Support": [
+    "Mornye",
+    "Verina"
+   ]
+  },
+  {
+   "tier": "A",
+   "label": "Strong",
+   "Main DPS": [
+    "Luuk Herssen",
+    "Jinhsi",
+    "Carlotta",
+    "Changli",
+    "Rebecca",
+    "Rover"
+   ],
+   "Sub DPS": [
+    "Roccia",
+    "Phoebe",
+    "Zhezhi",
+    "Lucy"
+   ],
+   "Support": [
+    "Brant",
+    "Buling"
+   ]
+  },
+  {
+   "tier": "B",
+   "label": "Situational",
+   "Main DPS": [
+    "Xiangli Yao",
+    "Jiyan",
+    "Encore"
+   ],
+   "Sub DPS": [
+    "Yinlin",
+    "Sanhua",
+    "Mortefi",
+    "Danjin"
+   ],
+   "Support": [
+    "Youhu",
+    "Baizhi"
+   ]
+  },
+  {
+   "tier": "C",
+   "label": "Outclassed",
+   "Main DPS": [
+    "Calcharo",
+    "Lingyang",
+    "Chixia"
+   ],
+   "Sub DPS": [
+    "Aalto",
+    "Yangyang",
+    "Lumi",
+    "Jianxin",
+    "Taoqi",
+    "Yuanwu"
+   ],
+   "Support": []
+  }
+ ]
+}

@@ -1,0 +1,184 @@
+{
+ "reviewed": "7.2",
+ "note": "This site's own consensus, put together from several community tier lists. It ranks how strong a character is in current endgame content at no or low duplicates. A lower tier does not mean a character is bad.",
+ "columns": [
+  "Main DPS",
+  "Sub DPS",
+  "Support"
+ ],
+ "rows": [
+  {
+   "tier": "SS",
+   "label": "Defines the meta",
+   "Main DPS": [
+    "Sandrone",
+    "Mitya",
+    "Vesna",
+    "Skirk",
+    "Mavuika",
+    "Flins",
+    "Nefer"
+   ],
+   "Sub DPS": [
+    "Columbina",
+    "Durin",
+    "Ineffa",
+    "Furina",
+    "Odette"
+   ],
+   "Support": [
+    "Nicole",
+    "Xilonen",
+    "Bennett",
+    "Escoffier",
+    "Citlali"
+   ]
+  },
+  {
+   "tier": "S",
+   "label": "Excellent",
+   "Main DPS": [
+    "Zibai",
+    "Varka",
+    "Neuvillette",
+    "Arlecchino",
+    "Wriothesley",
+    "Varesa",
+    "Mualani",
+    "Kinich",
+    "Navia",
+    "Clorinde",
+    "Chasca",
+    "Lohen"
+   ],
+   "Sub DPS": [
+    "Yelan",
+    "Lauma",
+    "Linnea",
+    "Emilie",
+    "Chiori",
+    "Yae Miko",
+    "Fischl",
+    "Xiangling"
+   ],
+   "Support": [
+    "Kaedehara Kazuha",
+    "Nahida",
+    "Vodyanitsa",
+    "Zhongli",
+    "Valeriy",
+    "Alyosha",
+    "Prune",
+    "Aino",
+    "Baizhu",
+    "Xianyun",
+    "Iansan",
+    "Yumemizuki Mizuki"
+   ]
+  },
+  {
+   "tier": "A",
+   "label": "Strong",
+   "Main DPS": [
+    "Raiden Shogun",
+    "Hu Tao",
+    "Alhaitham",
+    "Cyno",
+    "Lyney",
+    "Wanderer",
+    "Kamisato Ayaka",
+    "Ganyu",
+    "Tartaglia",
+    "Arataki Itto",
+    "Xiao",
+    "Eula",
+    "Kamisato Ayato",
+    "Diluc"
+   ],
+   "Sub DPS": [
+    "Albedo",
+    "Xingqiu",
+    "Beidou",
+    "Ororon",
+    "Shenhe",
+    "Rosaria",
+    "Kujou Sara",
+    "Illuga",
+    "Jahoda"
+   ],
+   "Support": [
+    "Venti",
+    "Sucrose",
+    "Faruzan",
+    "Charlotte",
+    "Chevreuse",
+    "Kuki Shinobu",
+    "Sangonomiya Kokomi",
+    "Sigewinne",
+    "Dahlia",
+    "Gorou",
+    "Yun Jin",
+    "Ifa",
+    "Kachina",
+    "Nilou",
+    "Lan Yan"
+   ]
+  },
+  {
+   "tier": "B",
+   "label": "Situational",
+   "Main DPS": [
+    "Klee",
+    "Keqing",
+    "Tighnari",
+    "Yoimiya",
+    "Noelle",
+    "Gaming",
+    "Freminet",
+    "Shikanoin Heizou",
+    "Razor",
+    "Yanfei",
+    "Sethos",
+    "Aether"
+   ],
+   "Sub DPS": [
+    "Collei",
+    "Kaeya",
+    "Lisa",
+    "Mona",
+    "Thoma",
+    "Dehya",
+    "Kaveh",
+    "Candace",
+    "Lynette"
+   ],
+   "Support": [
+    "Jean",
+    "Diona",
+    "Layla",
+    "Yaoyao",
+    "Mika",
+    "Kirara",
+    "Barbara",
+    "Dori",
+    "Sayu"
+   ]
+  },
+  {
+   "tier": "C",
+   "label": "Outclassed",
+   "Main DPS": [
+    "Ningguang",
+    "Xinyan",
+    "Aloy",
+    "Chongyun"
+   ],
+   "Sub DPS": [
+    "Amber"
+   ],
+   "Support": [
+    "Qiqi"
+   ]
+  }
+ ]
+}

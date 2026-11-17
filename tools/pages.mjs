@@ -43,6 +43,7 @@ const world = v => head(v) + `<body>
     <a href="#now" data-goto="now">Now</a>
     <a href="#timeline" data-goto="timeline">Timeline</a>
     <a href="#characters" data-goto="characters" data-charword>Characters</a>
+    <a href="#tiers" data-goto="tiers">Tiers</a>
     <a href="#bosses" data-goto="bosses">Bosses</a>
     <a href="#teams" data-goto="teams">Teams</a>
     <a href="#connections" data-goto="connections">Connections</a>
@@ -89,6 +90,7 @@ const world = v => head(v) + `<body>
       </div>
     </div>
     <div class="ver-detail cardish" id="ver-detail" aria-live="polite"></div>
+    <div class="ver-more" id="ver-more" hidden></div>
   </section>
 
   <section class="sec wrap" id="characters">
@@ -104,6 +106,13 @@ const world = v => head(v) + `<body>
       <div class="chips scroll" id="f-region"></div>
     </div>
     <div class="grid" id="roster-grid"></div>
+  </section>
+
+  <section class="sec wrap" id="tiers">
+    <header class="sec-head"><h2>Tier list</h2><p>How strong each character is in current endgame content. New arrivals appear in their own row until they are rated.</p></header>
+    <div class="tier-meta" id="tier-meta"></div>
+    <div class="chips scroll" id="tier-el"></div>
+    <div id="tier-body"></div>
   </section>
 
   <section class="sec wrap" id="bosses">
@@ -126,6 +135,7 @@ const world = v => head(v) + `<body>
       <div class="chips" id="g-view"><button class="chip on" type="button" data-v="focus"><span>Focus</span></button><button class="chip" type="button" data-v="map"><span>3D star map</span></button></div>
       <button class="btn ghost" id="g-random" type="button">Surprise me</button>
     </div>
+    <div class="g-filters chips" id="g-filters" hidden></div>
     <div class="g-layout">
       <div class="g-stage">
         <div class="graph" id="graph">
@@ -133,7 +143,7 @@ const world = v => head(v) + `<body>
           <svg id="graph-edges" viewBox="0 0 100 100" aria-hidden="true"></svg>
         </div>
         <div class="starmap" id="starmap" hidden></div>
-        <div class="g-foot"><span id="graph-cap"></span><span class="legend"><i class="dir mutual"></i>both speak<i class="dir out"></i>one speaks</span></div>
+        <div class="g-foot"><span id="graph-cap"></span><span class="legend"><i class="dir mutual"></i>both speak<i class="dir out"></i>centre speaks<i class="dir in"></i>speaks of centre</span></div>
       </div>
       <aside class="bond cardish" id="bond" aria-live="polite"></aside>
     </div>
