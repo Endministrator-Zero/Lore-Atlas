@@ -102,6 +102,8 @@
 
   // ---------- now: current version ----------
   function chipList(names) { return h('div', { class: 'tags' }, names.map(function (n) { return h('span', { class: 'tag', text: n }); })); }
+  // the daily server reset: 04:00 UTC+8, which is 20:00 UTC
+  function nextReset() { var d = new Date(), r = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 20); return r > d.getTime() ? r : r + 864e5; }
   function renderNow() {
     var N = D.now, box = $('#now-body');
     if (!N) { $('#now').hidden = true; return; }
@@ -109,7 +111,8 @@
     $('#now-head').replaceChildren(
       h('div', { class: 'now-v' }, h('b', { text: N.v }), h('span', { class: 'pill live-' + st.key, text: st.key === 'live' ? 'Live now' : st.text })),
       h('div', { class: 'now-t' }, h('h3', { text: N.name || 'Version ' + N.v }),
-        h('p', { class: 'ver-meta' }, h('span', { text: span(N.start, N.end) }), h('span', { text: st.text }), N.upcoming && N.upcoming.start ? h('span', { text: 'Version ' + N.upcoming.v + ' expected ' + day(N.upcoming.start) }) : null),
+        h('p', { class: 'ver-meta' }, h('span', { text: span(N.start, N.end) }), h('span', { text: st.text }), N.upcoming && N.upcoming.start ? h('span', { text: 'Version ' + N.upcoming.v + ' expected ' + day(N.upcoming.start) }) : null,
+          h('span', { class: 'reset-in', title: 'Daily reset: 4:00 AM China time (UTC+8), which is 20:00 UTC. This site updates a few minutes after it.' }, 'Daily reset in ' + left(nextReset() - Date.now()))),
         h('div', { class: 'bar big' }, h('i', { style: 'width:' + st.pct + '%' }))));
 
     // banners grouped into phases by start day
@@ -162,6 +165,18 @@
         var s = status(c.start, c.end);
         return h('div', { class: 'event st-' + s.key }, h('div', { class: 'event-main' }, h('b', { text: c.name }), h('small', { text: span(c.start, c.end) })), h('span', { class: 'pill live-' + s.key, text: s.text }), h('div', { class: 'bar' }, h('i', { style: 'width:' + s.pct + '%' })));
       }), h('button', { class: 'btn ghost', type: 'button', onclick: function () { scrollToId('teams'); } }, 'See popular teams')));
+    }
+    if (D.history) {
+      var waits = D.chars.filter(function (c) { return !c.same; }).map(function (c) { return [c, bannerInfo(c.id)]; })
+        .filter(function (x) { return x[1] && !x[1].standard && !x[1].live && !x[1].next; })
+        .sort(function (a, b) { return b[1].since - a[1].since; }).slice(0, 6);
+      if (waits.length) side.push(h('div', { class: 'now-block cardish waits' }, h('h4', { text: 'Longest banner waits' }),
+        h('ol', { class: 'wait-list' }, waits.map(function (x) {
+          return h('li', null, h('button', { class: 'wait-row', type: 'button', onclick: function () { openSheet(x[0].id); } }, face(x[0]),
+            h('span', null, h('b', { text: x[0].name }), h('small', { text: 'Last in version ' + x[1].last[1] + ', ' + x[1].days + ' days ago' })), h('em', { text: String(x[1].since) })));
+        })),
+        h('p', { class: 'fine', text: 'Numbers count banner phases since the last limited run. Not counted: characters already announced for an upcoming banner.' }),
+        h('button', { class: 'btn ghost', type: 'button', onclick: function () { R.sort = 'wait'; syncChips(); renderRoster(); scrollToId('characters'); } }, 'See every wait')));
     }
     if (N.pulls) {
       var P = N.pulls;
@@ -461,7 +476,7 @@
     var regs = D.regions.slice(); D.chars.forEach(function (c) { if (regs.indexOf(c.region) < 0) regs.push(c.region); });
     regs.forEach(function (r) { if (D.chars.some(function (c) { return c.region === r; })) regRow.appendChild(chip(r, r, 'region', renderRoster)); });
     [['All', 0], ['5★', 5], ['4★', 4]].forEach(function (x) { $('#f-rarity').appendChild(chip(x[0], x[1], 'rarity', renderRoster)); });
-    [['By debut', 'debut'], ['A to Z', 'name']].forEach(function (x) { $('#f-sort').appendChild(chip(x[0], x[1], 'sort', renderRoster)); });
+    [['By debut', 'debut'], ['A to Z', 'name']].concat(D.history ? [['Longest banner wait', 'wait']] : []).forEach(function (x) { $('#f-sort').appendChild(chip(x[0], x[1], 'sort', renderRoster)); });
     $('#f-q').addEventListener('input', function (e) { R.q = e.target.value.trim().toLowerCase(); renderRoster(); });
     $('#f-q').setAttribute('placeholder', 'Search ' + D.meta.charWord.toLowerCase());
     syncChips(); renderRoster();
@@ -471,13 +486,18 @@
       return (!R.q || c.name.toLowerCase().indexOf(R.q) >= 0 || (c.faction || '').toLowerCase().indexOf(R.q) >= 0) &&
         (!R.el || c.el === R.el) && (!R.region || c.region === R.region) && (!R.rarity || c.rarity === R.rarity);
     });
-    list.sort(R.sort === 'name' ? function (a, b) { return a.name.localeCompare(b.name); }
+    var BI = {};
+    if (R.sort === 'wait') {
+      list = list.filter(function (c) { var b = bannerInfo(c.id); return b && !b.standard && (BI[c.id] = b); });
+      list.sort(function (a, b) { var x = BI[a.id], y = BI[b.id]; return (x.live ? -1 : x.since) - (y.live ? -1 : y.since); }).reverse();
+    } else list.sort(R.sort === 'name' ? function (a, b) { return a.name.localeCompare(b.name); }
       : function (a, b) { return verKey(a.ver) - verKey(b.ver) || b.rarity - a.rarity || a.name.localeCompare(b.name); });
-    $('#roster-count').textContent = list.length + ' of ' + D.chars.length;
+    $('#roster-count').textContent = list.length + ' of ' + D.chars.length + (R.sort === 'wait' ? ' · number = banner phases since the last run' : '');
     var grid = h('div', { class: 'grid-in' });
     list.forEach(function (c, i) {
       grid.appendChild(h('button', { class: 'card r' + c.rarity + (c.el ? ' el-' + c.el.toLowerCase() : ''), type: 'button', style: '--i:' + Math.min(i, 40), onclick: function () { openSheet(c.id); } },
-        h('span', { class: 'card-art' }, h('img', { src: IMG + 'icons/' + c.id + '.webp', alt: '', loading: 'lazy', decoding: 'async' }), elBadge(c.el), h('i', { class: 'card-ver', text: c.ver }), c.tag ? h('i', { class: 'card-tag', text: c.tag }) : null),
+        h('span', { class: 'card-art' }, h('img', { src: IMG + 'icons/' + c.id + '.webp', alt: '', loading: 'lazy', decoding: 'async' }), elBadge(c.el), h('i', { class: 'card-ver', text: c.ver }), c.tag ? h('i', { class: 'card-tag', text: c.tag }) : null,
+          BI[c.id] ? h('i', { class: 'card-wait' + (BI[c.id].live ? ' live' : ''), text: BI[c.id].live ? 'Now' : String(BI[c.id].since) }) : null),
         h('span', { class: 'card-name', text: c.name })));
     });
     if (!list.length) grid.appendChild(h('p', { class: 'empty', text: 'Nobody matches those filters. Clear one to see more.' }));
@@ -580,6 +600,48 @@
     for (var i = 0; i < T.rows.length; i++) for (var j = 0; j < T.rows[i].cells.length; j++) if (T.rows[i].cells[j].indexOf(cid) >= 0) return { tier: T.rows[i].tier, col: T.columns[j] };
     return null;
   }
+
+  // ---------- banner history ----------
+  var TODAY = new Date().toISOString().slice(0, 10);
+  function bannerInfo(id) {
+    var H = D.history, c = byId[id]; if (!H || !c || c.rarity !== 5) return null;
+    var nowMs = Date.now(), live = null, next = null;
+    ((D.now && D.now.banners) || []).forEach(function (b) {
+      if (b.kind === 'weapon' || (b.chars || []).indexOf(id) < 0) return;
+      var s = Date.parse(b.start), e = Date.parse(b.end);
+      if (s <= nowMs && nowMs < e) live = b; else if (s > nowMs && (!next || s < Date.parse(next.start))) next = b;
+    });
+    var all = H.runs[id] || [], runs = all.filter(function (r) { return r[0] <= TODAY; });
+    if (!next) { var fut = all.filter(function (r) { return r[0] > TODAY; })[0]; if (fut) next = { start: fut[0] + 'T03:00:00Z' }; }
+    var last = runs[runs.length - 1] || null;
+    var since = last ? H.phases.filter(function (p) { return p > last[0] && p <= TODAY; }).length : null;
+    var days = last ? Math.floor((nowMs - Date.parse(last[0])) / 864e5) : null;
+    return { runs: runs, last: last, since: live ? 0 : since, days: days, live: live, next: next, standard: !all.some(function (r) { return r[2] !== 'chronicle'; }) };
+  }
+  function waitText(b) {
+    if (!b) return '';
+    if (b.live) return 'On a banner now';
+    if (b.standard) return 'Standard banner';
+    return b.since === 0 ? 'Last phase' : b.since + (b.since === 1 ? ' phase ago' : ' phases ago');
+  }
+  function bannerBlock(c) {
+    var b = bannerInfo(c.id); if (!b) return null;
+    if (b.standard && !b.live) return h('div', { class: 'bn-block' }, h('span', { class: 'lbl', text: 'Banner history' }), h('p', { class: 'fine', text: b.runs.length
+      ? c.name + ' is in the standard pool. The only limited appearances were on Chronicled Wishes (last in version ' + b.last[1] + ').'
+      : c.name + ' has never had a limited banner, so there is no wait to track.' }));
+    var KIND = { debut: 'Debut', rerun: 'Rerun', chronicle: 'Chronicled' };
+    var head = b.live
+      ? h('div', { class: 'bn-big live' }, h('b', { text: 'On a banner now' }), h('span', { text: status(b.live.start, b.live.end) }))
+      : h('div', { class: 'bn-big' }, h('b', { text: String(b.since) }), h('span', { text: (b.since === 1 ? 'banner phase' : 'banner phases') + ' since the last run' }), h('small', { text: b.days + ' days ago, version ' + b.last[1] }));
+    var first = b.runs.length ? Date.parse(b.runs[0][0]) : Date.now(), span0 = Math.max(1, Date.now() - first);
+    var track = h('div', { class: 'bn-track', role: 'list' }, b.runs.map(function (r) {
+      var x = b.runs.length > 1 ? (Date.parse(r[0]) - first) / span0 * 100 : 0;
+      return h('span', { class: 'bn-dot ' + r[2], role: 'listitem', style: 'left:' + x.toFixed(1) + '%', title: KIND[r[2]] + ' · ' + r[1] + ' · ' + day(r[0], { month: 'short', year: 'numeric' }) });
+    }), h('span', { class: 'bn-today', title: 'Today' }));
+    return h('div', { class: 'bn-block' }, h('span', { class: 'lbl', text: 'Banner history' }), head, track,
+      h('ol', { class: 'bn-runs' }, b.runs.slice().reverse().map(function (r) { return h('li', null, h('i', { class: 'bn-k ' + r[2], text: KIND[r[2]] }), h('span', { text: 'Version ' + r[1] }), h('small', { text: day(r[0], { month: 'short', day: 'numeric', year: 'numeric' }) })); })),
+      b.next && !b.live ? h('p', { class: 'fine', text: 'Announced: back on ' + day(b.next.start, { month: 'short', day: 'numeric' }) + '.' }) : null);
+  }
   function openSheet(id) {
     var c = byId[id]; if (!c) return;
     var sheet = $('#sheet'), body = $('#sheet-body'), cid = canon(id), wasOpen = sheetOpen;
@@ -609,6 +671,7 @@
       h('dl', { class: 'facts' }, fact('First appeared', 'Version ' + c.ver, function () { goVersion(c.ver); }),
         tr ? fact('Tier', tr.tier + ' · ' + tr.col, function () { closeSheet(true); scrollToId('tiers'); }) : null,
         fact(L.faction, c.faction), fact(L.region, c.region), fact('Birthday', c.birthday), L.extra ? fact(L.extra, c.extra) : null),
+      bannerBlock(c),
       h('div', { class: 'sheet-actions' },
         h('button', { class: 'btn', type: 'button', onclick: function () { closeSheet(true); setCenter(cid, null); scrollToId('connections'); } }, 'Show connections'),
         other ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { openSheet(other.id); } }, other.tag ? 'View ' + other.tag.toLowerCase() + ' version' : 'View ' + other.name) : null));
@@ -683,23 +746,60 @@
   }
 
   // ---------- teams ----------
+  function teamCard(t, k, extra) {
+    var subs = t.subs || {};
+    return h('article', { class: 'team cardish', style: '--i:' + k }, h('span', { class: 'lbl', text: t.name || 'Team ' + (k + 1) }),
+      h('div', { class: 'team-faces big' }, t.chars.map(function (id) {
+        var c = byId[id]; if (!c) return h('span', { class: 'tag', text: id });
+        var alt = (subs[id] || []).filter(function (x) { return byId[x]; });
+        var tag = extra && extra.tag ? extra.tag(id) : null;
+        return h('div', { class: 'team-slot-wrap' },
+          h('button', { class: 'team-slot' + (tag ? ' ' + tag[0] : ''), type: 'button', title: c.name + (tag ? ' · ' + tag[1] : ''), onclick: function () { openSheet(id); } }, face(c, 'big'), tag ? h('i', { class: 'slot-tag', text: tag[1] }) : null, h('small', { text: shortName(c) })),
+          alt.length ? h('div', { class: 'slot-alt' }, h('span', { text: 'or' }), alt.map(function (a) { return faceBtn(a); })) : null);
+      })),
+      t.note ? h('p', { text: t.note }) : null, extra && extra.foot ? extra.foot : null);
+  }
+  function theaterPane(TH) {
+    var S = TH.current, out = h('div', { class: 'theater' });
+    function seasonHead(S, label) {
+      var st = status(S.start, S.end);
+      return h('div', { class: 'th-head cardish' },
+        h('div', { class: 'th-title' }, h('span', { class: 'lbl', text: label }), h('h3', { text: 'Season ' + S.season + ' · ' + new Date(S.key + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'long', year: 'numeric', timeZone: 'UTC' }) }),
+          h('span', { class: 'pill live-' + st.key, text: st.text })),
+        h('div', { class: 'th-rules' },
+          h('div', null, h('span', { class: 'lbl', text: 'Allowed elements' }), h('div', { class: 'th-els' }, S.elements.map(function (e) { return h('span', { class: 'elchip el-' + e.toLowerCase() }, h('img', { src: elIcon(e), alt: '' }), h('b', { text: e })); }))),
+          h('div', null, h('span', { class: 'lbl', text: 'Opening characters (stat bonus)' }), h('div', { class: 'team-faces small' }, S.opening.map(function (id) { return faceBtn(id); }))),
+          S.guests.length ? h('div', null, h('span', { class: 'lbl', text: 'Special guest stars (free trial)' }), h('div', { class: 'team-faces small' }, S.guests.map(function (id) { return faceBtn(id); }))) : null),
+        S.blessing ? h('p', { class: 'fine', text: 'Opening bonus: ' + S.blessing }) : null);
+    }
+    add(out, seasonHead(S, 'This month'));
+    var tag = function (id) { return S.opening.indexOf(id) >= 0 ? ['is-open', 'Opening'] : S.guests.indexOf(id) >= 0 ? ['is-guest', 'Guest'] : null; };
+    add(out, h('p', { class: 'team-note', text: 'Picked automatically from this site\'s team list and tier list, using only characters this season allows. Opening characters score higher because of their stat bonus. Updates on the 1st, right after the 4:00 AM (UTC+8) reset.' }));
+    add(out, h('div', { class: 'team-grid' }, S.teams.map(function (t, k) {
+      var foot = t.flex && byId[t.flex.out] ? h('p', { class: 'fine', text: byId[t.flex.out].name + ' is not allowed this month, so ' + byId[t.flex.in].name + ' takes that slot.' }) : null;
+      return teamCard({ name: 'Team ' + (k + 1) + (t.opening ? ' · ' + t.opening + ' opening' : ''), chars: t.chars }, k, { tag: tag, foot: foot });
+    })));
+    add(out, h('div', { class: 'th-cast' }, h('span', { class: 'lbl', text: 'Worth building for this season' }), h('div', { class: 'team-faces' }, S.cast.map(function (id) { return faceBtn(id); }))));
+    if (TH.next) add(out, h('details', { class: 'th-next' }, h('summary', { text: 'Next season preview: ' + TH.next.elements.join(', ') }), seasonHead(TH.next, 'Next month'),
+      h('div', { class: 'team-grid' }, TH.next.teams.slice(0, 4).map(function (t, k) { return teamCard({ name: 'Team ' + (k + 1), chars: t.chars }, k); }))));
+    return out;
+  }
   function initTeams() {
-    var T2 = D.teams || [];
+    var T2 = (D.teams || []).slice();
+    if (D.theater && D.theater.current) T2.push({ mode: 'Imaginarium Theater', theater: D.theater });
     if (!T2.length) { $('#teams').hidden = true; return; }
     var tabs = $('#team-tabs'), body = $('#team-body');
     function show(i) {
       $$('.chip', tabs).forEach(function (b, bi) { b.classList.toggle('on', bi === i); });
       var m = T2[i];
+      if (m.theater) return swap(body, theaterPane(m.theater));
       swap(body, h('div', null, h('p', { class: 'team-note', text: m.note || '' }),
-        h('div', { class: 'team-grid' }, m.teams.map(function (t, k) {
-          return h('article', { class: 'team cardish', style: '--i:' + k }, h('span', { class: 'lbl', text: t.name || 'Team' }),
-            h('div', { class: 'team-faces big' }, t.chars.map(function (id) { var c = byId[id]; return c ? h('button', { class: 'team-slot', type: 'button', onclick: function () { openSheet(id); } }, face(c, 'big'), h('small', { text: shortName(c) })) : h('span', { class: 'tag', text: id }); })),
-            t.note ? h('p', { text: t.note }) : null);
-        }))));
+        h('div', { class: 'team-grid' }, m.teams.map(function (t, k) { return teamCard(t, k); }))));
     }
-    T2.forEach(function (m, i) { tabs.appendChild(h('button', { class: 'chip', type: 'button', onclick: function () { show(i); } }, h('span', { text: m.mode }))); });
+    T2.forEach(function (m, i) { tabs.appendChild(h('button', { class: 'chip', type: 'button', onclick: function () { show(i); } }, h('span', { text: m.mode }), m.theater ? h('i', { class: 'chip-new', text: 'Monthly' }) : null)); });
     show(0);
   }
+
 
   // ---------- connections ----------
   var G = { center: null, sel: null, nodes: {}, form: {}, view: 'focus' };
@@ -745,7 +845,7 @@
     return {
       world: WORLD,
       nodes: D.chars.filter(function (c) { return !c.same; }).map(function (c) { return { id: c.id, name: c.name, region: c.region, img: IMG + 'icons/' + formOf(c.id) + '.webp', deg: DEG[c.id] || 0, color: elHex(c), rare: c.rarity }; }),
-      regionHue: D.regions.reduce(function (o, r) { o[r] = regionHue(r); return o; }, {}),
+      regionHue: D.regions.reduce(function (o, r) { o[r] = regionHue(r); return o; }, {}), regionOrder: D.regions,
       edges: D.lines.filter(function (l) { return byId[l.f] && byId[l.t]; }).map(function (l) { return [l.f, l.t]; })
     };
   }
@@ -773,7 +873,8 @@
   function regionHue(r) { var i = D.regions.indexOf(r); return REGION_HUE[(i < 0 ? D.regions.length : i) % REGION_HUE.length]; }
   function renderGraphFilters(all) {
     var box = $('#g-filters');
-    if (all.length <= 20) { box.hidden = true; box.replaceChildren(); GF.region = ''; GF.mutual = false; return; }
+    var nRegions = {}; all.forEach(function (x) { nRegions[regionOf(x.id)] = 1; });
+    if (all.length <= 8 || Object.keys(nRegions).length < 2) { box.hidden = true; box.replaceChildren(); GF.region = ''; GF.mutual = false; return; }
     var counts = {};
     all.forEach(function (x) { var r = regionOf(x.id); counts[r] = (counts[r] || 0) + 1; });
     var regs = Object.keys(counts).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
@@ -803,22 +904,39 @@
     nb.sort(function (a, b) { return ri(a.id) - ri(b.id) || ((b.out && b.inn) ? 1 : 0) - ((a.out && a.inn) ? 1 : 0) || verKey(byId[a.id].ver) - verKey(byId[b.id].ver); });
     var groups = [];
     nb.forEach(function (x) { var r = regionOf(x.id); if (!groups.length || groups[groups.length - 1].r !== r) groups.push({ r: r, items: [] }); groups[groups.length - 1].items.push(x); });
-    var L = n <= 12 ? 1 : n <= 28 ? 2 : n <= 56 ? 3 : 4;
-    var radii = L === 1 ? [n <= 5 ? 30 : 37] : L === 2 ? [27, 41.5] : L === 3 ? [21, 32.5, 44] : [18, 27, 36, 45];
-    var gap = groups.length > 1 ? Math.min(0.16, 1.1 / groups.length) : 0;
-    var avail = Math.PI * 2 - gap * groups.length, a = -Math.PI / 2 + gap / 2, sectors = [];
+    // size everything from the real width: staggered rings, and the biggest face that fits without overlap
+    var W = stage.clientWidth, narrow = W < 520;
+    var nc = Math.max(52, Math.min(104, W * 0.17));
+    var gapSlots = groups.length > 1 ? (n > 40 ? 1 : 2) : 0, S = n + gapSlots * groups.length;
+    var rmax = narrow ? 0.405 : 0.43, best = null;
+    for (var k = 1; k <= 6; k++) {
+      if (k > n) break;
+      var rmin = Math.min(rmax, (nc * 0.5 + (narrow ? 34 : 26)) / W + (k > 1 ? 0.02 : 0.1));
+      var radial = k > 1 ? (rmax - rmin) / (k - 1) * W * 1.25 : 1e9;
+      var r0 = k === 1 ? Math.max(0.27, Math.min(rmax, S * 62 / (2 * Math.PI * W))) : rmin;
+      var angular = k * 2 * Math.PI * r0 * W / (S * 1.12);
+      var ns = Math.min(radial, angular, narrow ? 46 : 60);
+      if (!best || ns > best.ns + 2) best = { k: k, ns: ns, r0: r0 };
+    }
+    var K = best.k, NS = Math.max(16, Math.floor(best.ns)), radii = [];
+    for (var q = 0; q < K; q++) radii.push((K === 1 ? best.r0 : best.r0 + (rmax - best.r0) * q / (K - 1)) * 100);
+    stage.style.setProperty('--ns', NS + 'px'); stage.style.setProperty('--nc', Math.round(nc) + 'px');
+    var slot = gapSlots / 2, sectors = [], step = Math.PI * 2 / Math.max(S, 1), base = -Math.PI / 2;
     groups.forEach(function (gp) {
-      var spanA = avail * gp.items.length / Math.max(n, 1), per = Math.ceil(gp.items.length / L);
-      gp.items.forEach(function (x, j) {
-        var layer = L - 1 - (j % L), slot = Math.floor(j / L), cols = per;
-        var off = L > 1 && per > 1 ? (layer % 2 ? 0.22 : -0.22) : 0;
-        var ang = a + (slot + 0.5 + off) / cols * spanA;
-        pos[x.id] = { x: 50 + Math.cos(ang) * radii[layer], y: 50 + Math.sin(ang) * radii[layer], nb: x, ang: ang, mid: a + spanA / 2, r: radii[layer] };
+      var a0 = base + slot * step;
+      gp.items.forEach(function (x) {
+        var ang = base + (slot + 0.5) * step, layer = Math.round(slot - gapSlots / 2) % K;
+        if (layer < 0) layer += K;
+        pos[x.id] = { x: 50 + Math.cos(ang) * radii[layer], y: 50 + Math.sin(ang) * radii[layer], nb: x, ang: ang, r: radii[layer] };
+        slot++;
       });
-      sectors.push({ r: gp.r, a0: a, a1: a + spanA, count: gp.items.length });
-      a += spanA + gap;
+      var a1 = base + slot * step;
+      gp.items.forEach(function (x) { pos[x.id].mid = (a0 + a1) / 2; });
+      sectors.push({ r: gp.r, a0: a0, a1: a1, count: gp.items.length });
+      slot += gapSlots;
     });
-    stage.classList.toggle('dense', n > 13); stage.classList.toggle('crowd', n > 28); stage.classList.toggle('swarm', n > 56);
+    var L = K;
+    stage.classList.toggle('dense', NS < 52); stage.classList.toggle('crowd', NS < 44); stage.classList.toggle('swarm', NS < 26);
     // nodes: reuse elements so they glide between layouts
     Object.keys(G.nodes).forEach(function (id) { if (!pos[id]) { var old = G.nodes[id]; old.classList.add('out'); delete G.nodes[id]; setTimeout(function () { old.remove(); }, 350); } });
     Object.keys(pos).forEach(function (id) {
@@ -835,25 +953,40 @@
       node.className = 'gnode' + (id === G.center ? ' center' : '') + (id === G.sel ? ' sel' : '') + (p.nb && p.nb.out && p.nb.inn ? ' mutual' : '') + ' r' + c.rarity;
       node.style.left = p.x + '%'; node.style.top = p.y + '%';
       node.style.setProperty('--rh', id === G.center ? '' : regionHue(regionOf(id)));
-      node.setAttribute('aria-label', c.name + (id === G.center ? ', centre' : ''));
+      node.setAttribute('aria-label', c.name + (id === G.center ? ', centre' : ', ' + regionOf(id)));
+      node.title = c.name + ' · ' + regionOf(id);
     });
-    // region labels around the rim
+    // region labels: every sector gets one, kept inside the box and nudged apart when they would touch
     $$('.g-label', stage).forEach(function (l) { l.remove(); });
-    if (groups.length > 1) sectors.forEach(function (s) {
-      var m = (s.a0 + s.a1) / 2, x = 50 + Math.cos(m) * 50.5, y = 50 + Math.sin(m) * 50.5;
-      if (s.a1 - s.a0 < 0.22 && s.count < 3) return;
-      stage.appendChild(h('span', { class: 'g-label', style: 'left:' + x + '%;top:' + y + '%;--rh:' + regionHue(s.r) + ';--tx:' + (Math.cos(m) > 0.25 ? '0%' : Math.cos(m) < -0.25 ? '-100%' : '-50%') + ';--ty:' + (Math.sin(m) > 0.25 ? '0%' : Math.sin(m) < -0.25 ? '-100%' : '-50%') }, s.r, h('small', { text: ' ' + s.count })));
-    });
+    if (groups.length > 1) {
+      var placed = [], H = W, outer = radii[radii.length - 1] / 100 * W + NS * 0.5 + 12;
+      sectors.forEach(function (s) {
+        var m = (s.a0 + s.a1) / 2, lab = h('span', { class: 'g-label', style: '--rh:' + regionHue(s.r) }, s.r, h('small', { text: ' ' + s.count }));
+        stage.appendChild(lab);
+        var lw = lab.offsetWidth, lh = lab.offsetHeight, rr = outer, box;
+        for (var tries = 0; tries < 6; tries++) {
+          var cx = W / 2 + Math.cos(m) * rr, cy = H / 2 + Math.sin(m) * rr;
+          var lx = Math.cos(m) > 0.3 ? cx : Math.cos(m) < -0.3 ? cx - lw : cx - lw / 2;
+          var ly = Math.sin(m) > 0.3 ? cy : Math.sin(m) < -0.3 ? cy - lh : cy - lh / 2;
+          lx = Math.max(-2, Math.min(W - lw + 2, lx)); ly = Math.max(-lh - 6, Math.min(H + 6, ly));
+          box = [lx, ly, lx + lw, ly + lh];
+          if (!placed.some(function (b) { return box[0] < b[2] + 4 && box[2] > b[0] - 4 && box[1] < b[3] + 2 && box[3] > b[1] - 2; })) break;
+          rr += lh + 2;
+        }
+        placed.push(box);
+        lab.style.left = box[0] + 'px'; lab.style.top = box[1] + 'px';
+      });
+    }
     // edges: curves bundled per region sector, so a big circle stays readable
     svg.replaceChildren();
-    var NS = 'http://www.w3.org/2000/svg', rim = L === 1 ? radii[0] + 6.5 : 48;
-    function el(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+    var SVGNS = 'http://www.w3.org/2000/svg', rim = radii[radii.length - 1] + NS / W * 50 + 2.5;
+    function el(tag, attrs) { var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
     if (groups.length > 1) sectors.forEach(function (s) {
       var p0 = [50 + Math.cos(s.a0) * rim, 50 + Math.sin(s.a0) * rim], p1 = [50 + Math.cos(s.a1) * rim, 50 + Math.sin(s.a1) * rim];
       var arc = el('path', { d: 'M' + p0 + ' A' + rim + ' ' + rim + ' 0 ' + (s.a1 - s.a0 > Math.PI ? 1 : 0) + ' 1 ' + p1, class: 'sector' });
       arc.style.stroke = regionHue(s.r); svg.appendChild(arc);
     });
-    var c1 = n > 56 ? 2.4 : n > 28 ? 3.2 : n > 13 ? 4.8 : 6.2, c0 = n > 13 ? 8 : 9.5;
+    var c1 = NS / W * 50 + 0.6, c0 = nc / W * 50 + 0.8;
     nb.forEach(function (x, i) {
       var p = pos[x.id], bund = Math.min(p.r * 0.42, 15), cx = 50 + Math.cos(p.mid) * bund, cy = 50 + Math.sin(p.mid) * bund;
       if (groups.length <= 1 || L === 1) { cx = 50 + (p.x - 50) * 0.5; cy = 50 + (p.y - 50) * 0.5; }
@@ -865,7 +998,7 @@
       g.style.setProperty('--d', (120 + Math.min(i, 50) * 10) + 'ms');
       if (x.out && x.inn) g.style.setProperty('--rh', regionHue(regionOf(x.id)));
       svg.appendChild(g);
-      if (n <= 13) svg.appendChild(el('circle', { cx: x1, cy: y1, r: 0.7, class: 'edge-dot ' + (x.out ? 'out' : 'in'), 'data-id': x.id }));
+      if (NS >= 44) svg.appendChild(el('circle', { cx: x1, cy: y1, r: 0.7, class: 'edge-dot ' + (x.out ? 'out' : 'in'), 'data-id': x.id }));
     });
     if (animate) { svg.classList.remove('draw'); void svg.getBoundingClientRect(); svg.classList.add('draw'); }
     var shown = n === all.length ? n + (n === 1 ? ' connection' : ' connections') : n + ' of ' + all.length + ' connections';
@@ -948,4 +1081,6 @@
   setInterval(function () { if (!document.hidden) renderNow(); }, 60000);
   whenScene(function () { try { window.LoreScene.hero($('#hero-3d'), WORLD); } catch (e) {} });
   document.documentElement.classList.add('ready');
+  // links from the gateway land on a section (for example #teams): scroll there once the content has rendered
+  if (location.hash.length > 1 && document.getElementById(location.hash.slice(1))) setTimeout(function () { scrollToId(location.hash.slice(1)); }, 450);
 })();

@@ -24,7 +24,107 @@
    "yinlin",
    "iuno",
    "lily"
-  ]
+  ],
+  "now": {
+   "v": "3.8",
+   "name": "Lilies in a Dying Dream",
+   "start": "2026-11-12T03:00:00.000Z",
+   "end": "2026-12-20T19:59:00.000Z",
+   "next": null,
+   "banners": [
+    {
+     "name": "Bloom of Yesterday's Dreamsoil",
+     "kind": "char",
+     "start": "2026-11-12T03:00:00.000Z",
+     "end": "2026-12-03T01:59:00.000Z",
+     "chars": [
+      "lily"
+     ]
+    },
+    {
+     "name": "When the Runes Glitter",
+     "kind": "char",
+     "start": "2026-11-12T03:00:00.000Z",
+     "end": "2026-12-03T01:59:00.000Z",
+     "chars": [
+      "sigrika"
+     ]
+    },
+    {
+     "name": "Wanderer Knows No Far and Near",
+     "kind": "char",
+     "start": "2026-11-12T03:00:00.000Z",
+     "end": "2026-12-03T01:59:00.000Z",
+     "chars": [
+      "qiuyuan"
+     ]
+    },
+    {
+     "name": "Starpath Reverbs II",
+     "kind": "rerun",
+     "start": "2026-11-12T03:00:00.000Z",
+     "end": "2026-12-21T03:59:00.000Z",
+     "chars": [
+      "camellya",
+      "roccia",
+      "phoebe",
+      "brant"
+     ]
+    },
+    {
+     "name": "Voices on Azure Feathers",
+     "kind": "char",
+     "start": "2026-12-03T02:00:00.000Z",
+     "end": "2026-12-20T19:59:00.000Z",
+     "chars": [
+      "yangyang-xuanling"
+     ]
+    },
+    {
+     "name": "Blessings From Dewy Winds",
+     "kind": "char",
+     "start": "2026-12-03T02:00:00.000Z",
+     "end": "2026-12-20T19:59:00.000Z",
+     "chars": [
+      "suisui"
+     ]
+    },
+    {
+     "name": "Thousand Futures Mirrored in Snow",
+     "kind": "char",
+     "start": "2026-12-03T02:00:00.000Z",
+     "end": "2026-12-20T19:59:00.000Z",
+     "chars": [
+      "hiyuki"
+     ]
+    }
+   ]
+  },
+  "art": [
+   "lily",
+   "sigrika",
+   "qiuyuan",
+   "camellya",
+   "roccia",
+   "phoebe",
+   "brant",
+   "yangyang-xuanling",
+   "suisui",
+   "hiyuki"
+  ],
+  "names": {
+   "lily": "Lily",
+   "sigrika": "Sigrika",
+   "qiuyuan": "Qiuyuan",
+   "camellya": "Camellya",
+   "roccia": "Roccia",
+   "phoebe": "Phoebe",
+   "brant": "Brant",
+   "yangyang-xuanling": "Yangyang: Xuanling",
+   "suisui": "Suisui",
+   "hiyuki": "Hiyuki"
+  },
+  "theater": null
  },
  "genshin": {
   "title": "Irminsul Records",
@@ -51,6 +151,100 @@
    "klee",
    "varka",
    "lumine"
-  ]
+  ],
+  "now": {
+   "v": "7.2",
+   "name": "Hour of Ruin",
+   "start": "2026-11-04T03:00:00.000Z",
+   "end": "2026-12-16T03:00:00.000Z",
+   "next": {
+    "v": "7.3",
+    "name": "",
+    "start": "2026-12-16T03:00:00.000Z"
+   },
+   "banners": [
+    {
+     "name": "Myriad Patterns Unfold",
+     "kind": "char",
+     "start": "2026-11-04T03:00:00.000Z",
+     "end": "2026-11-24T13:59:00.000Z",
+     "chars": [
+      "mitya"
+     ]
+    },
+    {
+     "name": "Chanson of Many Waters",
+     "kind": "char",
+     "start": "2026-11-04T03:00:00.000Z",
+     "end": "2026-11-24T13:59:00.000Z",
+     "chars": [
+      "furina"
+     ]
+    },
+    {
+     "name": "Harmonious Abundance",
+     "kind": "char",
+     "start": "2026-11-24T03:00:00.000Z",
+     "end": "2026-12-16T03:00:00.000Z",
+     "chars": [
+      "zibai"
+     ]
+    },
+    {
+     "name": "Ya-hoho! Compendium",
+     "kind": "char",
+     "start": "2026-11-24T03:00:00.000Z",
+     "end": "2026-12-16T03:00:00.000Z",
+     "chars": [
+      "linnea"
+     ]
+    },
+    {
+     "name": "Names Forged Beneath Blazing Skies",
+     "kind": "chronicle",
+     "start": "2026-11-24T03:00:00.000Z",
+     "end": "2026-12-16T03:00:00.000Z",
+     "chars": [
+      "varesa",
+      "chasca",
+      "xilonen",
+      "mualani",
+      "kinich"
+     ]
+    }
+   ]
+  },
+  "art": [
+   "mitya",
+   "furina",
+   "zibai",
+   "linnea",
+   "varesa",
+   "chasca",
+   "xilonen",
+   "mualani",
+   "kinich"
+  ],
+  "names": {
+   "mitya": "Mitya",
+   "furina": "Furina",
+   "zibai": "Zibai",
+   "linnea": "Linnea",
+   "varesa": "Varesa",
+   "chasca": "Chasca",
+   "xilonen": "Xilonen",
+   "mualani": "Mualani",
+   "kinich": "Kinich"
+  },
+  "theater": {
+   "season": 29,
+   "key": "2026-11-01",
+   "elements": [
+    "Hydro",
+    "Electro",
+    "Geo"
+   ],
+   "end": "2026-11-30T19:59:00.000Z"
+  }
  }
 }

@@ -186,57 +186,36 @@ ${WARP}
 </html>
 `;
 
+const DOOR = (w, o) => `  <section class="door w-${w}" data-door="${w}">
+    <canvas data-ambient="${w}" aria-hidden="true"></canvas>
+    <div class="door-art" aria-hidden="true"><img alt=""><img alt=""></div>
+    <a class="door-link" href="${o.href}" data-warp="${w}" aria-label="Enter the ${o.game} archive"></a>
+    <div class="door-in">
+      <p class="kicker">${o.game}</p>
+      <h2>${o.title}</h2>
+      <p class="d">${o.desc}</p>
+      <div class="door-live" data-live="${w}"></div>
+      <div class="door-stats" data-stats="${w}"></div>
+      <nav class="door-links" aria-label="Jump into ${o.game}">${o.links.map(([id, t]) => `<a href="${o.href}#${id}" data-warp="${w}">${t}</a>`).join('')}</nav>
+      <a class="btn" href="${o.href}" data-warp="${w}">${o.enter}</a>
+    </div>
+  </section>`;
 const index = v => head(v) + `<body>
 <header class="gate-top"><span class="brand"><i class="sigil"></i><span><b>Lore Atlas</b><small>Two worlds, one fan archive</small></span></span></header>
 <main class="gate">
-  <a class="door w-wuwa" href="wuthering-waves.html" data-warp="wuwa" aria-label="Enter the Wuthering Waves archive">
-    <canvas data-ambient="wuwa" aria-hidden="true"></canvas>
-    <div class="door-in">
-      <p class="kicker" style="display:flex;align-items:center;gap:12px">Wuthering Waves</p>
-      <h2>Resonance Archive</h2>
-      <p class="d">Solaris-3 from the first awakening in Huanglong onward. Story, builds, banners and what the Resonators say about each other.</p>
-      <p class="door-now" data-now="wuwa"></p>
-      <div class="door-stats" data-stats="wuwa"></div>
-      <div class="door-faces" data-faces="wuwa"></div>
-      <span class="btn">Enter Solaris-3</span>
-    </div>
-  </a>
-  <a class="door w-genshin" href="genshin-impact.html" data-warp="genshin" aria-label="Enter the Genshin Impact archive">
-    <canvas data-ambient="genshin" aria-hidden="true"></canvas>
-    <div class="door-in">
-      <p class="kicker" style="display:flex;align-items:center;gap:12px">Genshin Impact</p>
-      <h2>Irminsul Records</h2>
-      <p class="d">Teyvat from the first step in Mondstadt to the snows of Snezhnaya. Story, builds, banners and everyone met on the road.</p>
-      <p class="door-now" data-now="genshin"></p>
-      <div class="door-stats" data-stats="genshin"></div>
-      <div class="door-faces" data-faces="genshin"></div>
-      <span class="btn">Enter Teyvat</span>
-    </div>
-  </a>
-  <div class="seam" aria-hidden="true"><i></i></div>
+${DOOR('wuwa', { href: 'wuthering-waves.html', game: 'Wuthering Waves', title: 'Resonance Archive', enter: 'Enter Solaris-3',
+  desc: 'Solaris-3 from the first awakening in Huanglong onward. Story, builds, banners and what the Resonators say about each other.',
+  links: [['now', 'Now'], ['timeline', 'Story'], ['characters', 'Resonators'], ['tiers', 'Tiers'], ['teams', 'Teams'], ['connections', 'Connections']] })}
+${DOOR('genshin', { href: 'genshin-impact.html', game: 'Genshin Impact', title: 'Irminsul Records', enter: 'Enter Teyvat',
+  desc: 'Teyvat from the first step in Mondstadt to the snows of Snezhnaya. Story, builds, banners and everyone met on the road.',
+  links: [['now', 'Now'], ['timeline', 'Story'], ['characters', 'Characters'], ['tiers', 'Tiers'], ['teams', 'Teams'], ['connections', 'Connections']] })}
+  <div class="seam" aria-hidden="true"><i></i><span class="seam-or">or</span></div>
 </main>
+<p class="gate-reset" id="gate-reset"></p>
 <p class="gate-foot">Unofficial fan project. Not affiliated with Kuro Games or HoYoverse. Game content belongs to its owners.</p>
 ${WARP}
 <script src="assets/data/summary.js"></script>
-<script>
-(function () {
-  var S = window.LORE_SUMMARY || {};
-  ['wuwa', 'genshin'].forEach(function (w) {
-    var s = S[w]; if (!s) return;
-    var st = document.querySelector('[data-stats="' + w + '"]');
-    [[s.versions, 'versions'], [s.chars, w === 'wuwa' ? 'resonators' : 'characters'], [s.lines, 'voice lines']].forEach(function (x) {
-      var d = document.createElement('div'); var b = document.createElement('b'); b.textContent = x[0]; var sp = document.createElement('span'); sp.textContent = x[1]; d.appendChild(b); d.appendChild(sp); st.appendChild(d);
-    });
-    document.querySelector('[data-now="' + w + '"]').textContent = 'Now live: ' + s.current + (s.name ? ' · ' + s.name : '');
-    var f = document.querySelector('[data-faces="' + w + '"]');
-    s.faces.forEach(function (id, i) {
-      var sp = document.createElement('span'); sp.className = 'face r5'; sp.style.setProperty('--i', i);
-      var im = document.createElement('img'); im.src = 'assets/img/' + w + '/icons/' + id + '.webp'; im.alt = ''; im.loading = 'lazy';
-      sp.appendChild(im); f.appendChild(sp);
-    });
-  });
-})();
-</script>
+<script src="assets/js/gate.js"></script>
 <script src="assets/js/ambient.js"></script>
 <script src="assets/js/warp.js"></script>
 </body>

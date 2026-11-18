@@ -934,3 +934,125 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
   html { scroll-behavior: auto }
 }
 .sheet-3d { -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 97%); mask-image: linear-gradient(180deg, #000 55%, transparent 97%) }
+
+/* ---------- banner history ---------- */
+.card-wait { position: absolute; left: 6px; top: 6px; min-width: 26px; text-align: center; font: 700 12px/1 var(--f-ui); font-style: normal; padding: 5px 6px; border-radius: 6px; background: var(--accent); color: var(--on-accent); font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.35) }
+.card-wait.live { background: #7ee2a8 }
+.bn-block { margin: 18px 0 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--accent) 5%, transparent) }
+.bn-big { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: baseline; margin: 6px 0 14px }
+.bn-big b { font: 700 40px/1 var(--f-ui); color: var(--accent); grid-row: span 2; font-variant-numeric: tabular-nums }
+.bn-big span { font-weight: 600 } .bn-big small { color: var(--mute); font-size: 12.5px }
+.bn-big.live b { font-size: 22px; color: #7ee2a8; grid-row: auto } .bn-big.live span { grid-column: 1 / -1; color: var(--mute) }
+.bn-track { position: relative; height: 18px; margin: 0 8px 12px; border-top: 2px solid var(--line); top: 8px }
+.bn-dot { position: absolute; top: -7px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--bg, #0b0d12) }
+.bn-dot.debut { width: 14px; height: 14px; top: -8px; margin-left: -7px; background: #fff }
+.bn-dot.chronicle { background: transparent; border: 2px solid var(--accent) }
+.bn-today { position: absolute; right: -8px; top: -9px; width: 2px; height: 16px; background: var(--mute) }
+.bn-runs { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 168px; overflow: auto }
+.bn-runs li { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; align-items: center; font-size: 13.5px }
+.bn-runs small { color: var(--mute); font-variant-numeric: tabular-nums }
+.bn-k { font: 700 10.5px/1 var(--f-ui); font-style: normal; text-transform: uppercase; letter-spacing: .08em; padding: 4px 6px; border-radius: 4px; text-align: center; border: 1px solid var(--line) }
+.bn-k.debut { background: var(--accent); color: var(--on-accent); border-color: transparent }
+.wait-list { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 4px }
+.wait-row { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; width: 100%; padding: 5px 6px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; cursor: pointer; font: inherit }
+.wait-row:hover, .wait-row:focus-visible { background: color-mix(in srgb, var(--accent) 10%, transparent) }
+.wait-row .face { --fs: 36px }
+.wait-row b { display: block; font-size: 14px } .wait-row small { color: var(--mute); font-size: 12px }
+.wait-row em { font: 700 20px/1 var(--f-ui); font-style: normal; color: var(--accent); font-variant-numeric: tabular-nums }
+
+/* ---------- teams: substitutes and Imaginarium Theater ---------- */
+.team-slot-wrap { display: grid; justify-items: center; align-content: start; gap: 6px; min-width: 0 }
+.slot-alt { display: flex; align-items: center; gap: 4px }
+.slot-alt > span { font: 600 10.5px/1 var(--f-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--dim) }
+.slot-alt .face { --fs: 26px }
+.team-slot { position: relative }
+.slot-tag { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); font: 700 9.5px/1 var(--f-ui); font-style: normal; text-transform: uppercase; letter-spacing: .06em; padding: 3px 5px; border-radius: 4px; background: var(--accent); color: var(--on-accent); white-space: nowrap; z-index: 2 }
+.is-guest .slot-tag { background: var(--panel2); color: var(--ink); border: 1px solid var(--line2) }
+.chip-new { font: 700 9.5px/1 var(--f-ui); font-style: normal; text-transform: uppercase; letter-spacing: .06em; margin-left: 6px; padding: 3px 5px; border-radius: 4px; background: var(--accent); color: var(--on-accent) }
+.th-head { padding: 18px 20px; margin-bottom: 16px; display: grid; gap: 14px }
+.th-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px }
+.th-title .lbl { width: 100% }
+.th-title h3 { margin: 0; font-size: 22px }
+.th-rules { display: grid; grid-template-columns: auto 1fr auto; gap: 18px 28px; align-items: start }
+.th-rules > div { display: grid; gap: 8px }
+.th-els { display: flex; flex-wrap: wrap; gap: 8px }
+.elchip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px 5px 6px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--el, var(--accent)) 60%, transparent); background: color-mix(in srgb, var(--el, var(--accent)) 14%, transparent); font-size: 13.5px }
+.elchip img { width: 20px; height: 20px }
+.th-cast { margin-top: 22px; display: grid; gap: 10px }
+.th-next { margin-top: 22px }
+.th-next summary { cursor: pointer; font-weight: 600; margin-bottom: 14px }
+@media (max-width: 760px) { .th-rules { grid-template-columns: 1fr } .slot-alt .face { --fs: 22px } }
+
+/* ---------- connections: sizes come from the layout code ---------- */
+.graph .gnode .face { --fs: var(--ns, 58px) }
+.graph .gnode.center .face { --fs: var(--nc, 104px) }
+.graph .g-label { transform: none; display: block; font-size: 11px }
+.graph .g-label small { font-size: 10px }
+.crowd .gnode:not(.center):not(.sel) .face { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--rh, transparent) 85%, transparent) }
+@media (max-width: 640px) { .graph .g-label { font-size: 10px; letter-spacing: .06em } [data-world="genshin"] .graph .g-label { font-size: 11px } }
+.crowd .gnode.center .gname { font-size: 12px; padding: 1px 6px }
+
+/* ---------- gateway v2: live cards, splash art, quick links ---------- */
+.door { cursor: pointer }
+.door-link { position: absolute; inset: 0; z-index: 1 }
+.door-link:focus-visible { outline-offset: -6px }
+.door-in { position: relative; z-index: 2; pointer-events: none }
+.door-in a, .door-in .dl-face { pointer-events: auto }
+.door .kicker { display: flex; align-items: center; gap: 12px }
+.door-art { position: absolute; z-index: -1; top: 0; bottom: 0; width: 62%; pointer-events: none; overflow: hidden }
+.door.w-wuwa .door-art { right: 0; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 55%, transparent 92%); mask-image: linear-gradient(90deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 55%, transparent 92%); -webkit-mask-composite: source-in; mask-composite: intersect }
+.door.w-genshin .door-art { left: 0; -webkit-mask-image: linear-gradient(270deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 50%, transparent 90%); mask-image: linear-gradient(270deg, transparent 0%, #000 45%), linear-gradient(180deg, #000 50%, transparent 90%); -webkit-mask-composite: source-in; mask-composite: intersect }
+.door-art img { position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover; object-position: 50% 18%; opacity: 0; transition: opacity 1.4s ease, transform 1.2s cubic-bezier(.2, .7, .2, 1); transform: translate(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -12px)) scale(1.02) }
+.door-art img.on { opacity: .62 }
+.door.w-genshin .door-art img { object-position: 50% 30% }
+.door:hover .door-art img.on { opacity: .85 }
+.gate:hover .door:not(:hover) .door-art img.on { opacity: .35 }
+
+.door-live { display: grid; gap: 10px; margin: 18px 0 4px; max-width: 520px; padding: 14px 16px; border: 1px solid var(--line2); background: color-mix(in srgb, var(--bg) 62%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px) }
+.door.w-genshin .door-live { border-radius: 14px }
+.door-live:empty { display: none }
+.dl-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
+.dl-v { font: 600 24px/1 var(--f-display); color: var(--accent2) }
+.dl-name { font-weight: 600 }
+.dl-left { margin-left: auto; font: 600 12px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--mute) }
+.dl-bar { height: 3px; background: var(--line); overflow: hidden }
+.dl-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)) }
+.dl-banners, .dl-theater { display: flex; align-items: center; gap: 10px; flex-wrap: wrap }
+.dl-lbl { font: 600 11px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); min-width: 110px }
+.door.w-genshin .dl-lbl { letter-spacing: .04em; text-transform: none; font-size: 12.5px; font-weight: 700 }
+.dl-faces { display: flex; gap: 6px }
+.dl-face { width: 38px; height: 38px; overflow: hidden; background: linear-gradient(180deg, #2a2e38, #15171c); border: 1px solid var(--line2); transition: transform .3s var(--ease) }
+.dl-face.main { width: 46px; height: 46px; border-color: var(--accent) }
+.door.w-wuwa .dl-face { clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%) }
+.door.w-genshin .dl-face { border-radius: 22%; background: linear-gradient(180deg, #b07b3b, #d9a35a) }
+.dl-face img { width: 100%; height: 100%; object-fit: cover; display: block }
+.door:hover .dl-face { transform: translateY(-3px) }
+.dl-when { font-size: 13px; color: var(--mute); margin-left: auto }
+.dl-els { display: flex; gap: 6px } .dl-els img { width: 24px; height: 24px }
+
+.door-links { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 22px }
+.door-links a { font: 600 12.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; border: 1px solid var(--line2); color: var(--ink); background: color-mix(in srgb, var(--bg) 50%, transparent); transition: background .2s, color .2s, border-color .2s, transform .2s var(--ease) }
+.door.w-genshin .door-links a { letter-spacing: .02em; text-transform: none; font-size: 13.5px; border-radius: 999px; padding: 7px 13px }
+.door-links a:hover, .door-links a:focus-visible { background: var(--accent); color: var(--on-accent); border-color: transparent; transform: translateY(-2px) }
+.door-stats { margin-block: 18px 18px }
+.door-in > .btn { pointer-events: auto }
+
+.seam-or { position: absolute; left: 50%; top: calc(50% + 26px); transform: translateX(-50%); font: 600 11px/1 var(--f-ui); letter-spacing: .3em; text-transform: uppercase; color: var(--mute) }
+.gate-reset { position: fixed; z-index: 5; left: 50%; top: 84px; transform: translateX(-50%); margin: 0; font: 600 11.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); padding: 7px 12px; background: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line); white-space: nowrap; pointer-events: none }
+.door-in { padding-top: 150px }
+
+@media (max-width: 860px) {
+  .door-art { width: 100%; height: 62%; bottom: auto }
+  .door.w-wuwa .door-art, .door.w-genshin .door-art { -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 100%); mask-image: linear-gradient(180deg, #000 30%, transparent 100%) }
+  .door-art img.on { opacity: .4 }
+  .door-in, .door.w-genshin .door-in { padding-top: 120px }
+  .gate-reset { position: absolute; top: 76px; font-size: 10.5px }
+  .door.w-genshin .door-in { padding-top: 60px }
+  .dl-lbl { min-width: 0; width: 100% }
+  .dl-when { margin-left: 0 }
+}
+.door-art img.on { opacity: .5 }
+.door.w-wuwa .door-art { width: 56% }
+.door p.d, .door h2, .door .kicker { text-shadow: 0 2px 18px var(--bg), 0 0 4px var(--bg) }
+@media (max-width: 860px) { .door-art img.on { opacity: .26 } }
+.door.w-genshin h2 { text-shadow: none; filter: drop-shadow(0 2px 14px var(--bg)) }

@@ -52,8 +52,8 @@ function parseVersion(game, v, opt = {}) {
     info.newWeapons = list('Weapons');
     info.outfits = list('Resonator Outfits').map(s => ({ name: noParens(s), char: inParens(s)[0] || '' }));
     info.banners = [
-      ...(S['Character Event Convenes'] || []).map(x => ({ name: noParens(x.text), kind: /Reverb/i.test(x.text) ? 'rerun' : 'char', date: linkDate(x.raw), chars: inParens(x.text), weapons: [] })),
-      ...(S['Weapon Event Convenes'] || []).map(x => ({ name: noParens(x.text), kind: /Reverb/i.test(x.text) ? 'rerun' : 'weapon', date: linkDate(x.raw), chars: [], weapons: inParens(x.text).length ? inParens(x.text) : [noParens(x.text).replace(/^Absolute Pulsation:\s*/, '')] })),
+      ...(S['Character Event Convenes'] || S['Character Event Convene'] || []).map(x => ({ name: noParens(x.text), kind: /Reverb/i.test(x.text) ? 'rerun' : 'char', date: linkDate(x.raw), chars: inParens(x.text), weapons: [] })),
+      ...(S['Weapon Event Convenes'] || S['Weapon Event Convene'] || []).map(x => ({ name: noParens(x.text), kind: /Reverb/i.test(x.text) ? 'rerun' : 'weapon', date: linkDate(x.raw), chars: [], weapons: inParens(x.text).length ? inParens(x.text) : [noParens(x.text).replace(/^Absolute Pulsation:\s*/, '')] })),
     ];
     info.quests = (S['Main Quests'] || []).map(x => x.text).reduce((acc, s, i, arr) => { if (/^Chapter/.test(s)) acc.chapter = s; else acc.out.push((acc.chapter ? acc.chapter + ' ' : '') + s.replace(' - ', ': ')); return acc; }, { out: [], chapter: '' }).out;
     info.events = list('Events').concat(list('Tactical Hologram'));
@@ -82,7 +82,7 @@ function parseVersion(game, v, opt = {}) {
         last = { name: noParens(x.text), kind: chron ? 'chronicle' : 'char', date: linkDate(x.raw), phase, chars: chron ? [] : who, weapons: [] };
         info.banners.push(last);
       } else if (x.depth === 3 && last) {
-        const m = x.text.match(/^(Characters|Weapons):\s*(.+)$/);
+        const m = x.text.match(/^(?:\d-Star )?(Characters|Weapons):\s*(.+)$/);
         if (m) last[m[1] === 'Characters' ? 'chars' : 'weapons'] = m[2].split(',').map(s => s.trim());
       }
     }
@@ -235,5 +235,5 @@ export function actPage(game, title, maxAgeH = 24 * 14) {
   const quests = sec ? [...sec[1].matchAll(/^[#*]+\s*(.+)$/gm)].map(m => plain(m[1])).filter(Boolean) : [];
   return { desc, quests };
 }
-export { plain };
+export { plain, field };
 export { verKey };

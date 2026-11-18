@@ -1,7 +1,7 @@
 [
  {
   "mode": "Tower of Adversity",
-  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics.",
+  "note": "The Tower resets every 28 days. Strong team archetypes for the current version, with a cheaper swap under each slot. Hand-picked, not usage statistics.",
   "teams": [
    {
     "name": "Electro Unison",
@@ -10,7 +10,12 @@
      "Suoming",
      "Lily"
     ],
-    "note": "Hsin and Suoming trade Unison triggers while Lily heals and buffs."
+    "note": "Hsin and Suoming trade Unison triggers while Lily heals and buffs.",
+    "subs": {
+     "Lily": [
+      "Verina"
+     ]
+    }
    },
    {
     "name": "Echo Skill",
@@ -19,7 +24,15 @@
      "Lucilla",
      "Shorekeeper"
     ],
-    "note": "Lucilla in Echo mode feeds Sigrika's Echo Skill damage."
+    "note": "Lucilla in Echo mode feeds Sigrika's Echo Skill damage.",
+    "subs": {
+     "Shorekeeper": [
+      "Verina"
+     ],
+     "Lucilla": [
+      "Qiuyuan"
+     ]
+    }
    },
    {
     "name": "Glacio Chafe",
@@ -28,7 +41,15 @@
      "Lucilla",
      "Chisa"
     ],
-    "note": "Both supports stack Glacio Chafe damage for Hiyuki."
+    "note": "Both supports stack Glacio Chafe damage for Hiyuki.",
+    "subs": {
+     "Chisa": [
+      "Shorekeeper"
+     ],
+     "Lucilla": [
+      "Zhezhi"
+     ]
+    }
    },
    {
     "name": "Havoc Bane",
@@ -37,7 +58,15 @@
      "Suisui",
      "Chisa"
     ],
-    "note": "Chisa applies Havoc Bane and Suisui buffs Xuanling's Heavy Attacks."
+    "note": "Chisa applies Havoc Bane and Suisui buffs Xuanling's Heavy Attacks.",
+    "subs": {
+     "Chisa": [
+      "Shorekeeper"
+     ],
+     "Suisui": [
+      "Roccia"
+     ]
+    }
    },
    {
     "name": "Fusion Burst",
@@ -46,7 +75,15 @@
      "Lynae",
      "Mornye"
     ],
-    "note": "Tune Break support and healing around Aemeath."
+    "note": "Tune Break support and healing around Aemeath.",
+    "subs": {
+     "Mornye": [
+      "Verina"
+     ],
+     "Lynae": [
+      "Mortefi"
+     ]
+    }
    },
    {
     "name": "Fusion Echo",
@@ -55,7 +92,15 @@
      "Qiuyuan",
      "Shorekeeper"
     ],
-    "note": "Qiuyuan buffs Echo Skill damage for Galbrena."
+    "note": "Qiuyuan buffs Echo Skill damage for Galbrena.",
+    "subs": {
+     "Shorekeeper": [
+      "Verina"
+     ],
+     "Qiuyuan": [
+      "Mortefi"
+     ]
+    }
    },
    {
     "name": "Aero Erosion",
@@ -64,7 +109,15 @@
      "Ciaccona",
      "Rover"
     ],
-    "note": "Aero Rover and Ciaccona keep Aero Erosion stacked."
+    "note": "Aero Rover and Ciaccona keep Aero Erosion stacked.",
+    "subs": {
+     "Ciaccona": [
+      "Sanhua"
+     ],
+     "Rover": [
+      "Verina"
+     ]
+    }
    },
    {
     "name": "Spectro Frazzle",
@@ -73,7 +126,15 @@
      "Phoebe",
      "Shorekeeper"
     ],
-    "note": "Phoebe in Confession mode applies Frazzle for Zani to detonate."
+    "note": "Phoebe in Confession mode applies Frazzle for Zani to detonate.",
+    "subs": {
+     "Shorekeeper": [
+      "Verina"
+     ],
+     "Phoebe": [
+      "Rover"
+     ]
+    }
    },
    {
     "name": "Havoc Echo",
@@ -82,7 +143,15 @@
      "Cantarella",
      "Roccia"
     ],
-    "note": "A full Havoc core that needs no dedicated healer."
+    "note": "A full Havoc core that needs no dedicated healer.",
+    "subs": {
+     "Roccia": [
+      "Verina"
+     ],
+     "Cantarella": [
+      "Sanhua"
+     ]
+    }
    },
    {
     "name": "Electro Heavy",
@@ -91,7 +160,15 @@
      "Iuno",
      "Shorekeeper"
     ],
-    "note": "Iuno shields and buffs Augusta's Heavy Attacks."
+    "note": "Iuno shields and buffs Augusta's Heavy Attacks.",
+    "subs": {
+     "Shorekeeper": [
+      "Verina"
+     ],
+     "Iuno": [
+      "Lynae"
+     ]
+    }
    }
   ]
  },
@@ -106,7 +183,15 @@
      "Roccia",
      "Shorekeeper"
     ],
-    "note": "Roccia groups enemies and buffs Camellya."
+    "note": "Roccia groups enemies and buffs Camellya.",
+    "subs": {
+     "Shorekeeper": [
+      "Verina"
+     ],
+     "Roccia": [
+      "Sanhua"
+     ]
+    }
    },
    {
     "name": "Fusion swap",
@@ -115,7 +200,15 @@
      "Lupa",
      "Brant"
     ],
-    "note": "Constant quick-swaps with strong area coverage."
+    "note": "Constant quick-swaps with strong area coverage.",
+    "subs": {
+     "Brant": [
+      "Verina"
+     ],
+     "Lupa": [
+      "Mortefi"
+     ]
+    }
    },
    {
     "name": "Aero cleave",
@@ -124,7 +217,15 @@
      "Mortefi",
      "Verina"
     ],
-    "note": "A long-standing budget team for crowds."
+    "note": "A long-standing budget team for crowds.",
+    "subs": {
+     "Mortefi": [
+      "Sanhua"
+     ],
+     "Verina": [
+      "Baizhi"
+     ]
+    }
    },
    {
     "name": "Spectro burst",
@@ -133,7 +234,15 @@
      "Zhezhi",
      "Shorekeeper"
     ],
-    "note": "Coordinated attacks charge Jinhsi's big hit."
+    "note": "Coordinated attacks charge Jinhsi's big hit.",
+    "subs": {
+     "Zhezhi": [
+      "Sanhua"
+     ],
+     "Shorekeeper": [
+      "Verina"
+     ]
+    }
    }
   ]
  }

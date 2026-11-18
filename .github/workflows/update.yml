@@ -4,7 +4,11 @@ name: Update game data
 # Run it by hand from the Actions tab with "Run workflow".
 on:
   schedule:
-    - cron: "17 5 * * *"
+    # Daily server reset is 4:00 AM China time (UTC+8) = 20:00 UTC = 1:30 AM India time.
+    # Run a few minutes after it, so new daily data (and a new Theater season on the 1st) is picked up.
+    - cron: "5 20 * * *"
+    # Second pass at 11:35 AM China time, after version-day maintenance and phase-2 banners go live.
+    - cron: "35 3 * * *"
   workflow_dispatch:
 
 permissions:

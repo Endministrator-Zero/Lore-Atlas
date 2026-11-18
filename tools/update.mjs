@@ -9,6 +9,8 @@ import { ROOT, OUT, readJSON, parseBuilds, verKey, fmtDate, log, warn } from './
 import { buildWuwa } from './lib/wuwa.mjs';
 import { buildGenshin } from './lib/genshin.mjs';
 import { buildLive, versionFacts } from './lib/live.mjs';
+import { bannerHistory } from './lib/history.mjs';
+import { buildTheater } from './lib/theater.mjs';
 import { buildStory } from './lib/story.mjs';
 
 const DAY = 864e5;
@@ -152,7 +154,17 @@ async function run(game) {
     tiers = { reviewed: tierSrc.reviewed, note: tierSrc.note || '', columns: tierSrc.columns, rows, unrated };
   }
 
-  const teams = (readJSON(path.join(dir, 'teams.json'), []) || []).map(m => ({ ...m, teams: (m.teams || []).map(t => ({ ...t, chars: t.chars.map(n => id(n) || n) })) }));
+  const byIdOk = n => d.chars.some(c => c.id === n);
+  const teams = (readJSON(path.join(dir, 'teams.json'), []) || []).map(m => ({ ...m, teams: (m.teams || []).map(t => ({ ...t, chars: t.chars.map(n => id(n) || n), subs: t.subs ? Object.fromEntries(Object.entries(t.subs).map(([k, v]) => [id(k) || k, v.map(n => id(n)).filter(Boolean)])) : undefined })) }));
+
+  // Imaginarium Theater: this month's rules and the best teams that fit them
+  let theater = null;
+  if (game === 'genshin') {
+    const pool = [...teams.flatMap(m => m.teams.map(t => t.chars)), ...d.chars.flatMap(c => (c.build?.teams || []).map(t => t.map(n => byIdOk(n) ? n : id(n))))]
+      .filter(t => t.every(Boolean));
+    try { theater = buildTheater(d.chars, id, tiers, pool); } catch (e) { warn(game, 'theater failed:', e.message); }
+    if (!theater && prev?.theater) theater = prev.theater;
+  }
 
   // relationship notes
   const bonds = {};
@@ -175,6 +187,14 @@ async function run(game) {
     now.pulls = pullEstimate(game, now, manualNow.pulls);
   }
 
+  // banner history (every limited character banner since 1.0)
+  let history = prev?.history || null;
+  try {
+    const vs = content.arcs.flatMap(a => a.versions).map(v => ({ v: v.v, date: v.date }));
+    if (live?.upcoming && !vs.some(v => v.v === live.upcoming.v)) vs.push({ v: live.upcoming.v, date: live.upcoming.start });
+    history = bannerHistory(game, vs, id, i => d.chars.some(c => c.id === i && c.rarity === 5));
+  } catch (e) { warn(game, 'banner history failed:', e.message); }
+
   const meta = { ...content.meta, current: live?.v || content.meta.current, updated: new Date().toISOString().slice(0, 10) };
   try { buildStory(game, content.arcs, d.chars, d.nameToId, meta.current); } catch (e) { warn(game, 'story detail failed:', e.message); }
 
@@ -192,7 +212,7 @@ async function run(game) {
   if (noSig.length) list.push(['Signature weapon for', noSig]);
   CHECK[game] = list;
   for (const c of d.chars) { for (const k of Object.keys(c)) if (c[k] === undefined || c[k] === '') delete c[k]; }
-  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, weapons, sets, setWord: d.setWord, tiers, now, teams, elements: d.elements, regions: d.regions, labels: d.labels };
+  const data = { meta, arcs: content.arcs, chars: d.chars, lines: d.lines, bonds, items: d.items, bosses: d.bosses, outfits: d.outfits, weapons, sets, setWord: d.setWord, tiers, now, history, teams, theater, elements: d.elements, regions: d.regions, labels: d.labels };
 
   // only touch the file when something other than timestamps changed
   const strip = o => JSON.stringify(o, (k, v) => (k === 'updated' || k === 'fetched' ? undefined : v));
@@ -210,6 +230,20 @@ const FACES = {
 const CHECK = {};
 const games = process.argv.slice(2).filter(a => !a.startsWith('-'));
 const todo = games.length ? games : ['wuwa', 'genshin'];
+// what the gateway page shows live for each world: the version, its character banners and splash art
+function gateInfo(d) {
+  const N = d.now; if (!N) return {};
+  const five = id => d.chars.find(c => c.id === id && c.rarity === 5);
+  const banners = (N.banners || []).filter(b => b.kind !== 'weapon' && b.chars?.some(five))
+    .map(b => ({ name: b.name, kind: b.kind, start: b.start, end: b.end, chars: b.chars.filter(five) }));
+  const art = [...new Set(banners.flatMap(b => b.chars))].filter(id => five(id)?.art);
+  const T = d.theater?.current;
+  return {
+    now: { v: N.v, name: N.name || '', start: N.start, end: N.end, next: N.upcoming || null, banners },
+    art, names: Object.fromEntries([...new Set(banners.flatMap(b => b.chars))].map(id => [id, five(id).name])),
+    theater: T ? { season: T.season, key: T.key, elements: T.elements, end: T.end } : null,
+  };
+}
 const summary = readJSON(path.join(OUT, 'data', 'summary.json'), {});
 let failed = 0;
 for (const g of todo) {
@@ -219,6 +253,7 @@ for (const g of todo) {
       title: d.meta.title, world: d.meta.world, current: d.meta.current, name: d.now?.name || '',
       chars: d.chars.length, lines: d.lines.length, versions: d.arcs.reduce((a, x) => a + x.versions.length, 0),
       faces: FACES[g].filter(i => d.chars.some(c => c.id === i)),
+      ...gateInfo(d),
     };
   } catch (e) { failed++; console.error('[update] FAILED', g, e); }
 }

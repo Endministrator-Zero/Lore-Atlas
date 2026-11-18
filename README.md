@@ -23,7 +23,12 @@ To stop the server, press `Ctrl + C` in the terminal. Opening the HTML files by 
 
 ## How the site updates by itself
 
-The file `.github/workflows/update.yml` tells GitHub to run the updater once a day. The updater is the script `tools/update.mjs`. When something changed, GitHub commits the new data and the live site refreshes.
+The file `.github/workflows/update.yml` tells GitHub to run the updater twice a day:
+
+- a few minutes after the daily server reset, which is 4:00 AM China time (UTC+8), 20:00 UTC, or 1:30 AM India time
+- again at 11:35 AM China time, after version-day maintenance and second-phase banners go live
+
+GitHub can start scheduled runs a little late when it is busy. The updater is the script `tools/update.mjs`. When something changed, GitHub commits the new data and the live site refreshes.
 
 What the updater refreshes without any help:
 
@@ -41,6 +46,9 @@ What the updater refreshes without any help:
 | Artifact sets and echo sets: effects and icons | Game data files |
 | Signature weapon of a new character | Read from the new version's paired banners |
 | New characters in the tier list, shown in a "Not rated yet" row | Automatic |
+| Banner history: every limited banner since 1.0, and how many banner phases have passed since each character's last one | The Fandom wikis (version and banner pages) |
+| Imaginarium Theater: this month's elements, opening characters, guest stars, and the best teams that fit them | The Genshin wiki's season page, scored with this site's tier list and team list |
+| The gateway page: live version, banners on now, Theater elements and the daily reset countdown | Built from the same data |
 
 What still needs a person, because no data source has it:
 
@@ -48,7 +56,7 @@ What still needs a person, because no data source has it:
 | --- | --- |
 | Story summaries and character lore | `content/<game>/story.json` |
 | Character builds and team suggestions | `content/<game>/builds.txt` |
-| Popular endgame teams | `content/<game>/teams.json` |
+| Popular endgame teams and their substitutes | `content/<game>/teams.json` |
 | Short notes about bosses | `content/<game>/bosses.json` |
 | Tier placements | `content/<game>/tiers.json` |
 | Signature weapons (older characters) | `content/<game>/signatures.json` |
@@ -93,6 +101,7 @@ node tools/pages.mjs
 | `assets/css/site.css` | All styling. Each world has its own colours and fonts at the top of the file |
 | `assets/js/app.js` | Every page section: current version, timeline, characters, bosses, teams, connections |
 | `assets/js/scene.js` | The 3D scenes, built with three.js |
+| `assets/js/gate.js` | The live cards and art on the gateway page |
 | `assets/js/warp.js`, `assets/js/ambient.js` | The world-switch transition and the moving backgrounds |
 | `assets/vendor/` | A copy of three.js (MIT licence) |
 | `assets/img/`, `assets/fonts/` | Icons, portraits, material icons and fonts |
@@ -100,6 +109,10 @@ node tools/pages.mjs
 ## Updating the tier list
 
 `content/<game>/tiers.json` has one entry per tier (SS, S, A, B, C) with three lists of names: Main DPS, Sub DPS and Support. Move names between lists, then change `"reviewed"` to the current version. Until you do, the page says the list has not been reviewed for the new version yet.
+
+## Writing teams
+
+Each team in `content/<game>/teams.json` has a `name`, a list of `chars`, a short `note`, and optional `subs`: a cheaper or more common swap for a slot, for example `"subs": { "Yelan": ["Xingqiu"] }`. The Imaginarium Theater tab is not written by hand: it is rebuilt from this team list every month.
 
 ## Writing a build
 
@@ -109,7 +122,7 @@ Each line in `content/<game>/builds.txt` is one character. Fields are separated 
 Name | Role | Weapons | Sets | Main stats | Substats | Skill priority | Teams | Note
 ```
 
-Separate several weapons, sets or teams with `;`. Inside a team, separate names with `,`. Put the word "Provisional" in the note to show an "Early guide" label.
+Separate several weapons, sets or teams with `;`. List the best set first; a 2-piece mix can be written as `Set A (2) + Set B (2)`. Inside a team, separate names with `,`. Put the word "Provisional" in the note to show an "Early guide" label.
 
 ## Credits and disclaimer
 

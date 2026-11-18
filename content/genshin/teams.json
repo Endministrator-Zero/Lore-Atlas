@@ -1,7 +1,7 @@
 [
  {
   "mode": "Spiral Abyss",
-  "note": "Hand-picked team archetypes that are widely used this version. These are not official usage statistics.",
+  "note": "The Abyss resets on the 16th of each month. These are strong team archetypes for the current version, with a cheaper swap under each slot. They are hand-picked, not usage statistics.",
   "teams": [
    {
     "name": "Stellar-Conduct",
@@ -11,7 +11,16 @@
      "Odette",
      "Alyosha"
     ],
-    "note": "The Cryo and Electro reaction core from Snezhnaya."
+    "note": "The Cryo and Electro reaction core from Snezhnaya.",
+    "subs": {
+     "Yae Miko": [
+      "Fischl",
+      "Valeriy"
+     ],
+     "Alyosha": [
+      "Kuki Shinobu"
+     ]
+    }
    },
    {
     "name": "Stellar Swirl",
@@ -21,7 +30,15 @@
      "Aether",
      "Vodyanitsa"
     ],
-    "note": "Vodyanitsa lowers Anemo resistance while Odette feeds the reaction."
+    "note": "Vodyanitsa lowers Anemo resistance while Odette feeds the reaction.",
+    "subs": {
+     "Aether": [
+      "Kaedehara Kazuha"
+     ],
+     "Odette": [
+      "Escoffier"
+     ]
+    }
    },
    {
     "name": "Hexerei",
@@ -31,7 +48,15 @@
      "Nicole",
      "Durin"
     ],
-    "note": "Witch's Homework buffs stack on Varka."
+    "note": "Witch's Homework buffs stack on Varka.",
+    "subs": {
+     "Durin": [
+      "Bennett"
+     ],
+     "Nicole": [
+      "Kaedehara Kazuha"
+     ]
+    }
    },
    {
     "name": "Lunar-Charged",
@@ -41,7 +66,18 @@
      "Columbina",
      "Aino"
     ],
-    "note": "Nod-Krai's Electro and Hydro reaction team."
+    "note": "Nod-Krai's Electro and Hydro reaction team.",
+    "subs": {
+     "Ineffa": [
+      "Fischl"
+     ],
+     "Aino": [
+      "Yelan"
+     ],
+     "Columbina": [
+      "Sucrose"
+     ]
+    }
    },
    {
     "name": "Lunar-Bloom",
@@ -51,7 +87,15 @@
      "Columbina",
      "Aino"
     ],
-    "note": "Lauma converts Bloom into Lunar-Bloom for Nefer."
+    "note": "Lauma converts Bloom into Lunar-Bloom for Nefer.",
+    "subs": {
+     "Aino": [
+      "Nahida"
+     ],
+     "Lauma": [
+      "Kuki Shinobu"
+     ]
+    }
    },
    {
     "name": "Lunar-Crystallize",
@@ -61,7 +105,15 @@
      "Columbina",
      "Zhongli"
     ],
-    "note": "Geo and Hydro, with Linnea healing off-field."
+    "note": "Geo and Hydro, with Linnea healing off-field.",
+    "subs": {
+     "Linnea": [
+      "Chiori"
+     ],
+     "Zhongli": [
+      "Xilonen"
+     ]
+    }
    },
    {
     "name": "Melt",
@@ -71,7 +123,19 @@
      "Bennett",
      "Xilonen"
     ],
-    "note": "Still one of the highest single-target teams."
+    "note": "Still one of the highest single-target teams.",
+    "subs": {
+     "Citlali": [
+      "Escoffier",
+      "Rosaria"
+     ],
+     "Xilonen": [
+      "Kaedehara Kazuha"
+     ],
+     "Bennett": [
+      "Xiangling"
+     ]
+    }
    },
    {
     "name": "Hydro beam",
@@ -81,7 +145,16 @@
      "Kaedehara Kazuha",
      "Xilonen"
     ],
-    "note": "Comfortable and strong against groups."
+    "note": "Comfortable and strong against groups.",
+    "subs": {
+     "Kaedehara Kazuha": [
+      "Sucrose"
+     ],
+     "Xilonen": [
+      "Baizhu",
+      "Zhongli"
+     ]
+    }
    },
    {
     "name": "Cryo and Hydro",
@@ -91,7 +164,15 @@
      "Escoffier",
      "Yelan"
     ],
-    "note": "Escoffier shreds resistance in a two-element party."
+    "note": "Escoffier shreds resistance in a two-element party.",
+    "subs": {
+     "Yelan": [
+      "Xingqiu"
+     ],
+     "Furina": [
+      "Mona"
+     ]
+    }
    },
    {
     "name": "Vaporize",
@@ -101,7 +182,72 @@
      "Bennett",
      "Kaedehara Kazuha"
     ],
-    "note": "A flexible Pyro team that needs no limited supports beyond Yelan."
+    "note": "A flexible Pyro team that needs no limited supports beyond Yelan.",
+    "subs": {
+     "Yelan": [
+      "Xingqiu"
+     ],
+     "Kaedehara Kazuha": [
+      "Sucrose"
+     ],
+     "Bennett": [
+      "Xilonen"
+     ]
+    }
+   },
+   {
+    "name": "Electro hypercarry",
+    "chars": [
+     "Mitya",
+     "Furina",
+     "Nahida",
+     "Baizhu"
+    ],
+    "note": "Mitya's Quicken team. Nahida keeps Dendro up while Baizhu heals Furina's drain.",
+    "subs": {
+     "Furina": [
+      "Yelan"
+     ],
+     "Baizhu": [
+      "Kuki Shinobu"
+     ]
+    }
+   },
+   {
+    "name": "Freeze",
+    "chars": [
+     "Kamisato Ayaka",
+     "Escoffier",
+     "Furina",
+     "Kaedehara Kazuha"
+    ],
+    "note": "Escoffier shreds Cryo resistance; Freeze keeps enemies still.",
+    "subs": {
+     "Escoffier": [
+      "Shenhe"
+     ],
+     "Furina": [
+      "Sangonomiya Kokomi"
+     ]
+    }
+   },
+   {
+    "name": "Mono Geo",
+    "chars": [
+     "Navia",
+     "Chiori",
+     "Zhongli",
+     "Xilonen"
+    ],
+    "note": "Four Geo units stack Geo Resonance and Xilonen's shred.",
+    "subs": {
+     "Chiori": [
+      "Albedo"
+     ],
+     "Zhongli": [
+      "Gorou"
+     ]
+    }
    }
   ]
  },
@@ -117,7 +263,16 @@
      "Odette",
      "Alyosha"
     ],
-    "note": "For bosses weak to Cryo and Electro."
+    "note": "For bosses weak to Cryo and Electro.",
+    "subs": {
+     "Yae Miko": [
+      "Fischl",
+      "Valeriy"
+     ],
+     "Alyosha": [
+      "Kuki Shinobu"
+     ]
+    }
    },
    {
     "name": "Lunar-Charged",
@@ -127,7 +282,18 @@
      "Columbina",
      "Aino"
     ],
-    "note": "For bosses that punish slow single hits."
+    "note": "For bosses that punish slow single hits.",
+    "subs": {
+     "Ineffa": [
+      "Fischl"
+     ],
+     "Aino": [
+      "Yelan"
+     ],
+     "Columbina": [
+      "Sucrose"
+     ]
+    }
    },
    {
     "name": "Melt",
@@ -137,23 +303,52 @@
      "Bennett",
      "Xilonen"
     ],
-    "note": "For single-target damage checks."
-   }
-  ]
- },
- {
-  "mode": "Imaginarium Theater",
-  "note": "Theater limits which elements you can bring each month, so there is no fixed best team. Build a wide roster and raise supports that work everywhere.",
-  "teams": [
+    "note": "For single-target damage checks.",
+    "subs": {
+     "Citlali": [
+      "Escoffier",
+      "Rosaria"
+     ],
+     "Xilonen": [
+      "Kaedehara Kazuha"
+     ],
+     "Bennett": [
+      "Xiangling"
+     ]
+    }
+   },
    {
-    "name": "Flexible supports",
+    "name": "Hydro beam",
     "chars": [
-     "Bennett",
+     "Neuvillette",
      "Furina",
-     "Xilonen",
-     "Kaedehara Kazuha"
+     "Kaedehara Kazuha",
+     "Xilonen"
     ],
-    "note": "These four fit most monthly element line-ups."
+    "note": "Safe all-rounder when a boss has no Hydro resistance.",
+    "subs": {
+     "Kaedehara Kazuha": [
+      "Sucrose"
+     ],
+     "Xilonen": [
+      "Zhongli"
+     ]
+    }
+   },
+   {
+    "name": "Cryo and Hydro",
+    "chars": [
+     "Skirk",
+     "Furina",
+     "Escoffier",
+     "Yelan"
+    ],
+    "note": "Burst damage window for bosses with shields or phases.",
+    "subs": {
+     "Yelan": [
+      "Xingqiu"
+     ]
+    }
    }
   ]
  }
