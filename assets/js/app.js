@@ -836,7 +836,11 @@
   function setView(v) {
     G.view = v;
     $$('#g-view .chip').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); });
-    $('#graph').hidden = v !== 'focus'; $('#starmap').hidden = v !== 'map';
+    $('#graph').hidden = v !== 'focus' || useOrbit(); $('#starmap').hidden = v !== 'map';
+    if ($('#orbit')) $('#orbit').hidden = v !== 'focus' || !useOrbit();
+    $('#g-filters').hidden = v !== 'focus' || !$('#g-filters').children.length; $('#g-pager').hidden = v !== 'focus';
+    if (v === 'map' && window.LoreScene) window.LoreScene.orbitPause();
+    if (v === 'map') { var nAll = neighbours(G.center).length; $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + nAll + (nAll === 1 ? ' connection' : ' connections'); }
     $('.legend').hidden = v !== 'focus';
     if (v === 'map') whenScene(function () { window.LoreScene.starmap($('#starmap'), mapData(), function (id) { setCenter(id, null, true); }); window.LoreScene.focus(G.center); });
     else { if (window.LoreScene) window.LoreScene.pause(); layoutGraph(true); }
@@ -853,7 +857,7 @@
   function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
   function setCenter(id, sel, fromMap) {
     id = canon(id); if (!byId[id]) return;
-    if (G.center !== id) GF.region = '';
+    if (G.center !== id) { GF.region = ''; FV.group = ''; FV.page = 0; }
     G.center = id; G.sel = sel;
     $$('#hub-row .hub').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
     if (G.view === 'focus') layoutGraph(true); else if (!fromMap && window.LoreScene) window.LoreScene.focus(id);
@@ -863,6 +867,17 @@
     if (!id && !G.sel) return;
     if (id && G.sel === id) { setCenter(id, G.center); return; }
     G.sel = id;
+    if (useOrbit() && G.view === 'focus') {
+      // bring the selected person onto the page being shown
+      if (id) {
+        var all = neighbours(G.center), groups = focusGroups(all), per = perPage();
+        var cur = groups.filter(function (x) { return x.key === FV.group; })[0];
+        var idxIn = function (g) { for (var i = 0; i < g.items.length; i++) if (g.items[i].id === id) return i; return -1; };
+        if (!cur || idxIn(cur) < 0) cur = groups.filter(function (x) { return x.key === 'r:' + regionOf(id); })[0] || groups[0];
+        FV.group = cur.key; FV.page = Math.floor(idxIn(cur) / per);
+      }
+      layoutFocus(); renderBond(); return;
+    }
     $$('#graph .gnode').forEach(function (n) { n.classList.toggle('sel', n.dataset.id === id); });
     $$('#graph-edges .edge').forEach(function (e) { e.classList.toggle('sel', e.getAttribute('data-id') === id); });
     renderBond();
@@ -891,7 +906,79 @@
       h('span', { class: 'g-sep' }),
       f('Both speak only', mutualN, GF.mutual, function () { GF.mutual = !GF.mutual; layoutGraph(true); })]);
   }
+  // ---------- focus view (three.js): links come in roomy pages, by region, "both speak" or everyone ----------
+  var FV = { group: '', page: 0, ok: null };
+  function perPage() { var w = ($('#orbit') && $('#orbit').clientWidth) || innerWidth; return w < 560 ? 10 : 16; }
+  function webglOK() {
+    if (FV.ok !== null) return FV.ok;
+    try { var c = document.createElement('canvas'); FV.ok = !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { FV.ok = false; }
+    return FV.ok;
+  }
+  function focusGroups(all) {
+    var groups = [{ key: 'all', label: 'Everyone', items: all }];
+    var mutual = all.filter(function (x) { return x.out && x.inn; });
+    var byR = {};
+    all.forEach(function (x) { var r = regionOf(x.id); (byR[r] = byR[r] || []).push(x); });
+    var regs = Object.keys(byR).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
+    if (regs.length > 1) regs.forEach(function (r) { groups.push({ key: 'r:' + r, label: r, hue: regionHue(r), items: byR[r] }); });
+    if (mutual.length && mutual.length < all.length) groups.push({ key: 'mutual', label: 'Both speak', items: mutual, sep: true });
+    return groups;
+  }
+  function layoutFocus() {
+    var el = $('#orbit');
+    var all = neighbours(G.center), groups = focusGroups(all), per = perPage();
+    var g = groups.filter(function (x) { return x.key === FV.group; })[0];
+    if (!g) {
+      // a sensible start: everyone when it fits on one page, otherwise the centre's own region or the biggest one
+      FV.page = 0;
+      if (all.length <= per || groups.length === 1) g = groups[0];
+      else {
+        g = groups.slice(1).filter(function (x) { return x.key !== 'mutual'; }).sort(function (a, b) { return b.items.length - a.items.length; })[0] || groups[0];
+      }
+      FV.group = g.key;
+    }
+    var pages = Math.max(1, Math.ceil(g.items.length / per));
+    if (FV.page >= pages) FV.page = pages - 1;
+    var items = g.items.slice(FV.page * per, FV.page * per + per);
+    // keep each region together on the ring
+    if (g.key === 'all' || g.key === 'mutual') items.sort(function (a, b) { return (D.regions.indexOf(regionOf(a.id)) + 1 || 99) - (D.regions.indexOf(regionOf(b.id)) + 1 || 99); });
+    if (G.sel && !items.some(function (x) { return x.id === G.sel; })) G.sel = null;
+    // chips: every region gets one, with its count and colour
+    var box = $('#g-filters');
+    box.hidden = groups.length < 2;
+    box.replaceChildren();
+    groups.forEach(function (x) {
+      if (x.sep) box.appendChild(h('span', { class: 'g-sep' }));
+      box.appendChild(h('button', { class: 'chip' + (x.key === g.key ? ' on' : ''), type: 'button', style: x.hue ? '--rh:' + x.hue : null, 'aria-pressed': x.key === g.key ? 'true' : 'false', onclick: function () { FV.group = x.key; FV.page = 0; G.sel = null; layoutGraph(true); renderBond(); } },
+        x.hue ? h('i', { class: 'rdot' }) : null, h('span', { text: x.label }), h('small', { text: String(x.items.length) })));
+    });
+    // pages
+    var pager = $('#g-pager');
+    pager.replaceChildren();
+    if (pages > 1) add(pager, [
+      h('button', { class: 'pg', type: 'button', 'aria-label': 'Previous page', disabled: FV.page === 0 ? '' : null, onclick: function () { FV.page--; G.sel = null; layoutGraph(true); renderBond(); } }, '‹'),
+      h('span', { text: 'Page ' + (FV.page + 1) + ' of ' + pages }),
+      h('button', { class: 'pg', type: 'button', 'aria-label': 'Next page', disabled: FV.page >= pages - 1 ? '' : null, onclick: function () { FV.page++; G.sel = null; layoutGraph(true); renderBond(); } }, '›')]);
+    var cName = (byId[formOf(G.center)] || byId[G.center]).name;
+    $('#graph-cap').textContent = cName + ' · ' + (g.key === 'all' ? all.length + (all.length === 1 ? ' connection' : ' connections') : g.items.length + ' of ' + all.length + ' connections, ' + g.label);
+    function nodeOf(id, dir) {
+      var c = byId[formOf(id)] || byId[id];
+      return { id: id, name: shortName(c), sub: regionOf(id), img: IMG + 'icons/' + c.id + '.webp', color: elHex(c), hue: regionHue(regionOf(id)), dir: dir };
+    }
+    var data = {
+      key: G.center + '|' + g.key + '|' + FV.page + '|' + per,
+      center: nodeOf(G.center, null),
+      nodes: items.map(function (x) { return nodeOf(x.id, x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in'); }),
+      sel: G.sel
+    };
+    whenScene(function () {
+      try { window.LoreScene.orbit(el, data, { select: function (id) { selectBond(id); } }); }
+      catch (e) { FV.ok = false; layoutGraph(true); }
+    });
+  }
+  function useOrbit() { return webglOK() && !!$('#orbit'); }
   function layoutGraph(animate) {
+    if (useOrbit()) { $('#graph').hidden = true; if (G.view === 'focus') { $('#orbit').hidden = false; layoutFocus(); } return; }
     var stage = $('#graph'), svg = $('#graph-edges');
     if (!stage.clientWidth) return;
     var all = neighbours(G.center);

@@ -1056,3 +1056,48 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
 .door p.d, .door h2, .door .kicker { text-shadow: 0 2px 18px var(--bg), 0 0 4px var(--bg) }
 @media (max-width: 860px) { .door-art img.on { opacity: .26 } }
 .door.w-genshin h2 { text-shadow: none; filter: drop-shadow(0 2px 14px var(--bg)) }
+
+/* ---------- connections v3: three.js focus orbit and galaxy map ---------- */
+:root { --lk-mutual: #f2d48f; --lk-out: #8fd3ff; --lk-in: #d7a6ff }
+.orbit { position: relative; width: 100%; max-width: 700px; margin: 18px auto; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 9%, transparent), transparent 85%); touch-action: pan-y }
+.orbit canvas { width: 100%; height: 100%; display: block }
+.o-labels, .m-labels, .m-names { position: absolute; inset: 0; pointer-events: none; overflow: hidden }
+.o-label { position: absolute; left: 0; top: 0; pointer-events: auto; display: grid; justify-items: center; gap: 2px; padding: 3px 7px 4px; border: 0; border-radius: 6px; background: color-mix(in srgb, var(--bg) 72%, transparent); color: var(--ink); cursor: pointer; white-space: nowrap; max-width: 130px; transition: opacity .3s, background .2s, color .2s; font: inherit }
+.o-label b { font: 600 12.5px/1.1 var(--f-ui); letter-spacing: .03em; overflow: hidden; text-overflow: ellipsis; max-width: 116px }
+[data-world="wuwa"] .o-label b { text-transform: uppercase; letter-spacing: .06em; font-size: 12px }
+.o-label small { font: 600 10px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--rh, var(--mute)) }
+.o-label.centre { background: color-mix(in srgb, var(--accent) 22%, var(--bg)); padding: 4px 10px 5px }
+.o-label.centre b { font-size: 15px; max-width: 160px }
+.o-label.centre small { display: none }
+.o-label.hot, .o-label:hover, .o-label:focus-visible { background: var(--panel2); color: var(--accent2) }
+.o-label.sel { background: var(--accent); color: var(--on-accent) } .o-label.sel small { color: var(--on-accent); opacity: .75 }
+.o-label.dim { opacity: .45 } .o-label.gone { opacity: 0; pointer-events: none }
+.g-pager { display: inline-flex; align-items: center; gap: 10px; letter-spacing: .06em }
+.g-pager:empty { display: none }
+.g-pager .pg { width: 34px; height: 34px; border: 1px solid var(--line2); background: var(--panel); color: var(--ink); font-size: 18px; line-height: 1; cursor: pointer; border-radius: 6px }
+.g-pager .pg:hover:not([disabled]) { background: var(--accent); color: var(--on-accent) }
+.g-pager .pg[disabled] { opacity: .35; cursor: default }
+.lk { display: inline-block; width: 24px; height: 3px; border-radius: 2px; margin-left: 10px; box-shadow: 0 0 8px currentColor }
+.lk.mutual { background: var(--lk-mutual); color: var(--lk-mutual) } .lk.out { background: var(--lk-out); color: var(--lk-out) } .lk.in { background: var(--lk-in); color: var(--lk-in) }
+.dir.mutual { background: var(--lk-mutual) } .dir.mutual::after { border-left-color: var(--lk-mutual) } .dir.mutual::before { border-right-color: var(--lk-mutual) }
+.dir.out { background: var(--lk-out) } .dir.out::after { border-left-color: var(--lk-out) }
+.dir.in { background: var(--lk-in) } .dir.in::after { border-right-color: var(--lk-in) }
+.m-region { position: absolute; left: 0; top: 0; pointer-events: auto; display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 9px; border: 1px solid color-mix(in srgb, var(--rh) 50%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--bg) 75%, transparent); color: var(--rh); font: 700 12px/1 var(--f-ui); letter-spacing: .06em; cursor: pointer; white-space: nowrap; transition: opacity .3s, background .2s }
+[data-world="wuwa"] .m-region { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; border-radius: 3px }
+.m-region small { color: var(--mute); font-size: 10px }
+.m-region:hover, .m-region:focus-visible { background: color-mix(in srgb, var(--rh) 22%, var(--bg)) }
+.m-name { position: absolute; left: 0; top: 0; padding: 2px 6px; border-radius: 4px; background: color-mix(in srgb, var(--bg) 75%, transparent); font: 600 11.5px/1.1 var(--f-ui); color: var(--ink); white-space: nowrap; transition: opacity .3s }
+.m-name.main { font-size: 14px; background: var(--accent); color: var(--on-accent) }
+@media (max-width: 640px) {
+  .orbit { aspect-ratio: 4 / 5; margin-inline: 0 }
+  .starmap { aspect-ratio: 4 / 5 }
+  .o-label { padding: 2px 5px 3px; max-width: 96px } .o-label b { font-size: 11px; max-width: 86px } .o-label small { font-size: 9px }
+  .o-label.centre b { font-size: 13px }
+  .g-foot { justify-content: center }
+}
+@media (max-width: 640px) {
+  #g-filters:not([hidden]) { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent) }
+  #g-filters::-webkit-scrollbar { display: none }
+  #g-filters .chip { flex: none }
+}
+.g-pager .pg { display: inline-grid; place-items: center; padding: 0 0 2px; font-family: var(--f-ui) }

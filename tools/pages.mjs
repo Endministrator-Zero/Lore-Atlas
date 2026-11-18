@@ -142,7 +142,7 @@ const world = v => head(v) + `<body>
   </section>
 
   <section class="sec wrap" id="connections">
-    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. A line between two portraits means one of them talks about the other. Select a portrait to read what was said. Select it a second time to move it to the centre.</p></header>
+    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. A line between two portraits means one of them talks about the other. Select a portrait to read what was said. Select it a second time to move it to the centre. Big casts are split into pages by region.</p></header>
     <div class="g-bar">
       <div class="g-search"><label><span class="sr">Find someone</span><input id="g-q" type="search" placeholder="Find someone" autocomplete="off"></label><div class="g-results" id="g-results" hidden></div></div>
       <div class="hub-row" id="hub-row" aria-label="Most connected"></div>
@@ -156,8 +156,9 @@ const world = v => head(v) + `<body>
           <div class="g-deco" aria-hidden="true"><i></i><i></i><i></i></div>
           <svg id="graph-edges" viewBox="0 0 100 100" aria-hidden="true"></svg>
         </div>
+        <div class="orbit" id="orbit" hidden></div>
         <div class="starmap" id="starmap" hidden></div>
-        <div class="g-foot"><span id="graph-cap"></span><span class="legend"><i class="dir mutual"></i>both speak<i class="dir out"></i>centre speaks<i class="dir in"></i>speaks of centre</span></div>
+        <div class="g-foot"><span id="graph-cap"></span><span class="g-pager" id="g-pager"></span><span class="legend"><i class="lk mutual"></i>both speak<i class="lk out"></i>centre speaks<i class="lk in"></i>speaks of centre</span></div>
       </div>
       <aside class="bond cardish" id="bond" aria-live="polite"></aside>
     </div>

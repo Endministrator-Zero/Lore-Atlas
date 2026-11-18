@@ -1,6 +1,7 @@
 /* Lore Atlas 3D scenes, built with three.js.
    hero(el, world)                      the rotating centrepiece in the page header
-   starmap(el, data, onPick)            the whole cast as 3D medallions you can orbit and click
+   orbit(el, data, on)                  focus view: one character, their links on a page, as 3D medallions
+   starmap(el, data, onPick)            the whole cast as a galaxy of stars; the selected one's links rise as medallions
    focus(id) / pause()                  move the star map camera, or stop it while hidden
    showcase(el, opts, onReady)          a character's art as an interactive 3D stage in the profile
    showcaseStop()                       stop the profile stage when the profile closes */
@@ -122,144 +123,420 @@ function hero(el, world) {
   el.classList.add('on');
 }
 
-// ---------------------------------------------------------------- star map of medallions
+// ---------------------------------------------------------------- shared pieces for the connection views
+const texCache = new Map();
+function portrait(url, mat) {
+  let t = texCache.get(url);
+  if (t) { mat.map = t; mat.needsUpdate = true; return; }
+  loader.load(url, tex => { tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; texCache.set(url, tex); mat.map = tex; mat.needsUpdate = true; });
+}
+const MED = {};
+function medGeo() {
+  if (MED.face) return MED;
+  MED.face = new THREE.CircleGeometry(1, 56);
+  MED.back = new THREE.CircleGeometry(1.02, 56);
+  MED.rim = new THREE.TorusGeometry(1.03, 0.06, 12, 72);
+  MED.edge = new THREE.CylinderGeometry(1.045, 1.045, 0.18, 72, 1, true); MED.edge.rotateX(Math.PI / 2);
+  return MED;
+}
+/** A portrait medallion: face, metal rim in the element colour, dark back and a soft glow. */
+function medallion(img, color, accent) {
+  const G = medGeo();
+  const g = new THREE.Group();
+  const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true });
+  portrait(img, mat);
+  const face = new THREE.Mesh(G.face, mat); face.position.z = 0.091;
+  const back = new THREE.Mesh(G.back, new THREE.MeshStandardMaterial({ color: 0x1a1d24, metalness: 0.6, roughness: 0.5, transparent: true }));
+  back.rotation.y = Math.PI; back.position.z = -0.091;
+  const rim = new THREE.Mesh(G.rim, new THREE.MeshStandardMaterial({ color, metalness: 0.7, roughness: 0.3, emissive: new THREE.Color(color).multiplyScalar(0.25), transparent: true }));
+  const edge = new THREE.Mesh(G.edge, new THREE.MeshStandardMaterial({ color: accent, metalness: 0.85, roughness: 0.3, transparent: true, side: THREE.DoubleSide }));
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: discTexture(), color: new THREE.Color(color), transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
+  glow.scale.setScalar(3.2); glow.position.z = -0.4;
+  g.add(glow, back, edge, face, rim);
+  const parts = [mat, back.material, rim.material, edge.material];
+  return { g, face, mat, glow, parts, setImg(u) { portrait(u, mat); }, setColor(c) { rim.material.color.set(c); rim.material.emissive.set(c).multiplyScalar(0.25); glow.material.color.set(c); }, setOpacity(o) { parts.forEach(p => { p.opacity = o; }); glow.material.opacity = 0.35 * o; } };
+}
+// what each kind of link looks like: both speak, the centre speaks, or the other one speaks of the centre
+const LINK = { mutual: '#f2d48f', out: '#8fd3ff', in: '#d7a6ff' };
+function tube(curve, radius, color) {
+  return new THREE.Mesh(new THREE.TubeGeometry(curve, 40, radius, 6, false), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+}
+function project(v, camera, w, h) { const p = v.clone().project(camera); return { x: (p.x + 1) / 2 * w, y: (1 - p.y) / 2 * h, z: p.z }; }
+
+// ---------------------------------------------------------------- focus: one character and their links, a page at a time
+let O = null;
+function orbit(el, data, on) {
+  if (!O) O = makeOrbit(el, on);
+  O.on = on;
+  O.set(data);
+  O.running = true; O.loop();
+}
+function makeOrbit(el, on) {
+  const renderer = makeRenderer(el);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(36, 1, 1, 2000);
+  scene.add(camera);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(30, 40, 60); camera.add(key);
+  const accent = col('--accent', '#e6c98a');
+  const stage = new THREE.Group(); scene.add(stage);
+  const small = () => (el.clientWidth || 600) < 560;
+  // a few far stars and two faint orbit guides
+  scene.add(new THREE.Points(shell(small() ? 160 : 320, 260, 520, 9), new THREE.PointsMaterial({ map: discTexture(), color: 0xcfd6ee, size: 2.4, transparent: true, opacity: 0.5, depthWrite: false })));
+  const guideMat = () => new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.0, depthWrite: false });
+  const guides = [0, 1].map(() => { const l = new THREE.LineLoop(new THREE.BufferGeometry(), guideMat()); stage.add(l); return l; });
+  const halo = new THREE.Group(); stage.add(halo);
+  [1.45, 1.75].forEach((r, i) => { const m = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 6, 120), new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: i ? 0.25 : 0.5, depthWrite: false })); halo.add(m); });
+
+  const labels = document.createElement('div'); labels.className = 'o-labels'; el.appendChild(labels);
+  const items = new Map();   // id -> { m, label, pos, target, scale, targetScale, data }
+  let center = null, sel = null, hover = null, edges = [], sparks = null, sparkData = [], fade = 0, layoutKey = '', W = 1, H = 1;
+
+  function entity(d) {
+    let it = items.get(d.id);
+    if (it) return it;
+    const m = medallion(d.img, d.color, accent);
+    m.g.scale.setScalar(0.001);
+    m.face.userData.id = d.id;
+    stage.add(m.g);
+    const label = document.createElement('button');
+    label.type = 'button'; label.className = 'o-label';
+    label.innerHTML = '<b></b><small></small>';
+    label.addEventListener('click', () => O.on.select(label.dataset.id === center ? null : label.dataset.id));
+    label.addEventListener('pointerenter', () => { hover = label.dataset.id; });
+    label.addEventListener('pointerleave', () => { hover = null; });
+    labels.appendChild(label);
+    it = { m, label, pos: new THREE.Vector3(), target: new THREE.Vector3(), targetScale: 1, alive: true };
+    items.set(d.id, it);
+    return it;
+  }
+  function fit() {
+    W = el.clientWidth || 1; H = el.clientHeight || 1;
+    renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix();
+    // the scene is 100 units tall at the centre plane
+    camera.position.set(0, 0, 50 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+    camera.lookAt(0, 0, 0);
+  }
+
+  function layout(data) {
+    const n = data.nodes.length, aspect = W / H, phone = small();
+    const hx = 50 * aspect, hy = 50;
+    const R = Math.min(hx, hy);
+    // the biggest medallion that leaves clear space around every portrait and its name
+    const two = !phone && n > 10;
+    const ox = hx - (phone ? 9 : 10), oy = hy - (phone ? 15 : 12);
+    const ix = ox * 0.56, iy = oy * 0.56;
+    const per = (rx, ry, k) => (Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)))) / Math.max(k, 1);
+    const kOut = two ? Math.ceil(n / 2) : n, kIn = two ? Math.floor(n / 2) : 0;
+    const gap = Math.min(per(ox, oy, kOut), kIn ? per(ix, iy, kIn) : 1e9);
+    // a portrait, its name underneath and clear space: along the ring, between the rings, and around the centre
+    let nodeR = Math.min(phone ? 7 : 6.4, gap / 3.2);
+    if (two) nodeR = Math.min(nodeR, (Math.min(ox - ix, oy - iy) - 8) / 2);
+    nodeR = Math.max(3, nodeR);
+    const innerMin = two ? Math.min(ix, iy) : Math.min(ox, oy);
+    const centreR = Math.max(5, Math.min(R * 0.2, innerMin - nodeR - 9, 14));
+    center = data.center.id;
+    const all = [data.center, ...data.nodes];
+    for (const it of items.values()) it.alive = false;
+    const c = entity(data.center); c.alive = true; c.target.set(0, phone ? 1.5 : 0, 4); c.targetScale = centreR; c.isCenter = true; c.dir = null; c.d = data.center;
+    data.nodes.forEach((d, i) => {
+      const it = entity(d); it.alive = true; it.isCenter = false; it.d = d; it.dir = d.dir;
+      const inner = two && i % 2 === 1, k = inner ? Math.floor(i / 2) : two ? Math.floor(i / 2) : i, cnt = inner ? kIn : kOut;
+      const a = -Math.PI / 2 + (k + (inner ? 0.5 : 0)) / cnt * Math.PI * 2;
+      const rx = inner ? ix : ox, ry = inner ? iy : oy;
+      it.target.set(Math.cos(a) * rx, -Math.sin(a) * ry * 0.98 + (phone ? 1.5 : 0), Math.sin(a) * 4);
+      it.targetScale = nodeR;
+    });
+    for (const d of all) { const it = items.get(d.id); it.m.setImg(d.img); it.m.setColor(d.color); it.label.dataset.id = d.id; it.label.querySelector('b').textContent = d.name; it.label.querySelector('small').textContent = d.sub || ''; it.label.classList.toggle('centre', d.id === center); it.label.style.setProperty('--rh', d.hue || ''); it.label.setAttribute('aria-label', d.id === center ? d.name + ', centre' : d.name + ', ' + (d.sub || '') + '. Select to read their lines.'); }
+    for (const [id, it] of items) if (!it.alive) { it.targetScale = 0.001; it.target.copy(it.pos).multiplyScalar(1.15); it.label.classList.add('gone'); }
+    for (const it of items.values()) if (it.alive) it.label.classList.remove('gone');
+    // orbit guides
+    guides.forEach((g, gi) => {
+      const rx = gi ? ix : ox, ry = gi ? iy : oy, pts = [];
+      for (let k = 0; k < 96; k++) { const a = k / 96 * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * rx, Math.sin(a) * ry * 0.98 + (phone ? 1.5 : 0), Math.sin(a) * -4)); }
+      g.geometry.dispose(); g.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+      g.material.opacity = gi && !two ? 0 : 0.14;
+    });
+    halo.scale.setScalar(centreR); halo.position.set(0, phone ? 1.5 : 0, 3.5);
+    O.geom = { nodeR, centreR };
+    rebuildEdges();
+  }
+  function rebuildEdges() {
+    edges.forEach(e => { e.mesh.geometry.dispose(); stage.remove(e.mesh); });
+    edges = []; sparkData = [];
+    const c = items.get(center); if (!c) return;
+    for (const [id, it] of items) {
+      if (!it.alive || it.isCenter) continue;
+      const a = c.target.clone(), b = it.target.clone();
+      const dirv = b.clone().sub(a), len = dirv.length(); dirv.normalize();
+      const start = a.clone().add(dirv.clone().multiplyScalar(c.targetScale * 1.08));
+      const end = b.clone().sub(dirv.clone().multiplyScalar(it.targetScale * 1.12));
+      const side = new THREE.Vector3(-dirv.y, dirv.x, 0).multiplyScalar(len * 0.1);
+      const mid = start.clone().add(end).multiplyScalar(0.5).add(side).add(new THREE.Vector3(0, 0, 6));
+      const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+      const color = LINK[it.dir] || LINK.out;
+      const mesh = tube(curve, it.dir === 'mutual' ? 0.2 : 0.14, color);
+      mesh.userData.id = id; stage.add(mesh);
+      edges.push({ id, mesh, curve, dir: it.dir });
+      sparkData.push({ curve, dir: it.dir, id, color: new THREE.Color(color) });
+    }
+    if (sparks) { sparks.geometry.dispose(); stage.remove(sparks); }
+    const per = 2, g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sparkData.length * per * 3), 3));
+    const cols = new Float32Array(sparkData.length * per * 3);
+    sparkData.forEach((s, k) => { for (let j = 0; j < per; j++) s.color.toArray(cols, (k * per + j) * 3); });
+    g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    sparks = new THREE.Points(g, new THREE.PointsMaterial({ map: discTexture(), size: 2.6, vertexColors: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    stage.add(sparks);
+    fade = 0;
+  }
+
+  // picking
+  const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+  const pick = e => {
+    const r = renderer.domElement.getBoundingClientRect();
+    mouse.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(mouse, camera);
+    const faces = [...items.values()].filter(i => i.alive).map(i => i.m.face);
+    const hit = ray.intersectObjects(faces, false)[0];
+    return hit ? hit.object.userData.id : null;
+  };
+  let px = 0, py = 0;
+  renderer.domElement.addEventListener('pointermove', e => {
+    hover = pick(e); renderer.domElement.style.cursor = hover ? 'pointer' : 'default';
+    const r = el.getBoundingClientRect(); px = (e.clientX - r.left) / r.width - 0.5; py = (e.clientY - r.top) / r.height - 0.5;
+  });
+  renderer.domElement.addEventListener('pointerleave', () => { hover = null; px = py = 0; });
+  renderer.domElement.addEventListener('click', e => { const id = pick(e); O.on.select(!id || id === center ? null : id); });
+
+  let last = performance.now();
+  const tmpV = new THREE.Vector3();
+  const api = {
+    running: true, on,
+    set(data) {
+      api.lastData = data;
+      sel = data.sel || null;
+      const key = data.key;
+      fit();
+      if (key !== layoutKey) { layoutKey = key; layout(data); }
+      else { for (const it of items.values()) if (it.alive) it.label.classList.toggle('sel', it.label.dataset.id === sel); }
+    },
+    select(id) { sel = id; },
+    loop() {
+      if (api._on) return; api._on = true;
+      const frame = t => {
+        if (!api.running) { api._on = false; return; }
+        const dt = Math.min(0.05, (t - last) / 1000); last = t;
+        const time = t / 1000, k = reduce ? 1 : 1 - Math.pow(0.0009, dt);
+        // gentle sway and pointer parallax give depth without moving anything out of place
+        stage.rotation.y += ((reduce ? 0 : Math.sin(time * 0.25) * 0.05 + px * 0.16) - stage.rotation.y) * 0.05;
+        stage.rotation.x += ((reduce ? 0 : py * 0.1) - stage.rotation.x) * 0.05;
+        let moving = false;
+        for (const [id, it] of items) {
+          it.pos.lerp(it.target, k);
+          if (it.pos.distanceToSquared(it.target) > 0.01) moving = true;
+          const s = it.m.g.scale.x, ts = it.targetScale * (id === sel ? 1.18 : id === hover && !it.isCenter ? 1.08 : 1);
+          it.m.g.scale.setScalar(s + (ts - s) * k);
+          const bob = it.isCenter || reduce ? 0 : Math.sin(time * 0.9 + it.pos.x * 0.3) * 0.25;
+          it.m.g.position.set(it.pos.x, it.pos.y + bob, it.pos.z);
+          it.m.g.quaternion.copy(stage.quaternion).invert();
+          const dim = sel && id !== sel && !it.isCenter ? 0.45 : 1;
+          it.m.setOpacity(it.alive ? dim : Math.max(0, it.m.parts[0].opacity - dt * 3));
+          if (!it.alive && it.m.g.scale.x < 0.05) { stage.remove(it.m.g); it.label.remove(); items.delete(id); }
+        }
+        halo.rotation.z += dt * 0.15; halo.children[1].rotation.x = Math.sin(time * 0.5) * 0.3;
+        // links fade in once everything has settled
+        fade = moving ? Math.max(0, fade - dt * 4) : Math.min(1, fade + dt * 1.6);
+        for (const e of edges) {
+          const on = !sel || e.id === sel, hot = e.id === hover;
+          e.mesh.material.opacity = fade * (on ? (hot || e.id === sel ? 1 : e.dir === 'mutual' ? 0.75 : 0.55) : 0.12);
+        }
+        if (sparks) {
+          const arr = sparks.geometry.attributes.position.array;
+          sparkData.forEach((s, i) => {
+            for (let j = 0; j < 2; j++) {
+              let u = (time * 0.32 + j * 0.5 + i * 0.137) % 1;
+              if (s.dir === 'in' || (s.dir === 'mutual' && j === 1)) u = 1 - u;
+              s.curve.getPoint(u, tmpV).toArray(arr, (i * 2 + j) * 3);
+            }
+          });
+          sparks.geometry.attributes.position.needsUpdate = true;
+          sparks.material.opacity = fade * (sel ? 0.5 : 0.9);
+        }
+        // names sit under each portrait
+        stage.updateMatrixWorld();
+        for (const [id, it] of items) {
+          const p = it.m.g.getWorldPosition(tmpV); p.y -= it.m.g.scale.x * 1.14;
+          const s = project(p, camera, W, H);
+          it.label.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px) translate(-50%, 0)';
+          it.label.classList.toggle('sel', id === sel); it.label.classList.toggle('hot', id === hover);
+          it.label.classList.toggle('dim', !!sel && id !== sel && !it.isCenter);
+        }
+        renderer.render(scene, camera);
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    },
+  };
+  let lastW = 0;
+  new ResizeObserver(() => { if (!el.clientWidth || el.clientWidth === lastW) return; lastW = el.clientWidth; if (api.lastData) { layoutKey = ''; api.set(api.lastData); } else fit(); }).observe(el);
+  new IntersectionObserver(es => { if (es[0].isIntersecting && !el.hidden) { api.running = true; api.loop(); } else api.running = false; }).observe(el);
+  fit();
+  return api;
+}
+
+// ---------------------------------------------------------------- 3D map: the whole cast as a calm galaxy of stars
+// Everyone is a small star in their region. Selecting someone raises them and the people they talk about
+// as portrait medallions, joined by arcs.
 let M = null;
 function starmap(el, data, onPick) {
   if (M) { M.running = true; M.loop(); return; }
   const world = data.world;
   const renderer = makeRenderer(el);
-  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(46, 1, 0.5, 2000);
-  const ELEV = 0.62;
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(42, 1, 1, 3000);
   scene.add(camera);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-  const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(30, 50, 40); camera.add(key);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(30, 50, 40); camera.add(key);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.autoRotate = !reduce; controls.autoRotateSpeed = 0.35;
-  controls.minDistance = 30; controls.maxDistance = 900; controls.enablePan = false;
-  controls.minPolarAngle = 0.15; controls.maxPolarAngle = 1.45;
-  const accent = col('--accent', '#e6c98a'), bright = col('--accent2', '#fff0c9');
-  const dot = discTexture();
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false;
+  controls.autoRotate = !reduce; controls.autoRotateSpeed = 0.25;
+  controls.minPolarAngle = 0.12; controls.maxPolarAngle = 1.2;
+  const accent = col('--accent', '#e6c98a');
+  const small = innerWidth < 640 || matchMedia('(pointer: coarse)').matches;
 
-  // layout: a flat galaxy. Each region is its own cluster on a ring, the most connected characters
-  // (Rover, the Traveler) sit in the middle, and nothing overlaps.
-  let seed = 42; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  // graph
   const order = data.regionOrder || [];
   const regions = [...new Set(data.nodes.map(n => n.region))].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
-  const N = data.nodes.map(n => ({ ...n, p: new THREE.Vector3(), links: new Set() }));
+  const N = data.nodes.map(n => ({ ...n, p: new THREE.Vector3(), links: new Map() }));
   const at = Object.fromEntries(N.map((n, i) => [n.id, i]));
-  const pairs = new Map();
-  for (const [a, b] of data.edges) { if (!(a in at) || !(b in at) || a === b) continue; const k = a < b ? a + '|' + b : b + '|' + a; if (!pairs.has(k)) pairs.set(k, [at[a], at[b]]); N[at[a]].links.add(at[b]); N[at[b]].links.add(at[a]); }
+  for (const [a, b] of data.edges) {
+    if (!(a in at) || !(b in at) || a === b) continue;
+    const A = N[at[a]], B = N[at[b]];
+    A.links.set(at[b], (A.links.get(at[b]) || '') + 'o'); B.links.set(at[a], (B.links.get(at[a]) || '') + 'i');
+  }
   const hubCut = Math.max(40, N.length * 0.45);
   N.forEach(n => { n.hub = n.links.size > hubCut; });
-  const SP = 9.5;                                            // space each medallion needs
+
+  // layout: each region a flat disc of stars (sunflower spiral), discs spaced around a ring, hubs in the middle
+  const SP = 7.5, C = SP / Math.sqrt(Math.PI) * 1.05;
   const groups = regions.map(r => ({ r, m: N.filter(n => n.region === r && !n.hub).sort((a, b) => b.links.size - a.links.size) })).filter(g => g.m.length);
-  groups.forEach(g => { g.rad = g.m.length < 2 ? SP * 0.6 : SP * Math.sqrt(g.m.length / (4 * Math.PI)) * 1.25; });
-  const hubs = N.filter(n => n.hub);
-  const ringNeed = groups.reduce((a, g) => a + g.rad * 2 + SP * 1.6, 0) / (Math.PI * 2);
-  const RING = Math.max(ringNeed, (hubs.length ? 22 : 8) + Math.max(...groups.map(g => g.rad)) + SP);
-  // place each region's centre on the ring, spaced by its own size
+  groups.forEach(g => { g.rad = Math.max(SP * 0.8, C * Math.sqrt(g.m.length) + 2); });
+  const GAP = SP * 2.4;
+  const total = groups.reduce((a, g) => a + g.rad * 2 + GAP, 0);
+  const RING = Math.max(total / (Math.PI * 2), Math.max(...groups.map(g => g.rad)) + 26);
   let ang = -Math.PI / 2;
-  const total = groups.reduce((a, g) => a + g.rad * 2 + SP * 1.6, 0);
-  const centre = {};
   groups.forEach(g => {
-    const share = (g.rad * 2 + SP * 1.6) / total * Math.PI * 2;
-    const a = ang + share / 2; ang += share;
-    g.c = new THREE.Vector3(Math.cos(a) * RING, 0, Math.sin(a) * RING); g.a = a; centre[g.r] = g.c;
-    // a Fibonacci ball: busiest characters near the middle of the cluster
-    const m = g.m.length;
-    g.m.forEach((n, k) => {
-      if (m === 1) { n.p.copy(g.c); return; }
-      const t = (k + 0.5) / m, y = 1 - 2 * t, q = Math.sqrt(1 - y * y), phi = k * 2.39996;
-      const rr = g.rad * (0.55 + 0.45 * Math.sqrt((k + 1) / m));
-      n.p.set(g.c.x + Math.cos(phi) * q * rr, g.c.y + y * rr * 0.75, g.c.z + Math.sin(phi) * q * rr);
-    });
+    const share = (g.rad * 2 + GAP) / total * Math.PI * 2, a = ang + share / 2; ang += share;
+    g.c = new THREE.Vector3(Math.cos(a) * RING, 0, Math.sin(a) * RING);
+    g.m.forEach((n, k) => { const r = C * Math.sqrt(k + 0.5), t = k * 2.39996; n.p.set(g.c.x + Math.cos(t) * r, 0, g.c.z + Math.sin(t) * r); });
   });
-  hubs.forEach((n, k) => n.p.set((k - (hubs.length - 1) / 2) * 13, 0, 0));
-  const E = [...pairs.values()];
-  const BOUND = RING + Math.max(...groups.map(g => g.rad)) + 12;
+  const hubs = N.filter(n => n.hub);
+  hubs.forEach((n, k) => n.p.set((k - (hubs.length - 1) / 2) * 10, 0, 0));
+  const BOUND = RING + Math.max(...groups.map(g => g.rad)) + 8;
 
-  // medallions: portrait face, metal rim in the element colour, dark back, all lit so they read as objects
-  const faceGeo = new THREE.CircleGeometry(1, 48), backGeo = new THREE.CircleGeometry(1.02, 48);
-  const rimGeo = new THREE.TorusGeometry(1.03, 0.055, 10, 64), edgeGeo = new THREE.CylinderGeometry(1.04, 1.04, 0.16, 64, 1, true);
-  edgeGeo.rotateX(Math.PI / 2);
-  const rimMat = hex => new THREE.MeshStandardMaterial({ color: hex, metalness: 0.7, roughness: 0.32, emissive: new THREE.Color(hex).multiplyScalar(0.2), transparent: true });
-  const backMat = () => new THREE.MeshStandardMaterial({ color: 0x1a1d24, metalness: 0.6, roughness: 0.5, transparent: true });
-  const edgeMat = () => new THREE.MeshStandardMaterial({ color: accent, metalness: 0.85, roughness: 0.3, transparent: true, side: THREE.DoubleSide });
-  const group = new THREE.Group(); scene.add(group);
-  const faces = [];
-  N.forEach((n, i) => {
-    const size = n.hub ? 6 : 2.6 + Math.min(n.links.size, 30) * 0.045;
-    const g = new THREE.Group(); g.position.copy(n.p); g.scale.setScalar(size);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true });
-    loader.load(n.img, tex => { tex.colorSpace = THREE.SRGBColorSpace; mat.map = tex; mat.needsUpdate = true; });
-    const face = new THREE.Mesh(faceGeo, mat); face.position.z = 0.081; face.userData.i = i;
-    const back = new THREE.Mesh(backGeo, backMat()); back.rotation.y = Math.PI; back.position.z = -0.081;
-    const rim = new THREE.Mesh(rimGeo, rimMat(n.color || '#e6c98a'));
-    const edge = new THREE.Mesh(edgeGeo, edgeMat());
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: new THREE.Color(n.color || '#e6c98a'), transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending }));
-    glow.scale.setScalar(3.4); glow.position.z = -0.3;
-    g.add(glow, back, edge, face, rim);
-    g.userData.phase = rnd() * Math.PI * 2;
-    group.add(g); faces.push(face);
-    Object.assign(n, { g, face, mat, rim, glow, size, parts: [rim.material, back.material, edge.material] });
-  });
+  // stars
+  const pos = new Float32Array(N.length * 3), colr = new Float32Array(N.length * 3);
+  N.forEach((n, i) => { n.p.toArray(pos, i * 3); new THREE.Color(n.color || '#e6c98a').toArray(colr, i * 3); });
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); sg.setAttribute('color', new THREE.BufferAttribute(colr, 3));
+  const stars = new THREE.Points(sg, new THREE.PointsMaterial({ map: discTexture(), size: 6.5, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(stars);
+  const cores = new THREE.Points(sg, new THREE.PointsMaterial({ map: discTexture(), size: 2.2, color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false }));
+  scene.add(cores);
+  // region rings and names
+  const regionLabels = [];
+  const overlay = document.createElement('div'); overlay.className = 'm-labels'; el.appendChild(overlay);
+  for (const g of groups) {
+    const pts = []; for (let k = 0; k <= 96; k++) { const a = k / 96 * Math.PI * 2; pts.push(new THREE.Vector3(g.c.x + Math.cos(a) * (g.rad + 3), 0, g.c.z + Math.sin(a) * (g.rad + 3))); }
+    const hue = (data.regionHue || {})[g.r] || '#e6c98a';
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: hue, transparent: true, opacity: 0.35, depthWrite: false })));
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(g.rad + 3, 64), new THREE.MeshBasicMaterial({ color: hue, transparent: true, opacity: 0.045, depthWrite: false, side: THREE.DoubleSide }));
+    disc.rotation.x = -Math.PI / 2; disc.position.copy(g.c); disc.position.y = -0.2; scene.add(disc);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'm-region'; b.style.setProperty('--rh', hue);
+    b.innerHTML = '<span></span><small></small>'; b.firstChild.textContent = g.r; b.lastChild.textContent = String(g.m.length);
+    b.addEventListener('click', () => flyTo(g.c.clone(), BOUND * 0.55));
+    overlay.appendChild(b); regionLabels.push({ el: b, p: new THREE.Vector3(g.c.x, 0, g.c.z - g.rad - 6) });
+  }
+  scene.add(new THREE.Points(shell(small ? 300 : 700, BOUND * 2.2, BOUND * 3.6, 5), new THREE.PointsMaterial({ map: discTexture(), color: 0xcfd6ee, size: 2.6, transparent: true, opacity: 0.45, depthWrite: false })));
 
-  // links: only the selected character's links are drawn, as arcs over the disc with travelling sparks
-  const curveOf = (a, b) => {
-    const mid = a.clone().add(b).multiplyScalar(0.5);
-    mid.y += 6 + a.distanceTo(b) * 0.22;
-    return new THREE.QuadraticBezierCurve3(a, mid, b);
-  };
-  const SEG = 16;
-  const hot = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: bright, transparent: true, opacity: 0.7, depthWrite: false }));
-  group.add(hot);
-  let sparkCurves = [];
-  const SPARKS = 2;
+  // medallions, created when someone lights up
+  const meds = new Map();
+  function med(i) {
+    let m = meds.get(i); if (m) return m;
+    m = medallion(N[i].img, N[i].color || '#e6c98a', accent);
+    m.g.position.copy(N[i].p); m.g.scale.setScalar(0.001); m.face.userData.i = i; m.ts = 0.001;
+    scene.add(m.g); meds.set(i, m); return m;
+  }
+  let arcs = [], sparkCurves = [], focused = -1, hover = -1;
   const sparkGeo = new THREE.BufferGeometry();
-  const sparks = new THREE.Points(sparkGeo, new THREE.PointsMaterial({ map: dot, color: bright, size: 3.4, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-  group.add(sparks);
-  // faint guide: the galaxy's ring and a soft disc under each region
-  const ringGeo = new THREE.RingGeometry(RING - 0.25, RING + 0.25, 160); ringGeo.rotateX(-Math.PI / 2);
-  group.add(new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide })));
-  for (const g of groups) {
-    const pad = new THREE.Mesh(new THREE.CircleGeometry(g.rad + 5, 48), new THREE.MeshBasicMaterial({ map: dot, color: new THREE.Color((data.regionHue || {})[g.r] || '#e6c98a'), transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending }));
-    pad.rotation.x = -Math.PI / 2; pad.position.set(g.c.x, -g.rad * 0.85, g.c.z); group.add(pad);
-  }
+  const sparks = new THREE.Points(sparkGeo, new THREE.PointsMaterial({ map: discTexture(), size: 3, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(sparks);
+  const names = document.createElement('div'); names.className = 'm-names'; el.appendChild(names);
+  let nameEls = [];
 
-  // region names above each cluster
-  const labels = [];
-  for (const g of groups) {
-    const sp = textSprite(g.r, (data.regionHue || {})[g.r] || '#e6c98a', world);
-    sp.position.set(g.c.x, g.rad * 0.8 + 9, g.c.z); group.add(sp); labels.push(sp);
-  }
-  const small = innerWidth < 640 || matchMedia('(pointer: coarse)').matches;
-  scene.add(new THREE.Points(shell(small ? 350 : 900, 300, 600, 5), new THREE.PointsMaterial({ map: dot, color: 0xcfd6ee, size: 2.2, transparent: true, opacity: 0.55, depthWrite: false })));
+  const tip = document.createElement('div'); tip.className = 'map-tip'; tip.hidden = true; el.appendChild(tip);
+  const hint = document.createElement('div'); hint.className = 'map-hint'; hint.textContent = small ? 'Drag to turn · pinch to zoom · tap a star' : 'Drag to turn · scroll to zoom · select a star or a region name'; el.appendChild(hint);
 
-  // distance that fits the whole galaxy on screen, wide or tall
   function fitDistance() {
     const v = THREE.MathUtils.degToRad(camera.fov / 2), aspect = Math.max(0.3, (el.clientWidth || 1) / (el.clientHeight || 1));
-    const half = Math.min(Math.tan(v), Math.tan(v) * aspect);
-    return BOUND / half * 0.84;
+    return BOUND / Math.min(Math.tan(v), Math.tan(v) * aspect) * 0.95;
   }
-  function home() {
-    const d0 = fitDistance();
-    controls.target.set(0, 0, 0);
-    camera.position.set(0, Math.sin(ELEV) * d0, Math.cos(ELEV) * d0);
+  const ELEV = 0.95;
+  function home() { const d0 = fitDistance(); controls.target.set(0, 0, 0); camera.position.set(0, Math.sin(ELEV) * d0, Math.cos(ELEV) * d0); }
+  controls.minDistance = 25; controls.maxDistance = BOUND * 5;
+  let tween = null;
+  function flyTo(target, dist) {
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    tween = { t: 0, fromT: controls.target.clone(), toT: target, fromC: camera.position.clone(), toC: target.clone().add(dir.multiplyScalar(dist)) };
+    controls.autoRotate = false;
   }
-  const tip = document.createElement('div'); tip.className = 'map-tip'; tip.hidden = true; el.appendChild(tip);
-  const hint = document.createElement('div'); hint.className = 'map-hint'; hint.textContent = small ? 'Drag to turn · pinch to zoom · tap a medallion' : 'Drag to turn · scroll to zoom · select a medallion'; el.appendChild(hint);
-  const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
-  let hover = -1, focused = -1, down = null, tween = null;
+
+  function focusIndex(i) {
+    focused = i; const n = N[i];
+    arcs.forEach(a => { a.mesh.geometry.dispose(); scene.remove(a.mesh); });
+    arcs = []; sparkCurves = [];
+    for (const m of meds.values()) m.ts = 0.001;
+    const lit = new Set([i, ...n.links.keys()]);
+    const big = n.links.size > 24;
+    med(i).ts = n.hub ? 5.2 : 4.2;
+    const cols = [];
+    for (const [j, how] of n.links) {
+      const m = med(j); m.ts = big ? 1.9 : 2.5;
+      const kind = how.includes('o') && how.includes('i') ? 'mutual' : how.includes('o') ? 'out' : 'in';
+      const a = n.p.clone().add(new THREE.Vector3(0, 3, 0)), b = N[j].p.clone().add(new THREE.Vector3(0, 3, 0));
+      const mid = a.clone().add(b).multiplyScalar(0.5); mid.y += 4 + a.distanceTo(b) * 0.28;
+      const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+      const mesh = tube(curve, kind === 'mutual' ? 0.22 : 0.15, LINK[kind]); mesh.material.opacity = kind === 'mutual' ? 0.8 : 0.55;
+      scene.add(mesh); arcs.push({ mesh, j });
+      sparkCurves.push({ curve, back: kind === 'in' });
+      new THREE.Color(LINK[kind]).toArray(cols, cols.length);
+    }
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sparkCurves.length * 3), 3));
+    sparkGeo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    // dim stars that are not part of this
+    const c = sg.attributes.color.array;
+    N.forEach((m, k) => { const base = new THREE.Color(m.color || '#e6c98a'); if (!lit.has(k)) base.multiplyScalar(0.28); base.toArray(c, k * 3); });
+    sg.attributes.color.needsUpdate = true;
+    names.replaceChildren(); nameEls = [];
+    const show = [i, ...(n.links.size <= 18 ? n.links.keys() : [])];
+    for (const k of show) { const d = document.createElement('span'); d.className = 'm-name' + (k === i ? ' main' : ''); d.textContent = N[k].name; names.appendChild(d); nameEls.push({ el: d, k }); }
+    const target = n.hub ? new THREE.Vector3() : n.p.clone().multiplyScalar(0.5);
+    flyTo(target, fitDistance() * (n.hub ? 1 : 0.78));
+  }
+
+  const ray = new THREE.Raycaster(); ray.params.Points.threshold = 3.2;
+  const mouse = new THREE.Vector2();
   const pickAt = e => {
     const r = renderer.domElement.getBoundingClientRect();
     mouse.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(mouse, camera);
-    const hit = ray.intersectObjects(faces, false)[0];
-    return hit ? hit.object.userData.i : -1;
+    const faces = [...meds.values()].filter(m => m.ts > 0.01).map(m => m.face);
+    const hf = ray.intersectObjects(faces, false)[0]; if (hf) return hf.object.userData.i;
+    const hs = ray.intersectObject(stars, false)[0]; return hs ? hs.index : -1;
   };
+  let down = null;
   renderer.domElement.addEventListener('pointermove', e => {
     hover = pickAt(e); renderer.domElement.style.cursor = hover >= 0 ? 'pointer' : 'grab';
-    if (hover >= 0) { const r = el.getBoundingClientRect(); tip.textContent = N[hover].name + (N[hover].region ? ' · ' + N[hover].region : ''); tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top) + 'px'; tip.hidden = false; } else tip.hidden = true;
+    if (hover >= 0) { const r = el.getBoundingClientRect(); tip.textContent = N[hover].name + ' · ' + N[hover].region; tip.style.left = (e.clientX - r.left) + 'px'; tip.style.top = (e.clientY - r.top) + 'px'; tip.hidden = false; } else tip.hidden = true;
   });
   renderer.domElement.addEventListener('pointerleave', () => { tip.hidden = true; hover = -1; });
   renderer.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; controls.autoRotate = false; hint.hidden = true; });
@@ -268,32 +545,8 @@ function starmap(el, data, onPick) {
     const i = pickAt(e); if (i >= 0) { focusIndex(i); onPick(N[i].id); }
   });
 
-  function focusIndex(i) {
-    focused = i; const n = N[i];
-    const hp = []; sparkCurves = [];
-    N.forEach((m, k) => {
-      const near = k === i || n.links.has(k);
-      const op = near ? 1 : 0.28;
-      m.mat.opacity = op; m.parts.forEach(p => { p.opacity = near ? 1 : 0.2; }); m.glow.material.opacity = k === i ? 0.95 : near ? 0.45 : 0.04;
-      m.g.userData.target = k === i ? m.size * (m.hub ? 1.15 : 1.6) : near ? m.size * 1.08 : m.size * 0.85;
-      m.g.userData.dim = !near;
-      if (k !== i && near) {
-        const c = curveOf(n.p, m.p); sparkCurves.push(c);
-        const pts = c.getPoints(SEG); for (let s = 0; s < SEG; s++) hp.push(...pts[s].toArray(), ...pts[s + 1].toArray());
-      }
-    });
-    hot.geometry.dispose(); hot.geometry = new THREE.BufferGeometry(); hot.geometry.setAttribute('position', new THREE.Float32BufferAttribute(hp, 3));
-    sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sparkCurves.length * SPARKS * 3), 3));
-    controls.autoRotate = false;
-    const a = n.hub ? Math.atan2(camera.position.z, camera.position.x) : Math.atan2(n.p.z, n.p.x);
-    const dist = fitDistance() * 1.04;
-    const toT = n.hub ? new THREE.Vector3(0, 0, 0) : n.p.clone().multiplyScalar(0.18);
-    const toC = toT.clone().add(new THREE.Vector3(Math.cos(a) * Math.cos(ELEV), Math.sin(ELEV), Math.sin(a) * Math.cos(ELEV)).multiplyScalar(dist));
-    tween = { t: 0, fromT: controls.target.clone(), toT, fromC: camera.position.clone(), toC };
-  }
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  const q = new THREE.Quaternion(), tmp = new THREE.Object3D();
-  let last = performance.now();
+  let last = performance.now(); const tmp = new THREE.Vector3();
   const api = {
     running: true,
     focus(id) { if (id in at && at[id] !== focused) focusIndex(at[id]); },
@@ -301,24 +554,24 @@ function starmap(el, data, onPick) {
       if (api._on) return; api._on = true;
       const frame = t => {
         if (!api.running) { api._on = false; return; }
-        const dt = Math.min(0.05, (t - last) / 1000); last = t;
-        const time = t / 1000;
-        if (tween) { tween.t = Math.min(1, tween.t + dt / (reduce ? 0.01 : 0.9)); const k = ease(tween.t); controls.target.lerpVectors(tween.fromT, tween.toT, k); camera.position.lerpVectors(tween.fromC, tween.toC, k); if (tween.t >= 1) tween = null; }
+        const dt = Math.min(0.05, (t - last) / 1000); last = t; const time = t / 1000;
+        if (tween) { tween.t = Math.min(1, tween.t + dt / (reduce ? 0.01 : 1.1)); const k = ease(tween.t); controls.target.lerpVectors(tween.fromT, tween.toT, k); camera.position.lerpVectors(tween.fromC, tween.toC, k); if (tween.t >= 1) tween = null; }
         controls.update();
-        // medallions turn towards the camera with a little lag, so orbiting shows their metal edge
-        for (const n of N) {
-          tmp.position.copy(n.g.position); tmp.lookAt(camera.position);
-          q.copy(tmp.quaternion);
-          const wob = Math.sin(time * 0.8 + n.g.userData.phase) * 0.18;
-          q.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(wob * 0.4, wob, 0)));
-          n.g.quaternion.slerp(q, reduce ? 1 : 0.06);
-          const ts = n.g.userData.target || n.size; n.g.scale.setScalar(n.g.scale.x + (ts - n.g.scale.x) * 0.12);
+        for (const [i, m] of meds) {
+          const s = m.g.scale.x, ts = m.ts * (i === hover && m.ts > 0.01 ? 1.15 : 1);
+          m.g.scale.setScalar(s + (ts - s) * 0.12);
+          m.g.position.set(N[i].p.x, N[i].p.y + 3 + (i === focused ? 2 : 0) + Math.sin(time + i) * 0.3, N[i].p.z);
+          m.g.quaternion.copy(camera.quaternion);
+          m.g.visible = m.g.scale.x > 0.01;
         }
         if (sparkCurves.length) {
           const arr = sparkGeo.attributes.position.array;
-          sparkCurves.forEach((c, k) => { for (let s = 0; s < SPARKS; s++) { const u = (time * 0.35 + s / SPARKS + k * 0.137) % 1; c.getPoint(u).toArray(arr, (k * SPARKS + s) * 3); } });
+          sparkCurves.forEach((c, k) => { let u = (time * 0.3 + k * 0.131) % 1; if (c.back) u = 1 - u; c.curve.getPoint(u, tmp).toArray(arr, k * 3); });
           sparkGeo.attributes.position.needsUpdate = true;
         }
+        const w = el.clientWidth, h = el.clientHeight;
+        for (const L of regionLabels) { const s = project(L.p, camera, w, h); L.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px) translate(-50%,-50%)'; L.el.style.opacity = s.z < 1 ? '' : '0'; }
+        for (const L of nameEls) { const m = meds.get(L.k); if (!m) continue; tmp.copy(m.g.position); tmp.y -= m.g.scale.x * 1.2; const s = project(tmp, camera, w, h); L.el.style.transform = 'translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px) translate(-50%,0)'; L.el.style.opacity = m.g.scale.x > 0.6 && s.z < 1 ? '' : '0'; }
         renderer.render(scene, camera);
         requestAnimationFrame(frame);
       };
@@ -481,6 +734,8 @@ window.LoreScene = {
   hero(el, world) { try { hero(el, world); } catch (e) { console.warn('3D hero unavailable', e); } },
   starmap(el, data, onPick) { try { starmap(el, data, onPick); } catch (e) { console.warn('3D map unavailable', e); el.textContent = '3D view is not available in this browser.'; } },
   focus(id) { if (M) M.focus(id); },
+  orbit(el, data, on) { orbit(el, data, on); },
+  orbitPause() { if (O) O.running = false; },
   pause() { if (M) M.running = false; },
   showcase(el, o, onReady) { try { showcase(el, o, onReady); } catch (e) { console.warn('3D showcase unavailable', e); } },
   showcaseStop() { if (S) S.running = false; },
