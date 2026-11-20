@@ -802,7 +802,10 @@
 
 
   // ---------- connections ----------
-  var G = { center: null, sel: null, nodes: {}, form: {}, view: 'focus' };
+  // Two tools, drawn by assets/js/connect.js:
+  //   Voices: a fan of cards for the character at the centre, one card per person they are linked to, with the line on it.
+  //   Web: every character on one ring, grouped by region, with every voice line as a bundled thread.
+  var G = { center: null, sel: null, form: {}, view: 'voices', filter: 'all', region: '' };
   function formOf(cid) { return G.form[cid] || cid; }
   function neighbours(id) {
     var m = {};
@@ -812,6 +815,18 @@
       .sort(function (a, b) { return ((b.out && b.inn) ? 1 : 0) - ((a.out && a.inn) ? 1 : 0) || verKey(byId[a.id].ver) - verKey(byId[b.id].ver); });
   }
   var DEG = {};
+  var REGION_HUE = ['#e6c98a', '#7fe3c4', '#8fc7ff', '#c9a2ff', '#ff9d7a', '#9bd45c', '#ffd36b', '#ff8fb8', '#9fe3ef', '#b9b9c9'];
+  function regionOf(id) { var c = byId[id]; return c ? c.region || 'Unknown' : 'Unknown'; }
+  function regionHue(r) { var i = D.regions.indexOf(r); return REGION_HUE[(i < 0 ? D.regions.length : i) % REGION_HUE.length]; }
+  function dirOf(x) { return x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in'; }
+  function whenScene(cb) { if (window.LoreScene) cb(); else document.addEventListener('lorescene', cb, { once: true }); }
+  function cxReady(cb) { if (window.LoreConnect) cb(); else document.addEventListener('loreconnect', cb, { once: true }); }
+  var GL = null;
+  function webglOK() {
+    if (GL !== null) return GL;
+    try { var cv = document.createElement('canvas'); GL = !!(window.WebGLRenderingContext && (cv.getContext('webgl2') || cv.getContext('webgl'))); } catch (e) { GL = false; }
+    return GL;
+  }
   function initGraph() {
     D.lines.forEach(function (l) { DEG[l.f] = (DEG[l.f] || 0) + 1; DEG[l.t] = (DEG[l.t] || 0) + 1; });
     var hubs = Object.keys(DEG).filter(function (k) { return byId[k]; }).sort(function (a, b) { return DEG[b] - DEG[a]; }).slice(0, 12);
@@ -831,269 +846,132 @@
     $$('#g-view .chip').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.v); }); });
     var start = WORLD === 'wuwa' ? 'jinhsi' : 'zhongli';
     setCenter(DEG[start] ? start : hubs[0], null);
-    window.addEventListener('resize', debounce(function () { layoutGraph(false); }, 150));
   }
   function setView(v) {
-    G.view = v;
-    $$('#g-view .chip').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); });
-    $('#graph').hidden = v !== 'focus' || useOrbit(); $('#starmap').hidden = v !== 'map';
-    if ($('#orbit')) $('#orbit').hidden = v !== 'focus' || !useOrbit();
-    $('#g-filters').hidden = v !== 'focus' || !$('#g-filters').children.length; $('#g-pager').hidden = v !== 'focus';
-    if (v === 'map' && window.LoreScene) window.LoreScene.orbitPause();
-    if (v === 'map') { var nAll = neighbours(G.center).length; $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + nAll + (nAll === 1 ? ' connection' : ' connections'); }
-    $('.legend').hidden = v !== 'focus';
-    if (v === 'map') whenScene(function () { window.LoreScene.starmap($('#starmap'), mapData(), function (id) { setCenter(id, null, true); }); window.LoreScene.focus(G.center); });
-    else { if (window.LoreScene) window.LoreScene.pause(); layoutGraph(true); }
+    G.view = v; G.region = '';
+    if (v === 'voices') G.sel = null;
+    $$('#g-view .chip').forEach(function (b) { var on = b.dataset.v === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    render(); renderBond();
   }
-  function mapData() {
-    return {
-      world: WORLD,
-      nodes: D.chars.filter(function (c) { return !c.same; }).map(function (c) { return { id: c.id, name: c.name, region: c.region, img: IMG + 'icons/' + formOf(c.id) + '.webp', deg: DEG[c.id] || 0, color: elHex(c), rare: c.rarity }; }),
-      regionHue: D.regions.reduce(function (o, r) { o[r] = regionHue(r); return o; }, {}), regionOrder: D.regions,
-      edges: D.lines.filter(function (l) { return byId[l.f] && byId[l.t]; }).map(function (l) { return [l.f, l.t]; })
-    };
-  }
-  function whenScene(cb) { if (window.LoreScene) cb(); else document.addEventListener('lorescene', cb, { once: true }); }
-  function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
-  function setCenter(id, sel, fromMap) {
+  function setCenter(id, sel) {
     id = canon(id); if (!byId[id]) return;
-    if (G.center !== id) { GF.region = ''; FV.group = ''; FV.page = 0; }
-    G.center = id; G.sel = sel;
+    if (G.center !== id) G.filter = 'all';
+    G.center = id; G.sel = sel || null; G.region = '';
     $$('#hub-row .hub').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
-    if (G.view === 'focus') layoutGraph(true); else if (!fromMap && window.LoreScene) window.LoreScene.focus(id);
-    renderBond();
+    render(); renderBond();
   }
   function selectBond(id) {
     if (!id && !G.sel) return;
-    if (id && G.sel === id) { setCenter(id, G.center); return; }
+    if (id && G.sel === id && G.view === 'web') { setCenter(id, G.center); return; }
     G.sel = id;
-    if (useOrbit() && G.view === 'focus') {
-      // bring the selected person onto the page being shown
-      if (id) {
-        var all = neighbours(G.center), groups = focusGroups(all), per = perPage();
-        var cur = groups.filter(function (x) { return x.key === FV.group; })[0];
-        var idxIn = function (g) { for (var i = 0; i < g.items.length; i++) if (g.items[i].id === id) return i; return -1; };
-        if (!cur || idxIn(cur) < 0) cur = groups.filter(function (x) { return x.key === 'r:' + regionOf(id); })[0] || groups[0];
-        FV.group = cur.key; FV.page = Math.floor(idxIn(cur) / per);
-      }
-      layoutFocus(); renderBond(); return;
-    }
-    $$('#graph .gnode').forEach(function (n) { n.classList.toggle('sel', n.dataset.id === id); });
-    $$('#graph-edges .edge').forEach(function (e) { e.classList.toggle('sel', e.getAttribute('data-id') === id); });
+    if (G.view === 'voices' && id) {
+      var list = voiceList(), i = list.map(function (x) { return x.id; }).indexOf(id);
+      if (i < 0) { G.filter = 'all'; render(); }
+      else cxReady(function () { window.LoreConnect.go(i); });
+    } else render();
     renderBond();
   }
-  var GF = { region: '', mutual: false };
-  var REGION_HUE = ['#e6c98a', '#7fe3c4', '#8fc7ff', '#c9a2ff', '#ff9d7a', '#9bd45c', '#ffd36b', '#ff8fb8', '#9fe3ef', '#b9b9c9'];
-  function regionOf(id) { var c = byId[id]; return c ? c.region || 'Unknown' : 'Unknown'; }
-  function regionHue(r) { var i = D.regions.indexOf(r); return REGION_HUE[(i < 0 ? D.regions.length : i) % REGION_HUE.length]; }
-  function renderGraphFilters(all) {
+  function voiceList() {
+    var all = neighbours(G.center);
+    if (G.filter === 'mutual') return all.filter(function (x) { return x.out && x.inn; });
+    if (G.filter.indexOf('r:') === 0) return all.filter(function (x) { return regionOf(x.id) === G.filter.slice(2); });
+    return all;
+  }
+  function revealBond() {
+    var b = $('#bond');
+    if (getComputedStyle(b).position !== 'sticky') b.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+  }
+  function render() {
+    var stageEl = $('#cx-stage');
+    var c = byId[formOf(G.center)] || byId[G.center];
+    $('.legend').hidden = false;
+    if (!webglOK()) {
+      stageEl.hidden = true; $('#g-view').hidden = true;
+      renderFilters(neighbours(G.center)); renderStrip(voiceList());
+      $('#graph-cap').textContent = c.name + ' · ' + neighbours(G.center).length + ' connections';
+      return;
+    }
+    if (G.view === 'voices') renderVoices(c); else renderWeb(c);
+  }
+  function renderFilters(all) {
     var box = $('#g-filters');
-    var nRegions = {}; all.forEach(function (x) { nRegions[regionOf(x.id)] = 1; });
-    if (all.length <= 8 || Object.keys(nRegions).length < 2) { box.hidden = true; box.replaceChildren(); GF.region = ''; GF.mutual = false; return; }
-    var counts = {};
-    all.forEach(function (x) { var r = regionOf(x.id); counts[r] = (counts[r] || 0) + 1; });
-    var regs = Object.keys(counts).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
-    if (GF.region && !counts[GF.region]) GF.region = '';
-    var mutualN = all.filter(function (x) { return x.out && x.inn; }).length;
-    function f(label, n, on, click, hue) {
-      return h('button', { class: 'chip' + (on ? ' on' : ''), type: 'button', style: hue ? '--rh:' + hue : null, onclick: click }, hue ? h('i', { class: 'rdot' }) : null, h('span', { text: label }), h('small', { text: String(n) }));
+    if (G.view !== 'voices' || all.length < 6) { box.hidden = true; box.replaceChildren(); return; }
+    var byR = {}; all.forEach(function (x) { var r = regionOf(x.id); byR[r] = (byR[r] || 0) + 1; });
+    var regs = Object.keys(byR).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
+    var mutual = all.filter(function (x) { return x.out && x.inn; }).length;
+    function chip(key, label, n, hue) {
+      return h('button', { class: 'chip' + (G.filter === key ? ' on' : ''), type: 'button', 'aria-pressed': G.filter === key ? 'true' : 'false', style: hue ? '--rh:' + hue : null,
+        onclick: function () { G.filter = key; G.sel = null; render(); renderBond(); } }, hue ? h('i', { class: 'rdot' }) : null, h('span', { text: label }), h('small', { text: String(n) }));
     }
     box.hidden = false;
     box.replaceChildren();
-    add(box, [
-      f('Everyone', all.length, !GF.region, function () { GF.region = ''; layoutGraph(true); }),
-      regs.map(function (r) { return f(r, counts[r], GF.region === r, function () { GF.region = GF.region === r ? '' : r; layoutGraph(true); }, regionHue(r)); }),
-      h('span', { class: 'g-sep' }),
-      f('Both speak only', mutualN, GF.mutual, function () { GF.mutual = !GF.mutual; layoutGraph(true); })]);
+    add(box, [chip('all', 'Everyone', all.length), mutual && mutual < all.length ? chip('mutual', 'Both speak', mutual) : null,
+      regs.length > 1 ? [h('span', { class: 'g-sep' }), regs.map(function (r) { return chip('r:' + r, r, byR[r], regionHue(r)); })] : null]);
   }
-  // ---------- focus view (three.js): links come in roomy pages, by region, "both speak" or everyone ----------
-  var FV = { group: '', page: 0, ok: null };
-  function perPage() { var w = ($('#orbit') && $('#orbit').clientWidth) || innerWidth; return w < 560 ? 10 : 16; }
-  function webglOK() {
-    if (FV.ok !== null) return FV.ok;
-    try { var c = document.createElement('canvas'); FV.ok = !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { FV.ok = false; }
-    return FV.ok;
-  }
-  function focusGroups(all) {
-    var groups = [{ key: 'all', label: 'Everyone', items: all }];
-    var mutual = all.filter(function (x) { return x.out && x.inn; });
-    var byR = {};
-    all.forEach(function (x) { var r = regionOf(x.id); (byR[r] = byR[r] || []).push(x); });
-    var regs = Object.keys(byR).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
-    if (regs.length > 1) regs.forEach(function (r) { groups.push({ key: 'r:' + r, label: r, hue: regionHue(r), items: byR[r] }); });
-    if (mutual.length && mutual.length < all.length) groups.push({ key: 'mutual', label: 'Both speak', items: mutual, sep: true });
-    return groups;
-  }
-  function layoutFocus() {
-    var el = $('#orbit');
-    var all = neighbours(G.center), groups = focusGroups(all), per = perPage();
-    var g = groups.filter(function (x) { return x.key === FV.group; })[0];
-    if (!g) {
-      // a sensible start: everyone when it fits on one page, otherwise the centre's own region or the biggest one
-      FV.page = 0;
-      if (all.length <= per || groups.length === 1) g = groups[0];
-      else {
-        g = groups.slice(1).filter(function (x) { return x.key !== 'mutual'; }).sort(function (a, b) { return b.items.length - a.items.length; })[0] || groups[0];
-      }
-      FV.group = g.key;
-    }
-    var pages = Math.max(1, Math.ceil(g.items.length / per));
-    if (FV.page >= pages) FV.page = pages - 1;
-    var items = g.items.slice(FV.page * per, FV.page * per + per);
-    // keep each region together on the ring
-    if (g.key === 'all' || g.key === 'mutual') items.sort(function (a, b) { return (D.regions.indexOf(regionOf(a.id)) + 1 || 99) - (D.regions.indexOf(regionOf(b.id)) + 1 || 99); });
-    if (G.sel && !items.some(function (x) { return x.id === G.sel; })) G.sel = null;
-    // chips: every region gets one, with its count and colour
-    var box = $('#g-filters');
-    box.hidden = groups.length < 2;
+  function renderStrip(list, active) {
+    var box = $('#cx-strip');
     box.replaceChildren();
-    groups.forEach(function (x) {
-      if (x.sep) box.appendChild(h('span', { class: 'g-sep' }));
-      box.appendChild(h('button', { class: 'chip' + (x.key === g.key ? ' on' : ''), type: 'button', style: x.hue ? '--rh:' + x.hue : null, 'aria-pressed': x.key === g.key ? 'true' : 'false', onclick: function () { FV.group = x.key; FV.page = 0; G.sel = null; layoutGraph(true); renderBond(); } },
-        x.hue ? h('i', { class: 'rdot' }) : null, h('span', { text: x.label }), h('small', { text: String(x.items.length) })));
-    });
-    // pages
-    var pager = $('#g-pager');
-    pager.replaceChildren();
-    if (pages > 1) add(pager, [
-      h('button', { class: 'pg', type: 'button', 'aria-label': 'Previous page', disabled: FV.page === 0 ? '' : null, onclick: function () { FV.page--; G.sel = null; layoutGraph(true); renderBond(); } }, '‹'),
-      h('span', { text: 'Page ' + (FV.page + 1) + ' of ' + pages }),
-      h('button', { class: 'pg', type: 'button', 'aria-label': 'Next page', disabled: FV.page >= pages - 1 ? '' : null, onclick: function () { FV.page++; G.sel = null; layoutGraph(true); renderBond(); } }, '›')]);
-    var cName = (byId[formOf(G.center)] || byId[G.center]).name;
-    $('#graph-cap').textContent = cName + ' · ' + (g.key === 'all' ? all.length + (all.length === 1 ? ' connection' : ' connections') : g.items.length + ' of ' + all.length + ' connections, ' + g.label);
-    function nodeOf(id, dir) {
-      var c = byId[formOf(id)] || byId[id];
-      return { id: id, name: shortName(c), sub: regionOf(id), img: IMG + 'icons/' + c.id + '.webp', color: elHex(c), hue: regionHue(regionOf(id)), dir: dir };
-    }
-    var data = {
-      key: G.center + '|' + g.key + '|' + FV.page + '|' + per,
-      center: nodeOf(G.center, null),
-      nodes: items.map(function (x) { return nodeOf(x.id, x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in'); }),
-      sel: G.sel
-    };
-    whenScene(function () {
-      try { window.LoreScene.orbit(el, data, { select: function (id) { selectBond(id); } }); }
-      catch (e) { FV.ok = false; layoutGraph(true); }
+    box.hidden = !list.length;
+    list.forEach(function (x, i) {
+      var o = byId[formOf(x.id)] || byId[x.id];
+      box.appendChild(h('button', { class: 'cx-pip ' + dirOf(x) + (i === active ? ' on' : ''), type: 'button', title: o.name + ' · ' + regionOf(x.id), 'aria-label': o.name,
+        onclick: function () { if (webglOK()) cxReady(function () { window.LoreConnect.go(i); }); else { G.sel = x.id; renderBond(); revealBond(); } } }, face(o), h('i')));
     });
   }
-  function useOrbit() { return webglOK() && !!$('#orbit'); }
-  function layoutGraph(animate) {
-    if (useOrbit()) { $('#graph').hidden = true; if (G.view === 'focus') { $('#orbit').hidden = false; layoutFocus(); } return; }
-    var stage = $('#graph'), svg = $('#graph-edges');
-    if (!stage.clientWidth) return;
-    var all = neighbours(G.center);
-    renderGraphFilters(all);
-    var nb = all.filter(function (x) { return (!GF.region || regionOf(x.id) === GF.region) && (!GF.mutual || (x.out && x.inn)); });
-    var n = nb.length, pos = {};
-    pos[G.center] = { x: 50, y: 50 };
-    // group neighbours by region so the circle reads as named sectors instead of a random ring
-    var ri = function (id) { var i = D.regions.indexOf(regionOf(id)); return i < 0 ? 99 : i; };
-    nb.sort(function (a, b) { return ri(a.id) - ri(b.id) || ((b.out && b.inn) ? 1 : 0) - ((a.out && a.inn) ? 1 : 0) || verKey(byId[a.id].ver) - verKey(byId[b.id].ver); });
-    var groups = [];
-    nb.forEach(function (x) { var r = regionOf(x.id); if (!groups.length || groups[groups.length - 1].r !== r) groups.push({ r: r, items: [] }); groups[groups.length - 1].items.push(x); });
-    // size everything from the real width: staggered rings, and the biggest face that fits without overlap
-    var W = stage.clientWidth, narrow = W < 520;
-    var nc = Math.max(52, Math.min(104, W * 0.17));
-    var gapSlots = groups.length > 1 ? (n > 40 ? 1 : 2) : 0, S = n + gapSlots * groups.length;
-    var rmax = narrow ? 0.405 : 0.43, best = null;
-    for (var k = 1; k <= 6; k++) {
-      if (k > n) break;
-      var rmin = Math.min(rmax, (nc * 0.5 + (narrow ? 34 : 26)) / W + (k > 1 ? 0.02 : 0.1));
-      var radial = k > 1 ? (rmax - rmin) / (k - 1) * W * 1.25 : 1e9;
-      var r0 = k === 1 ? Math.max(0.27, Math.min(rmax, S * 62 / (2 * Math.PI * W))) : rmin;
-      var angular = k * 2 * Math.PI * r0 * W / (S * 1.12);
-      var ns = Math.min(radial, angular, narrow ? 46 : 60);
-      if (!best || ns > best.ns + 2) best = { k: k, ns: ns, r0: r0 };
-    }
-    var K = best.k, NS = Math.max(16, Math.floor(best.ns)), radii = [];
-    for (var q = 0; q < K; q++) radii.push((K === 1 ? best.r0 : best.r0 + (rmax - best.r0) * q / (K - 1)) * 100);
-    stage.style.setProperty('--ns', NS + 'px'); stage.style.setProperty('--nc', Math.round(nc) + 'px');
-    var slot = gapSlots / 2, sectors = [], step = Math.PI * 2 / Math.max(S, 1), base = -Math.PI / 2;
-    groups.forEach(function (gp) {
-      var a0 = base + slot * step;
-      gp.items.forEach(function (x) {
-        var ang = base + (slot + 0.5) * step, layer = Math.round(slot - gapSlots / 2) % K;
-        if (layer < 0) layer += K;
-        pos[x.id] = { x: 50 + Math.cos(ang) * radii[layer], y: 50 + Math.sin(ang) * radii[layer], nb: x, ang: ang, r: radii[layer] };
-        slot++;
+  function syncStrip(i) {
+    var box = $('#cx-strip'), pips = $$('.cx-pip', box);
+    pips.forEach(function (p, k) { p.classList.toggle('on', k === i); });
+    var p = pips[i]; if (!p) return;
+    var target = p.offsetLeft - box.clientWidth / 2 + p.offsetWidth / 2;
+    box.scrollTo({ left: target, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+  function renderVoices(c) {
+    var all = neighbours(G.center), list = voiceList();
+    renderFilters(all);
+    var idx = G.sel ? list.map(function (x) { return x.id; }).indexOf(G.sel) : 0;
+    if (idx < 0) idx = 0;
+    renderStrip(list, idx);
+    var cards = list.map(function (x) {
+      var o = byId[formOf(x.id)] || byId[x.id], l = x.out || x.inn, who = x.out ? c : o, about = x.out ? o : c;
+      return { id: x.id, name: o.name, sub: regionOf(x.id), img: IMG + 'icons/' + o.id + '.webp', color: elHex(o), hue: regionHue(regionOf(x.id)), dir: dirOf(x),
+        quote: l ? { who: first(who), about: first(about), text: l.q } : null };
+    });
+    $('#graph-cap').textContent = c.name + ' · ' + (list.length === all.length ? all.length + (all.length === 1 ? ' connection' : ' connections') : list.length + ' of ' + all.length + ' connections');
+    var data = { key: G.center + '|' + formOf(G.center) + '|' + G.filter, center: { id: G.center, name: c.name, short: first(c), sub: place(c), img: IMG + 'icons/' + c.id + '.webp' }, cards: cards, index: idx };
+    cxReady(function () {
+      window.LoreConnect.voices($('#cx-stage'), data, {
+        front: function (id, i) { if (G.view !== 'voices') return; if (G.sel !== id) { G.sel = id; renderBond(); } syncStrip(i); },
+        open: function (id) { G.sel = id; renderBond(); revealBond(); }
       });
-      var a1 = base + slot * step;
-      gp.items.forEach(function (x) { pos[x.id].mid = (a0 + a1) / 2; });
-      sectors.push({ r: gp.r, a0: a0, a1: a1, count: gp.items.length });
-      slot += gapSlots;
     });
-    var L = K;
-    stage.classList.toggle('dense', NS < 52); stage.classList.toggle('crowd', NS < 44); stage.classList.toggle('swarm', NS < 26);
-    // nodes: reuse elements so they glide between layouts
-    Object.keys(G.nodes).forEach(function (id) { if (!pos[id]) { var old = G.nodes[id]; old.classList.add('out'); delete G.nodes[id]; setTimeout(function () { old.remove(); }, 350); } });
-    Object.keys(pos).forEach(function (id) {
-      var c = byId[formOf(id)] || byId[id], p = pos[id], node = G.nodes[id];
-      if (!node) {
-        var fromCentre = G.nodes[G.center] && id !== G.center;
-        node = h('button', { class: 'gnode in', type: 'button', 'data-id': id, style: 'left:' + (fromCentre ? 50 : p.x) + '%;top:' + (fromCentre ? 50 : p.y) + '%' }, face(c), h('span', { class: 'gname', text: shortName(c) }));
-        node.addEventListener('click', function () { if (id === G.center) selectBond(null); else selectBond(id); });
-        node.addEventListener('dblclick', function () { if (id !== G.center) setCenter(id, null); });
-        node.addEventListener('mouseenter', function () { var e = $('#graph-edges .edge[data-id="' + id + '"]'); if (e) e.classList.add('hot'); });
-        node.addEventListener('mouseleave', function () { var e = $('#graph-edges .edge[data-id="' + id + '"]'); if (e) e.classList.remove('hot'); });
-        stage.appendChild(node); G.nodes[id] = node; void node.offsetWidth;
-      } else { var im = $('img', node), src = IMG + 'icons/' + c.id + '.webp'; if (im.getAttribute('src') !== src) im.setAttribute('src', src); $('.gname', node).textContent = shortName(c); }
-      node.className = 'gnode' + (id === G.center ? ' center' : '') + (id === G.sel ? ' sel' : '') + (p.nb && p.nb.out && p.nb.inn ? ' mutual' : '') + ' r' + c.rarity;
-      node.style.left = p.x + '%'; node.style.top = p.y + '%';
-      node.style.setProperty('--rh', id === G.center ? '' : regionHue(regionOf(id)));
-      node.setAttribute('aria-label', c.name + (id === G.center ? ', centre' : ', ' + regionOf(id)));
-      node.title = c.name + ' · ' + regionOf(id);
-    });
-    // region labels: every sector gets one, kept inside the box and nudged apart when they would touch
-    $$('.g-label', stage).forEach(function (l) { l.remove(); });
-    if (groups.length > 1) {
-      var placed = [], H = W, outer = radii[radii.length - 1] / 100 * W + NS * 0.5 + 12;
-      sectors.forEach(function (s) {
-        var m = (s.a0 + s.a1) / 2, lab = h('span', { class: 'g-label', style: '--rh:' + regionHue(s.r) }, s.r, h('small', { text: ' ' + s.count }));
-        stage.appendChild(lab);
-        var lw = lab.offsetWidth, lh = lab.offsetHeight, rr = outer, box;
-        for (var tries = 0; tries < 6; tries++) {
-          var cx = W / 2 + Math.cos(m) * rr, cy = H / 2 + Math.sin(m) * rr;
-          var lx = Math.cos(m) > 0.3 ? cx : Math.cos(m) < -0.3 ? cx - lw : cx - lw / 2;
-          var ly = Math.sin(m) > 0.3 ? cy : Math.sin(m) < -0.3 ? cy - lh : cy - lh / 2;
-          lx = Math.max(-2, Math.min(W - lw + 2, lx)); ly = Math.max(-lh - 6, Math.min(H + 6, ly));
-          box = [lx, ly, lx + lw, ly + lh];
-          if (!placed.some(function (b) { return box[0] < b[2] + 4 && box[2] > b[0] - 4 && box[1] < b[3] + 2 && box[3] > b[1] - 2; })) break;
-          rr += lh + 2;
-        }
-        placed.push(box);
-        lab.style.left = box[0] + 'px'; lab.style.top = box[1] + 'px';
+  }
+  function renderWeb(c) {
+    renderFilters([]);
+    var order = function (r) { var i = D.regions.indexOf(r); return i < 0 ? 99 : i; };
+    var cast = D.chars.filter(function (x) { return !x.same && DEG[x.id]; }).sort(function (a, b) { return order(regionOf(a.id)) - order(regionOf(b.id)) || verKey(a.ver) - verKey(b.ver) || a.name.localeCompare(b.name); });
+    var nodes = cast.map(function (x) { var f = byId[formOf(x.id)] || x; return { id: x.id, name: shortName(f), region: regionOf(x.id), img: IMG + 'icons/' + f.id + '.webp', color: elHex(x), hue: regionHue(regionOf(x.id)) }; });
+    var edges = D.lines.filter(function (l) { return byId[l.f] && byId[l.t]; }).map(function (l) { return [canon(l.f), canon(l.t)]; });
+    var nb = neighbours(G.center).length;
+    $('#graph-cap').textContent = G.region ? G.region + ' · threads to and from this region' : c.name + ' · ' + nb + (nb === 1 ? ' connection' : ' connections') + ' · ' + D.lines.length + ' voice lines in all';
+    var strip = $('#cx-strip'); strip.hidden = true; strip.replaceChildren();
+    var data = { key: 'web|' + nodes.length + '|' + edges.length, nodes: nodes, edges: edges, focus: G.region ? null : G.center, sel: G.region ? null : G.sel, region: G.region };
+    cxReady(function () {
+      window.LoreConnect.web($('#cx-stage'), data, {
+        pick: function (id) {
+          G.region = '';
+          if (!id || id === G.center) { G.sel = null; render(); renderBond(); return; }
+          var near = neighbours(G.center).some(function (x) { return x.id === id; });
+          if (near && G.sel !== id) { G.sel = id; render(); renderBond(); return; }
+          setCenter(id, near ? G.center : null);
+        },
+        region: function (r) { G.region = G.region === r ? '' : r; G.sel = null; render(); renderBond(); }
       });
-    }
-    // edges: curves bundled per region sector, so a big circle stays readable
-    svg.replaceChildren();
-    var SVGNS = 'http://www.w3.org/2000/svg', rim = radii[radii.length - 1] + NS / W * 50 + 2.5;
-    function el(tag, attrs) { var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
-    if (groups.length > 1) sectors.forEach(function (s) {
-      var p0 = [50 + Math.cos(s.a0) * rim, 50 + Math.sin(s.a0) * rim], p1 = [50 + Math.cos(s.a1) * rim, 50 + Math.sin(s.a1) * rim];
-      var arc = el('path', { d: 'M' + p0 + ' A' + rim + ' ' + rim + ' 0 ' + (s.a1 - s.a0 > Math.PI ? 1 : 0) + ' 1 ' + p1, class: 'sector' });
-      arc.style.stroke = regionHue(s.r); svg.appendChild(arc);
     });
-    var c1 = NS / W * 50 + 0.6, c0 = nc / W * 50 + 0.8;
-    nb.forEach(function (x, i) {
-      var p = pos[x.id], bund = Math.min(p.r * 0.42, 15), cx = 50 + Math.cos(p.mid) * bund, cy = 50 + Math.sin(p.mid) * bund;
-      if (groups.length <= 1 || L === 1) { cx = 50 + (p.x - 50) * 0.5; cy = 50 + (p.y - 50) * 0.5; }
-      var sx = cx - 50, sy = cy - 50, sl = Math.sqrt(sx * sx + sy * sy) || 1;
-      var x0 = 50 + sx / sl * c0, y0 = 50 + sy / sl * c0;
-      var ex = p.x - cx, ey = p.y - cy, el2 = Math.sqrt(ex * ex + ey * ey) || 1;
-      var x1 = p.x - ex / el2 * c1, y1 = p.y - ey / el2 * c1;
-      var g = el('path', { d: 'M' + x0 + ' ' + y0 + ' Q' + cx + ' ' + cy + ' ' + x1 + ' ' + y1, class: 'edge ' + (x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in') + (x.id === G.sel ? ' sel' : ''), 'data-id': x.id });
-      g.style.setProperty('--d', (120 + Math.min(i, 50) * 10) + 'ms');
-      if (x.out && x.inn) g.style.setProperty('--rh', regionHue(regionOf(x.id)));
-      svg.appendChild(g);
-      if (NS >= 44) svg.appendChild(el('circle', { cx: x1, cy: y1, r: 0.7, class: 'edge-dot ' + (x.out ? 'out' : 'in'), 'data-id': x.id }));
-    });
-    if (animate) { svg.classList.remove('draw'); void svg.getBoundingClientRect(); svg.classList.add('draw'); }
-    var shown = n === all.length ? n + (n === 1 ? ' connection' : ' connections') : n + ' of ' + all.length + ' connections';
-    $('#graph-cap').textContent = (byId[formOf(G.center)] || byId[G.center]).name + ' · ' + shown;
   }
   var bondKeyShown = '';
   function renderBond() {
-    var key = formOf(G.center) + '|' + (G.sel ? formOf(G.sel) : '') + '|' + GF.region + GF.mutual;
+    var key = formOf(G.center) + '|' + (G.sel ? formOf(G.sel) : '') + '|' + G.view;
     if (key === bondKeyShown && $('#bond').firstChild) return;
     bondKeyShown = key;
     var box = $('#bond'), c = byId[formOf(G.center)] || byId[G.center], nb = neighbours(G.center);
@@ -1101,7 +979,7 @@
       var list = h('div', { class: 'bond-list' });
       nb.forEach(function (x) {
         var o = byId[formOf(x.id)] || byId[x.id];
-        list.appendChild(h('button', { class: 'bond-row', type: 'button', onclick: function () { if (G.view === 'map') { G.sel = x.id; renderBond(); } else selectBond(x.id); } },
+        list.appendChild(h('button', { class: 'bond-row', type: 'button', onclick: function () { selectBond(x.id); } },
           face(o), h('span', null, h('b', { text: o.name }), h('small', { text: x.out && x.inn ? 'They speak of each other' : x.out ? first(c) + ' speaks of them' : 'Speaks of ' + first(c) })),
           h('i', { class: 'dir ' + (x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in') })));
       });
@@ -1132,7 +1010,7 @@
       h('div', { class: 'bond-actions' },
         h('button', { class: 'btn', type: 'button', onclick: function () { setCenter(G.sel, null); } }, 'Centre on ' + first(o)),
         h('button', { class: 'btn ghost', type: 'button', onclick: function () { openSheet(o.id); } }, 'Open profile'),
-        h('button', { class: 'btn ghost', type: 'button', onclick: function () { if (G.view === 'map') { G.sel = null; renderBond(); } else selectBond(null); } }, 'Back to list'))));
+        G.view === 'web' || !webglOK() ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { selectBond(null); } }, 'Back to list') : null)));
   }
 
   // ---------- nav ----------

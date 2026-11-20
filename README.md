@@ -100,7 +100,8 @@ node tools/pages.mjs
 | `assets/data/` | The generated data the pages read. Do not edit by hand; it is overwritten |
 | `assets/css/site.css` | All styling. Each world has its own colours and fonts at the top of the file |
 | `assets/js/app.js` | Every page section: current version, timeline, characters, bosses, teams, connections |
-| `assets/js/scene.js` | The 3D scenes, built with three.js: the header, the profile stage, the connections focus view and the star map |
+| `assets/js/scene.js` | The 3D header and the profile stage, built with three.js |
+| `assets/js/connect.js` | The two connection tools, built with three.js: Voices (a fan of cards with each line on it) and Web (the whole cast on one woven ring) |
 | `assets/js/gate.js` | The live cards and art on the gateway page |
 | `assets/js/warp.js`, `assets/js/ambient.js` | The world-switch transition and the moving backgrounds |
 | `assets/vendor/` | A copy of three.js (MIT licence) |

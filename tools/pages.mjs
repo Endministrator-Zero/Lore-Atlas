@@ -142,23 +142,19 @@ const world = v => head(v) + `<body>
   </section>
 
   <section class="sec wrap" id="connections">
-    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. A line between two portraits means one of them talks about the other. Select a portrait to read what was said. Select it a second time to move it to the centre. Big casts are split into pages by region.</p></header>
+    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. <b>Voices</b> deals out a card for everyone a character talks about or is talked about by, with the line itself on the card: swipe or drag through them. <b>Web</b> puts the whole cast on one ring, with every voice line woven between them.</p></header>
     <div class="g-bar">
       <div class="g-search"><label><span class="sr">Find someone</span><input id="g-q" type="search" placeholder="Find someone" autocomplete="off"></label><div class="g-results" id="g-results" hidden></div></div>
       <div class="hub-row" id="hub-row" aria-label="Most connected"></div>
-      <div class="chips" id="g-view"><button class="chip on" type="button" data-v="focus"><span>Focus</span></button><button class="chip" type="button" data-v="map"><span>3D star map</span></button></div>
+      <div class="chips" id="g-view"><button class="chip on" type="button" data-v="voices" aria-pressed="true"><span>Voices</span></button><button class="chip" type="button" data-v="web" aria-pressed="false"><span>Web</span></button></div>
       <button class="btn ghost" id="g-random" type="button">Surprise me</button>
     </div>
     <div class="g-filters chips" id="g-filters" hidden></div>
     <div class="g-layout">
       <div class="g-stage">
-        <div class="graph" id="graph">
-          <div class="g-deco" aria-hidden="true"><i></i><i></i><i></i></div>
-          <svg id="graph-edges" viewBox="0 0 100 100" aria-hidden="true"></svg>
-        </div>
-        <div class="orbit" id="orbit" hidden></div>
-        <div class="starmap" id="starmap" hidden></div>
-        <div class="g-foot"><span id="graph-cap"></span><span class="g-pager" id="g-pager"></span><span class="legend"><i class="lk mutual"></i>both speak<i class="lk out"></i>centre speaks<i class="lk in"></i>speaks of centre</span></div>
+        <div class="cx-stage" id="cx-stage" tabindex="0" aria-label="Connections. Use the left and right arrow keys to move through the cards, and Enter to read one."></div>
+        <div class="cx-strip" id="cx-strip" aria-label="Everyone in this group"></div>
+        <div class="g-foot"><span id="graph-cap"></span><span class="legend"><i class="lk mutual"></i>both speak<i class="lk out"></i>centre speaks<i class="lk in"></i>speaks of centre</span></div>
       </div>
       <aside class="bond cardish" id="bond" aria-live="polite"></aside>
     </div>
@@ -183,6 +179,7 @@ ${WARP}
 <script src="assets/js/app.js"></script>
 <script src="assets/js/warp.js"></script>
 <script type="module" src="assets/js/scene.js"></script>
+<script type="module" src="assets/js/connect.js"></script>
 </body>
 </html>
 `;

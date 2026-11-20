@@ -1101,3 +1101,50 @@ path.sector { fill: none; stroke-width: .6; stroke-linecap: round; opacity: .55 
   #g-filters .chip { flex: none }
 }
 .g-pager .pg { display: inline-grid; place-items: center; padding: 0 0 2px; font-family: var(--f-ui) }
+
+/* ---------- connections v4: Voices (card fan) and Web (woven ring) ---------- */
+.cx-stage { position: relative; width: 100%; aspect-ratio: 7 / 6; max-height: 640px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); outline: none; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(70% 55% at 50% 20%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%), radial-gradient(90% 70% at 50% 100%, color-mix(in srgb, var(--panel2) 70%, transparent), transparent 70%) }
+.cx-stage:focus-visible { box-shadow: 0 0 0 2px var(--accent2) }
+.cx-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab }
+.cx-stage[data-mode="web"] canvas { cursor: default }
+.vx-ov, .wx-ov { position: absolute; inset: 0; pointer-events: none }
+.vx-centre { position: absolute; left: 0; top: 0; display: grid; justify-items: center; gap: 2px; padding: 4px 12px 5px; border-radius: 999px; background: color-mix(in srgb, var(--bg) 70%, transparent); white-space: nowrap }
+.vx-centre b { font: 600 15px/1.1 var(--f-ui); letter-spacing: .04em }
+[data-world="wuwa"] .vx-centre b { text-transform: uppercase; letter-spacing: .1em; font-size: 14px }
+.vx-centre small { font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--mute) }
+.vx-nav { position: absolute; top: 58%; width: 44px; height: 44px; margin-top: -22px; pointer-events: auto; border: 1px solid var(--line2); border-radius: 50%; background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--ink); font: 400 26px/1 var(--f-ui); display: grid; place-items: center; padding-bottom: 3px; cursor: pointer; transition: background .2s, color .2s, opacity .2s }
+.vx-nav.prev { left: 12px } .vx-nav.next { right: 12px }
+.vx-nav:hover:not(:disabled) { background: var(--accent); color: var(--on-accent) }
+.vx-nav:disabled { opacity: .25; cursor: default }
+.vx-empty { position: absolute; left: 10%; right: 10%; top: 62%; text-align: center; color: var(--mute) }
+.cx-strip { display: flex; gap: 6px; overflow-x: auto; padding: 12px 2px 6px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
+.cx-pip { position: relative; flex: none; padding: 0; border: 0; background: none; line-height: 0; cursor: pointer; opacity: .55; transition: opacity .2s, transform .25s var(--ease) }
+.cx-pip .face { --fs: 38px }
+.cx-pip i { position: absolute; left: 6px; right: 6px; bottom: -5px; height: 3px; border-radius: 2px; background: var(--lk-out) }
+.cx-pip.mutual i { background: var(--lk-mutual) } .cx-pip.in i { background: var(--lk-in) }
+.cx-pip:hover { opacity: .9 }
+.cx-pip.on { opacity: 1; transform: translateY(-3px) }
+.cx-pip.on .face { outline: 2px solid var(--accent); outline-offset: 2px }
+.wx-region { position: absolute; left: 0; top: 0; pointer-events: auto; display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 9px; border: 1px solid color-mix(in srgb, var(--rh) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--bg) 72%, transparent); color: var(--rh); font: 700 12px/1 var(--f-ui); letter-spacing: .04em; white-space: nowrap; cursor: pointer; transition: background .2s }
+[data-world="wuwa"] .wx-region { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; border-radius: 3px }
+.wx-region small { color: var(--mute); font-size: 10px }
+.wx-region:hover, .wx-region:focus-visible, .wx-region.on { background: color-mix(in srgb, var(--rh) 25%, var(--bg)) }
+.wx-name { position: absolute; left: 0; top: 0; padding: 2px 7px; border-radius: 4px; background: color-mix(in srgb, var(--bg) 78%, transparent); font: 600 11.5px/1.2 var(--f-ui); white-space: nowrap }
+.wx-name.main { font-size: 14px; background: var(--accent); color: var(--on-accent); padding: 3px 9px }
+.wx-name.sel { font-size: 13px; background: var(--panel2); color: var(--accent2); border: 1px solid var(--line2) }
+.wx-tip { position: absolute; transform: translate(14px, -120%); display: grid; gap: 2px; padding: 6px 10px; background: var(--bg); border: 1px solid var(--line2); border-radius: var(--radius-s); white-space: nowrap; z-index: 3 }
+.wx-tip b { font: 600 13px/1.1 var(--f-ui) } .wx-tip small { font-size: 11.5px; color: var(--mute) }
+.bond.flash { animation: bondflash 1s var(--ease) }
+@keyframes bondflash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent) } 100% { box-shadow: 0 0 0 14px transparent } }
+@media (max-width: 640px) {
+  .cx-stage { aspect-ratio: 4 / 5.2; max-height: none }
+  .vx-nav { width: 38px; height: 38px; margin-top: -19px; top: auto; bottom: 10px; font-size: 22px }
+  .vx-nav.prev { left: 10px } .vx-nav.next { right: 10px }
+  .cx-pip .face { --fs: 34px }
+  .wx-region { font-size: 10.5px; padding: 3px 7px } [data-world="wuwa"] .wx-region { font-size: 9.5px; letter-spacing: .06em }
+  .wx-name { font-size: 10.5px }
+}
+.vx-centre { justify-items: start; max-width: calc(50% - 56px); padding: 5px 12px 6px; border-radius: 10px }
+.vx-centre b, .vx-centre small { max-width: 100%; overflow: hidden; text-overflow: ellipsis }
+@media (max-width: 640px) { .cx-stage[data-mode="web"] { aspect-ratio: 1 } .vx-centre small { display: none } }
