@@ -101,7 +101,7 @@ node tools/pages.mjs
 | `assets/css/site.css` | All styling. Each world has its own colours and fonts at the top of the file |
 | `assets/js/app.js` | Every page section: current version, timeline, characters, bosses, teams, connections |
 | `assets/js/scene.js` | The 3D header and the profile stage, built with three.js |
-| `assets/js/connect.js` | The two connection tools, built with three.js: Voices (a fan of cards with each line on it) and Web (the whole cast on one woven ring) |
+| `assets/js/connect.js` | The Voices connection tool, built with three.js: a fan of cards with each voice line on it. The Circle view is drawn in `app.js` |
 | `assets/js/gate.js` | The live cards and art on the gateway page |
 | `assets/js/warp.js`, `assets/js/ambient.js` | The world-switch transition and the moving backgrounds |
 | `assets/vendor/` | A copy of three.js (MIT licence) |

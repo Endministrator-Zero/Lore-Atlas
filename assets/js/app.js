@@ -343,6 +343,7 @@
   }
   function placePop(anchor) {
     var p = POP.el, r = anchor.getBoundingClientRect(), pw = p.offsetWidth, ph = p.offsetHeight, vw = innerWidth, vh = innerHeight, m = 10;
+    m = 6;
     var x = r.right + m, y = r.top;
     if (x + pw > vw - m) x = r.left - pw - m;
     if (x < m) { x = Math.min(Math.max(m, r.left + r.width / 2 - pw / 2), vw - pw - m); y = r.bottom + m; if (y + ph > vh - m) y = r.top - ph - m; }
@@ -353,7 +354,16 @@
     var node = anchor.dataset.weapon && D.weapons[anchor.dataset.weapon] ? weaponPopNode(anchor.dataset.weapon)
       : anchor.dataset.set ? setPopNode(anchor.dataset.set.split(',')) : null;
     if (!node) return;
-    if (!POP.el) { POP.el = h('div', { class: 'pop', role: 'tooltip', hidden: true }); document.body.appendChild(POP.el); }
+    if (!POP.el) {
+      POP.el = h('div', { class: 'pop', role: 'tooltip', hidden: true }); document.body.appendChild(POP.el);
+      // the pointer can rest inside the pop-up to scroll it; leaving it closes it
+      POP.el.addEventListener('mouseenter', function () { POP.inside = true; clearTimeout(POP.timer); });
+      POP.el.addEventListener('mouseleave', function (e) {
+        POP.inside = false;
+        if (POP.pinned || (e.relatedTarget && POP.anchor && POP.anchor.contains(e.relatedTarget))) return;
+        clearTimeout(POP.timer); POP.timer = setTimeout(function () { if (!POP.pinned && !POP.inside) hidePop(); }, 200);
+      });
+    }
     POP.anchor = anchor; POP.pinned = !!pin;
     POP.el.classList.toggle('pinned', POP.pinned);
     POP.el.replaceChildren(node);
@@ -361,17 +371,27 @@
     POP.el.hidden = false; placePop(anchor);
     POP.el.classList.remove('show'); void POP.el.offsetWidth; POP.el.classList.add('show');
   }
-  function hidePop() { if (POP.el) { POP.el.hidden = true; POP.el.classList.remove('show'); } POP.anchor = null; POP.pinned = false; }
+  function hidePop() { if (POP.el) { POP.el.hidden = true; POP.el.classList.remove('show'); } POP.anchor = null; POP.pinned = false; POP.inside = false; }
+  // is the pointer travelling towards the open pop-up? then a card it crosses on the way should not take over
+  var MOUSE = { x: 0, y: 0, px: 0, py: 0 };
+  document.addEventListener('mousemove', function (e) { MOUSE.px = MOUSE.x; MOUSE.py = MOUSE.y; MOUSE.x = e.clientX; MOUSE.y = e.clientY; }, { passive: true });
+  function headingToPop() {
+    if (!POP.el || POP.el.hidden) return false;
+    var r = POP.el.getBoundingClientRect();
+    var d = function (x, y) { var dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom); return Math.sqrt(dx * dx + dy * dy); };
+    return d(MOUSE.x, MOUSE.y) < d(MOUSE.px, MOUSE.py);
+  }
   var POP_SEL = '[data-weapon], [data-set]';
   document.addEventListener('mouseover', function (e) {
     var a = e.target.closest && e.target.closest(POP_SEL);
-    if (!a || POP.pinned || a === POP.anchor) return;
-    clearTimeout(POP.timer); POP.timer = setTimeout(function () { showPop(a, false); }, 110);
+    if (!a || POP.pinned || a === POP.anchor || POP.inside || (POP.el && POP.el.contains(e.target))) return;
+    var open = POP.el && !POP.el.hidden;
+    clearTimeout(POP.timer); POP.timer = setTimeout(function () { if (!POP.inside && !POP.pinned) showPop(a, false); }, !open ? 110 : headingToPop() ? 500 : 220);
   });
   document.addEventListener('mouseout', function (e) {
     var a = e.target.closest && e.target.closest(POP_SEL);
-    if (!a || POP.pinned || (e.relatedTarget && a.contains(e.relatedTarget))) return;
-    clearTimeout(POP.timer); POP.timer = setTimeout(function () { if (!POP.pinned) hidePop(); }, 90);
+    if (!a || POP.pinned || (e.relatedTarget && (a.contains(e.relatedTarget) || (POP.el && POP.el.contains(e.relatedTarget))))) return;
+    clearTimeout(POP.timer); POP.timer = setTimeout(function () { if (!POP.pinned && !POP.inside) hidePop(); }, headingToPop() ? 600 : 260);
   });
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest(POP_SEL);
@@ -380,7 +400,7 @@
   });
   document.addEventListener('focusin', function (e) { var a = e.target.closest && e.target.closest(POP_SEL); if (a && !POP.pinned) showPop(a, false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && POP.el && !POP.el.hidden) hidePop(); });
-  window.addEventListener('scroll', function () { if (POP.el && !POP.el.hidden) { if (POP.pinned && POP.anchor && POP.anchor.isConnected) placePop(POP.anchor); else hidePop(); } }, { passive: true });
+  window.addEventListener('scroll', function () { if (POP.el && !POP.el.hidden && !POP.inside) { if (POP.pinned && POP.anchor && POP.anchor.isConnected) placePop(POP.anchor); else hidePop(); } }, { passive: true });
   document.addEventListener('scroll', function (e) { if (POP.el && !POP.el.hidden && !POP.el.contains(e.target) && !POP.pinned) hidePop(); }, true);
 
   // ---------- weapons section ----------
@@ -820,6 +840,7 @@
   function regionHue(r) { var i = D.regions.indexOf(r); return REGION_HUE[(i < 0 ? D.regions.length : i) % REGION_HUE.length]; }
   function dirOf(x) { return x.out && x.inn ? 'mutual' : x.out ? 'out' : 'in'; }
   function whenScene(cb) { if (window.LoreScene) cb(); else document.addEventListener('lorescene', cb, { once: true }); }
+  function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
   function cxReady(cb) { if (window.LoreConnect) cb(); else document.addEventListener('loreconnect', cb, { once: true }); }
   var GL = null;
   function webglOK() {
@@ -855,14 +876,14 @@
   }
   function setCenter(id, sel) {
     id = canon(id); if (!byId[id]) return;
-    if (G.center !== id) G.filter = 'all';
+    if (G.center !== id) { G.filter = 'all'; CR.page = 0; }
     G.center = id; G.sel = sel || null; G.region = '';
     $$('#hub-row .hub').forEach(function (b) { b.classList.toggle('on', b.dataset.id === id); });
     render(); renderBond();
   }
   function selectBond(id) {
     if (!id && !G.sel) return;
-    if (id && G.sel === id && G.view === 'web') { setCenter(id, G.center); return; }
+    if (id && G.sel === id && G.view === 'circle') { setCenter(id, G.center); return; }
     G.sel = id;
     if (G.view === 'voices' && id) {
       var list = voiceList(), i = list.map(function (x) { return x.id; }).indexOf(id);
@@ -886,23 +907,19 @@
     var stageEl = $('#cx-stage');
     var c = byId[formOf(G.center)] || byId[G.center];
     $('.legend').hidden = false;
-    if (!webglOK()) {
-      stageEl.hidden = true; $('#g-view').hidden = true;
-      renderFilters(neighbours(G.center)); renderStrip(voiceList());
-      $('#graph-cap').textContent = c.name + ' · ' + neighbours(G.center).length + ' connections';
-      return;
-    }
-    if (G.view === 'voices') renderVoices(c); else renderWeb(c);
+    if (!webglOK() && G.view === 'voices') { G.view = 'circle'; $('#g-view').hidden = true; }
+    if (G.view === 'voices') { if (CR.layer) CR.layer.hidden = true; $('#cx-stage').dataset.mode = 'voices'; renderVoices(c); }
+    else { $('#cx-stage').dataset.mode = 'circle'; renderCircle(c); }
   }
   function renderFilters(all) {
     var box = $('#g-filters');
-    if (G.view !== 'voices' || all.length < 6) { box.hidden = true; box.replaceChildren(); return; }
+    if (all.length < 6) { box.hidden = true; box.replaceChildren(); return; }
     var byR = {}; all.forEach(function (x) { var r = regionOf(x.id); byR[r] = (byR[r] || 0) + 1; });
     var regs = Object.keys(byR).sort(function (a, b) { return D.regions.indexOf(a) - D.regions.indexOf(b); });
     var mutual = all.filter(function (x) { return x.out && x.inn; }).length;
     function chip(key, label, n, hue) {
       return h('button', { class: 'chip' + (G.filter === key ? ' on' : ''), type: 'button', 'aria-pressed': G.filter === key ? 'true' : 'false', style: hue ? '--rh:' + hue : null,
-        onclick: function () { G.filter = key; G.sel = null; render(); renderBond(); } }, hue ? h('i', { class: 'rdot' }) : null, h('span', { text: label }), h('small', { text: String(n) }));
+        onclick: function () { G.filter = key; G.sel = null; CR.page = 0; render(); renderBond(); } }, hue ? h('i', { class: 'rdot' }) : null, h('span', { text: label }), h('small', { text: String(n) }));
     }
     box.hidden = false;
     box.replaceChildren();
@@ -946,27 +963,109 @@
       });
     });
   }
-  function renderWeb(c) {
-    renderFilters([]);
-    var order = function (r) { var i = D.regions.indexOf(r); return i < 0 ? 99 : i; };
-    var cast = D.chars.filter(function (x) { return !x.same && DEG[x.id]; }).sort(function (a, b) { return order(regionOf(a.id)) - order(regionOf(b.id)) || verKey(a.ver) - verKey(b.ver) || a.name.localeCompare(b.name); });
-    var nodes = cast.map(function (x) { var f = byId[formOf(x.id)] || x; return { id: x.id, name: shortName(f), region: regionOf(x.id), img: IMG + 'icons/' + f.id + '.webp', color: elHex(x), hue: regionHue(regionOf(x.id)) }; });
-    var edges = D.lines.filter(function (l) { return byId[l.f] && byId[l.t]; }).map(function (l) { return [canon(l.f), canon(l.t)]; });
-    var nb = neighbours(G.center).length;
-    $('#graph-cap').textContent = G.region ? G.region + ' · threads to and from this region' : c.name + ' · ' + nb + (nb === 1 ? ' connection' : ' connections') + ' · ' + D.lines.length + ' voice lines in all';
-    var strip = $('#cx-strip'); strip.hidden = true; strip.replaceChildren();
-    var data = { key: 'web|' + nodes.length + '|' + edges.length, nodes: nodes, edges: edges, focus: G.region ? null : G.center, sel: G.region ? null : G.sel, region: G.region };
-    cxReady(function () {
-      window.LoreConnect.web($('#cx-stage'), data, {
-        pick: function (id) {
-          G.region = '';
-          if (!id || id === G.center) { G.sel = null; render(); renderBond(); return; }
-          var near = neighbours(G.center).some(function (x) { return x.id === id; });
-          if (near && G.sel !== id) { G.sel = id; render(); renderBond(); return; }
-          setCenter(id, near ? G.center : null);
-        },
-        region: function (r) { G.region = G.region === r ? '' : r; G.sel = null; render(); renderBond(); }
-      });
+  // Circle: the centre character with the people they are linked to around them, using the site's own icons.
+  // Big casts come in pages (and by region with the chips), so the ring always has room to breathe.
+  var CR = { page: 0, nodes: {}, layer: null, ro: null, key: '' };
+  function circlePer() { var w = $('#cx-stage').clientWidth || innerWidth; return w < 560 ? 8 : 16; }
+  function renderCircle(c) {
+    cxReady(function () { window.LoreConnect.hide(); });
+    var stage = $('#cx-stage'), all = neighbours(G.center), list = voiceList(), per = circlePer();
+    renderFilters(all);
+    var pages = Math.max(1, Math.ceil(list.length / per));
+    if (CR.page >= pages) CR.page = pages - 1;
+    var items = list.slice(CR.page * per, CR.page * per + per);
+    // keep each region together on the ring
+    items.sort(function (a, b) { return (D.regions.indexOf(regionOf(a.id)) + 1 || 99) - (D.regions.indexOf(regionOf(b.id)) + 1 || 99); });
+    if (G.sel && !items.some(function (x) { return x.id === G.sel; })) {
+      var at = list.map(function (x) { return x.id; }).indexOf(G.sel);
+      if (at >= 0) { CR.page = Math.floor(at / per); return renderCircle(c); }
+      G.sel = null;
+    }
+    // pager under the stage
+    var strip = $('#cx-strip'); strip.replaceChildren(); strip.hidden = pages < 2;
+    if (pages > 1) add(strip, h('div', { class: 'cr-pager' },
+      h('button', { class: 'pg', type: 'button', 'aria-label': 'Previous page', disabled: CR.page === 0 ? '' : null, onclick: function () { CR.page--; G.sel = null; render(); renderBond(); } }, '‹'),
+      h('span', { text: 'Page ' + (CR.page + 1) + ' of ' + pages }),
+      h('button', { class: 'pg', type: 'button', 'aria-label': 'Next page', disabled: CR.page >= pages - 1 ? '' : null, onclick: function () { CR.page++; G.sel = null; render(); renderBond(); } }, '›')));
+    $('#graph-cap').textContent = c.name + ' · ' + (list.length === all.length ? all.length + (all.length === 1 ? ' connection' : ' connections') : list.length + ' of ' + all.length + ' connections');
+    if (!CR.layer || !CR.layer.isConnected) {
+      CR.layer = h('div', { class: 'cr' }); CR.nodes = {};
+      CR.layer.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
+      stage.appendChild(CR.layer);
+      CR.layer.addEventListener('click', function (e) { if (e.target === CR.layer || e.target.tagName === 'svg') selectBond(null); });
+    }
+    CR.layer.hidden = false;
+    if (!CR.ro) { CR.ro = new ResizeObserver(debounce(function () { if (G.view === 'circle') layoutCircle(); }, 120)); CR.ro.observe(stage); }
+    CR.items = items;
+    layoutCircle();
+  }
+  function layoutCircle() {
+    var stage = $('#cx-stage'), layer = CR.layer, items = CR.items || [];
+    var W = stage.clientWidth, H = stage.clientHeight; if (!W) return;
+    var phone = W < 560, n = items.length;
+    // sizes from the real frame: portrait, its name and region under it, and clear space all round
+    var two = !phone && n > 10;
+    var label = phone ? 30 : 34;
+    var ns0 = phone ? 54 : 66;
+    var rx = W / 2 - ns0 / 2 - (phone ? 10 : 22), ry = H / 2 - ns0 / 2 - label - (phone ? 8 : 12);
+    var ix = rx * 0.56, iy = ry * 0.56;
+    var perim = function (a, b, k) { return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b))) / Math.max(1, k); };
+    var kOut = two ? Math.ceil(n / 2) : n, kIn = two ? Math.floor(n / 2) : 0;
+    var gap = Math.min(perim(rx, ry, kOut), kIn ? perim(ix, iy, kIn) : 1e9);
+    var ns = Math.round(Math.max(38, Math.min(ns0, gap * 0.62, two ? (Math.min(rx - ix, ry - iy) - label) * 0.9 : 1e9)));
+    var nc = Math.round(Math.max(64, Math.min(phone ? 96 : 120, (two ? Math.min(ix, iy) : Math.min(rx, ry)) * 1.2 - ns)));
+    layer.style.setProperty('--ns', ns + 'px'); layer.style.setProperty('--nc', nc + 'px');
+    var cx = W / 2, cy = H / 2, pos = {};
+    pos[G.center] = { x: cx, y: cy };
+    items.forEach(function (x, i) {
+      var inner = two && i % 2 === 1, k = two ? Math.floor(i / 2) : i, cnt = inner ? kIn : kOut;
+      var a = -Math.PI / 2 + (k + (inner ? 0.5 : 0)) / cnt * Math.PI * 2;
+      pos[x.id] = { x: cx + Math.cos(a) * (inner ? ix : rx), y: cy + Math.sin(a) * (inner ? iy : ry), x0: x, a: a };
+    });
+    // nodes glide between layouts, including into and out of the centre
+    Object.keys(CR.nodes).forEach(function (id) {
+      if (pos[id]) return;
+      var old = CR.nodes[id]; delete CR.nodes[id]; old.classList.add('out');
+      setTimeout(function () { old.remove(); }, 400);
+    });
+    Object.keys(pos).forEach(function (id, i) {
+      var o = byId[formOf(id)] || byId[id], p = pos[id], node = CR.nodes[id], isC = id === G.center;
+      if (!node) {
+        node = h('button', { class: 'cr-node in', type: 'button', 'data-id': id, style: 'left:' + cx + 'px;top:' + cy + 'px' },
+          h('span', { class: 'cr-face' }, face(o)), h('span', { class: 'cr-name' }, h('b'), h('small')));
+        node.addEventListener('click', function (e) { e.stopPropagation(); if (node.dataset.id === G.center) selectBond(null); else selectBond(node.dataset.id); });
+        node.addEventListener('mouseenter', function () { var e = $('.cr path[data-id="' + node.dataset.id + '"]'); if (e) e.classList.add('hot'); });
+        node.addEventListener('mouseleave', function () { var e = $('.cr path[data-id="' + node.dataset.id + '"]'); if (e) e.classList.remove('hot'); });
+        layer.appendChild(node); CR.nodes[id] = node; void node.offsetWidth;
+      } else {
+        var im = $('img', node), src = IMG + 'icons/' + o.id + '.webp';
+        if (im && im.getAttribute('src') !== src) im.setAttribute('src', src);
+      }
+      $('b', node).textContent = isC ? o.name : shortName(o);
+      $('small', node).textContent = isC ? place(o) : regionOf(id);
+      node.style.setProperty('--rh', regionHue(regionOf(id)));
+      node.style.setProperty('--d', (isC ? 0 : 60 + i * 35) + 'ms');
+      node.className = 'cr-node' + (isC ? ' centre' : '') + (id === G.sel ? ' sel' : '') + (G.sel && id !== G.sel && !isC ? ' dim' : '') + (p.x0 ? ' k-' + dirOf(p.x0) : '');
+      node.style.left = p.x + 'px'; node.style.top = p.y + 'px';
+      node.setAttribute('aria-label', isC ? o.name + ', at the centre' : o.name + ', ' + regionOf(id) + '. Select to read their lines, select again to move them to the centre.');
+      node.setAttribute('aria-pressed', id === G.sel ? 'true' : 'false');
+    });
+    // links: a gentle curve from the centre to each portrait, flowing in the direction of speech
+    var svg = layer.querySelector('svg'), NS = 'http://www.w3.org/2000/svg';
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.replaceChildren();
+    var mk = function (tag, at) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); return e; };
+    // faint orbit guides
+    svg.appendChild(mk('ellipse', { cx: cx, cy: cy, rx: rx, ry: ry, class: 'cr-orbit' }));
+    if (two) svg.appendChild(mk('ellipse', { cx: cx, cy: cy, rx: ix, ry: iy, class: 'cr-orbit' }));
+    items.forEach(function (x, i) {
+      var p = pos[x.id], dx = p.x - cx, dy = p.y - cy, len = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / len, uy = dy / len;
+      var x0 = cx + ux * (nc / 2 + 8), y0 = cy + uy * (nc / 2 + 8), x1 = p.x - ux * (ns / 2 + 6), y1 = p.y - uy * (ns / 2 + 6);
+      var bend = len * 0.12, mx = (x0 + x1) / 2 - uy * bend, my = (y0 + y1) / 2 + ux * bend;
+      var kind = dirOf(x);
+      var path = mk('path', { d: 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1), class: 'cr-link ' + kind + (x.id === G.sel ? ' sel' : '') + (G.sel && x.id !== G.sel ? ' dim' : ''), 'data-id': x.id });
+      path.style.setProperty('--d', (200 + i * 35) + 'ms');
+      svg.appendChild(path);
     });
   }
   var bondKeyShown = '';
@@ -1010,7 +1109,7 @@
       h('div', { class: 'bond-actions' },
         h('button', { class: 'btn', type: 'button', onclick: function () { setCenter(G.sel, null); } }, 'Centre on ' + first(o)),
         h('button', { class: 'btn ghost', type: 'button', onclick: function () { openSheet(o.id); } }, 'Open profile'),
-        G.view === 'web' || !webglOK() ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { selectBond(null); } }, 'Back to list') : null)));
+        G.view !== 'voices' || !webglOK() ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { selectBond(null); } }, 'Back to list') : null)));
   }
 
   // ---------- nav ----------

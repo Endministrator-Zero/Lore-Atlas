@@ -142,11 +142,11 @@ const world = v => head(v) + `<body>
   </section>
 
   <section class="sec wrap" id="connections">
-    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. <b>Voices</b> deals out a card for everyone a character talks about or is talked about by, with the line itself on the card: swipe or drag through them. <b>Web</b> puts the whole cast on one ring, with every voice line woven between them.</p></header>
+    <header class="sec-head"><h2>Connections</h2><p>Drawn from in-game voice lines. <b>Voices</b> deals out a card for everyone a character talks about or is talked about by, with the line itself on the card: swipe or drag through them. <b>Circle</b> places everyone they are linked to around them; select a portrait to read the lines, and select it again to move it to the centre.</p></header>
     <div class="g-bar">
       <div class="g-search"><label><span class="sr">Find someone</span><input id="g-q" type="search" placeholder="Find someone" autocomplete="off"></label><div class="g-results" id="g-results" hidden></div></div>
       <div class="hub-row" id="hub-row" aria-label="Most connected"></div>
-      <div class="chips" id="g-view"><button class="chip on" type="button" data-v="voices" aria-pressed="true"><span>Voices</span></button><button class="chip" type="button" data-v="web" aria-pressed="false"><span>Web</span></button></div>
+      <div class="chips" id="g-view"><button class="chip on" type="button" data-v="voices" aria-pressed="true"><span>Voices</span></button><button class="chip" type="button" data-v="circle" aria-pressed="false"><span>Circle</span></button></div>
       <button class="btn ghost" id="g-random" type="button">Surprise me</button>
     </div>
     <div class="g-filters chips" id="g-filters" hidden></div>
