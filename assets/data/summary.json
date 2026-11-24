@@ -167,7 +167,7 @@
      "name": "Myriad Patterns Unfold",
      "kind": "char",
      "start": "2026-11-04T03:00:00.000Z",
-     "end": "2026-11-24T13:59:00.000Z",
+     "end": "2026-11-24T03:00:00.000Z",
      "chars": [
       "mitya"
      ]
@@ -176,7 +176,7 @@
      "name": "Chanson of Many Waters",
      "kind": "char",
      "start": "2026-11-04T03:00:00.000Z",
-     "end": "2026-11-24T13:59:00.000Z",
+     "end": "2026-11-24T03:00:00.000Z",
      "chars": [
       "furina"
      ]
@@ -184,8 +184,8 @@
     {
      "name": "Harmonious Abundance",
      "kind": "char",
-     "start": "2026-11-24T03:00:00.000Z",
-     "end": "2026-12-16T03:00:00.000Z",
+     "start": "2026-11-24T10:00:00.000Z",
+     "end": "2026-12-15T06:59:59.000Z",
      "chars": [
       "zibai"
      ]
@@ -193,8 +193,8 @@
     {
      "name": "Ya-hoho! Compendium",
      "kind": "char",
-     "start": "2026-11-24T03:00:00.000Z",
-     "end": "2026-12-16T03:00:00.000Z",
+     "start": "2026-11-24T10:00:00.000Z",
+     "end": "2026-12-15T06:59:59.000Z",
      "chars": [
       "linnea"
      ]
@@ -203,7 +203,7 @@
      "name": "Names Forged Beneath Blazing Skies",
      "kind": "chronicle",
      "start": "2026-11-24T03:00:00.000Z",
-     "end": "2026-12-16T03:00:00.000Z",
+     "end": "2026-11-24T10:00:00.000Z",
      "chars": [
       "varesa",
       "chasca",
